@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Kedai Ayam Merdeka</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🍗 Admin Panel - Kedai Ayam Merdeka</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('menu')">Menu</button>
+            <button class="tab-btn" onclick="showTab('pesanan')">Pesanan</button>
+            <button class="tab-btn" onclick="showTab('chat')">Test Chat</button>
+        </div>
+        
+        <div id="menu" class="tab-content active">
+            <h2>Kelola Menu</h2>
+            
+            <div class="form-container">
+                <h3>Tambah Menu Baru</h3>
+                <form id="menuForm">
+                    <input type="text" id="nama_menu" placeholder="Nama Menu" required>
+                    <input type="number" id="harga" placeholder="Harga (Rp)" required>
+                    <input type="text" id="kategori" placeholder="Kategori">
+                    <label>
+                        <input type="checkbox" id="ketersediaan" checked> Tersedia
+                    </label>
+                    <button type="submit">Tambah Menu</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <h3>Daftar Menu</h3>
+                <button onclick="loadMenu()" class="refresh-btn">🔄 Refresh</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Menu</th>
+                            <th>Harga</th>
+                            <th>Kategori</th>
+                            <th>Tersedia</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="menuTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="pesanan" class="tab-content">
+            <h2>Daftar Pesanan</h2>
+            
+            <div class="form-container">
+                <div class="filter-controls">
+                    <select id="statusFilter">
+                        <option value="">Semua Status</option>
+                        <option value="dipesan">Dipesan</option>
+                        <option value="diproses">Diproses</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="batal">Batal</option>
+                    </select>
+                    <button onclick="loadAllPesanan()" class="primary-btn">📋 Load All Orders</button>
+                </div>
+                
+                <div class="search-customer">
+                    <input type="text" id="pelanggan_id" placeholder="Cari berdasarkan No. WA Pelanggan (opsional)">
+                    <button onclick="loadPesananByCustomer()">🔍 Cari Pesanan</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <button onclick="loadAllPesanan()" class="refresh-btn">🔄 Refresh</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pelanggan</th>
+                            <th>No. WA</th>
+                            <th>Detail Pesanan</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Waktu</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pesananTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="chat" class="tab-content">
+            <h2>Test Chatbot</h2>
+            <div class="chat-container">
+                <div class="chat-box" id="chatBox"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatMessage" placeholder="Ketik pesan...">
+                    <button onclick="sendMessage()">Kirim</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button onclick="initDatabase()" class="danger-btn">🗄️ Initialize Database</button>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../static/app.js"></script>
+</body>
+</html>

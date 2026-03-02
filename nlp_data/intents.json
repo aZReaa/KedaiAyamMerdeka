@@ -1,0 +1,242 @@
+{
+  "intents": [
+    {
+      "tag": "salam",
+      "patterns": [
+        "halo", "hai", "selamat pagi", "selamat siang", "selamat sore", "selamat malam",
+        "assalamualaikum", "hi", "hello", "pagi", "siang", "sore", "malam", "ping",
+        "permisi", "min", "halo min", "hai kak", "hallo", "helo", "hei"
+      ],
+      "responses": [
+        "Halo kak! Selamat datang di Kedai Ayam Merdeka 🍗\nMau pesan apa hari ini?",
+        "Hai kak! Ada yang bisa dibantu? Mau lihat menu atau langsung pesan?",
+        "Halo! Selamat datang di Kedai Ayam Merdeka. Ketik 'menu' untuk lihat daftar menu ya!",
+        "Assalamualaikum kak! Silakan pesan, ayam kami dijamin merdeka rasanya!"
+      ]
+    },
+    {
+      "tag": "terima_kasih",
+      "patterns": [
+        "terima kasih", "makasih", "thanks", "thank you", "trims",
+        "makasih ya", "suwun", "hatur nuhun", "thx", "tq", "tengkyu"
+      ],
+      "responses": [
+        "Sama-sama kak! Ditunggu orderan berikutnya di Kedai Ayam Merdeka ya! 😊",
+        "Siap kak! Semoga makanannya cocok di lidah.",
+        "Terima kasih kembali! Selamat menikmati hidangannya!",
+        "Senang bisa melayani kakak. Jangan lupa mampir lagi ya!"
+      ]
+    },
+    {
+      "tag": "pesan_menu",
+      "patterns": [
+        "pesan", "mau pesan", "saya mau pesan", "saya mau", "beli", "ambil",
+        "saya ambil", "order", "order dong", "mau dong", "saya mau dong",
+        "mau beli", "pesen", "mo beli", "ngorder", "minta", "bungkus",
+        "saya pesan", "aku mau", "aku pesan", "gue mau", "gw mau",
+        "pengen", "kepingin", "mau makan", "lihat menu", "menu", "daftar menu"
+      ],
+      "responses": [
+        "Siap kak! Mau pesan menu apa?",
+        "Boleh kak, mau pesan apa hari ini?",
+        "Oke, silakan sebutkan menu dan jumlahnya ya kak!"
+      ]
+    },
+    {
+      "tag": "cek_ketersediaan",
+      "patterns": [
+        "ada tidak", "masih ada", "tersedia tidak", "ready tidak", "ready",
+        "sisa", "stok", "masih ada gak", "ada gak", "tersedia", "habis belum"
+      ],
+      "responses": [
+        "Sebentar saya cek dulu ya kak...",
+        "Menu apa yang mau dicek kak?"
+      ]
+    },
+    {
+      "tag": "rekomendasi_menu",
+      "patterns": [
+        "rekomendasi", "menu favorit", "yang paling enak", "enaknya apa",
+        "bingung mau pesan apa", "menu andalan", "best seller", "yang rekomen",
+        "minta saran", "apa yang enak", "apa yang laris", "paling laku",
+        "bingung", "rekomendasiin dong", "suggest", "saran menu"
+      ],
+      "responses": [
+        "Kalau di Kedai Ayam Merdeka, Ayam Geprek-nya juara kak! Pedasnya bikin nagih 🔥",
+        "Cobain Ayam Bakar kami kak, bumbunya meresap sampai ke tulang!",
+        "Banyak yang suka Ayam Geprek kami kak. Mau cobain?"
+      ]
+    },
+    {
+      "tag": "menu_pedas",
+      "patterns": [
+        "yang pedas", "suka pedas", "menu pedes", "ada yang pedis", "cabai", 
+        "sambal", "spicy", "level pedas"
+      ],
+      "responses": [
+        "Wah, kakak pecinta pedas ya? Wajib coba Ayam Geprek kami! 🌶️",
+        "Untuk yang suka pedas, Ayam Geprek dengan Sambal Bawang paling pas!"
+      ]
+    },
+    {
+      "tag": "info_pembayaran",
+      "patterns": [
+        "cara bayar", "bagaimana cara bayar", "bayar gimana", "bayarnya gimana",
+        "pembayaran", "metode pembayaran", "transfer kemana", "rekening",
+        "nomor rekening", "bayar kemana", "tf kemana", "gimana bayarnya",
+        "cara pembayaran", "bayar pakai apa", "bisa bayar", "pembayarannya bagaimana"
+      ],
+      "responses": [
+        "Pembayaran bisa melalui:\n💳 Transfer Bank BCA: 1234567890\n📱 OVO/GoPay: 081234567890\na.n. Kedai Ayam Merdeka\n\nSetelah transfer, kirim bukti pembayaran ya kak!",
+        "Untuk pembayaran silakan transfer ke:\nBank BCA: 1234567890\na.n. Kedai Ayam Merdeka\n\nKirim bukti transfer setelah bayar ya kak!"
+      ]
+    },
+    {
+      "tag": "lokasi",
+      "patterns": [
+        "lokasi", "alamat", "dimana", "posisi", "buka dimana", "alamatnya dimana",
+        "shareloc", "tempatnya dimana", "lokasinya", "ada dimana", "dimana ya"
+      ],
+      "responses": [
+        "Kedai Ayam Merdeka berlokasi di Jl. Perjuangan No. 45 📍\nDitunggu kedatangannya kak!",
+        "Kami ada di Jl. Perjuangan No. 45. Bisa order langsung atau delivery ya kak!"
+      ]
+    },
+    {
+      "tag": "komplain",
+      "patterns": [
+        "lama banget", "kok belum sampai", "pesanan salah", "kurang", "asin",
+        "tidak enak", "kecewa", "batalin aja kalau lama", "lelet", "kemana pesanan",
+        "mana pesanan", "kapan sampai", "ga enak", "zonk"
+      ],
+      "responses": [
+        "Mohon maaf atas ketidaknyamanannya kak 🙏\nBoleh info ID pesanannya biar kami cek segera?",
+        "Waduh, maaf ya kak. Kami akan perbaiki. Boleh tahu detail masalahnya?"
+      ]
+    },
+    {
+      "tag": "ubah_pesanan",
+      "patterns": [
+        "ubah", "ganti", "ubah pesanan", "ganti pesanan", "rubah",
+        "edit pesanan", "ubah order", "ganti order", "salah pesan", "revisi",
+        "mau ganti", "tuker"
+      ],
+      "responses": [
+        "Siap kak, bagian mana yang mau diubah?",
+        "Boleh kak, mau ganti menu atau jumlahnya?"
+      ]
+    },
+    {
+      "tag": "batalkan_pesanan",
+      "patterns": [
+        "batalkan", "cancel pesanan", "hapus pesanan", "batalin pesanan",
+        "cancel order", "gak jadi pesan", "tidak jadi"
+      ],
+      "responses": [
+        "Yah, kok batal kak? Ada masalah apa?",
+        "Baik kak, pesanan akan dibatalkan."
+      ]
+    },
+    {
+      "tag": "cek_status",
+      "patterns": [
+        "status pesanan", "cek status", "sudah sampai mana", "pesanan saya gimana",
+        "progress", "cek pesanan", "status order", "pesananku", "orderan saya",
+        "sudah selesai belum", "kapan selesai"
+      ],
+      "responses": [
+        "Sebentar kak, saya cek status pesanannya ya.",
+        "Boleh tunggu sebentar ya kak, sedang dicek!"
+      ]
+    },
+    {
+      "tag": "info_promo",
+      "patterns": [
+        "promo", "promo apa", "diskon", "promosi", "ada promo apa",
+        "ada promo", "promo hari ini", "diskon apa", "potongan harga",
+        "ada diskon", "voucher"
+      ],
+      "responses": [
+        "🎉 Promo hari ini: Beli 2 Ayam Geprek GRATIS Es Teh Manis!\nBerlaku sampai jam 5 sore ya kak.",
+        "Pantau terus IG kami @KedaiAyamMerdeka untuk promo terbaru ya kak!"
+      ]
+    },
+    {
+      "tag": "info_jam",
+      "patterns": [
+        "jam buka", "buka jam", "kapan buka", "operasional", "jam operasional",
+        "kapan tutup", "jam tutup", "buka hari apa", "masih buka", "udah buka belum"
+      ],
+      "responses": [
+        "Kedai Ayam Merdeka buka setiap hari:\n🕙 10.00 - 22.00 WIB\nDitunggu kedatangannya kak!",
+        "Kami buka dari jam 10 pagi sampai 10 malam ya kak!"
+      ]
+    },
+    {
+      "tag": "konfirmasi",
+      "patterns": [
+        "ya", "yes", "oke", "ok", "iya", "siap", "betul", "benar", "lanjut", 
+        "sip", "yoi", "gas", "yup", "yap", "okey", "iyah", "yess"
+      ],
+      "responses": [
+        "Oke kak!",
+        "Siap!",
+        "Baiklah kak."
+      ]
+    },
+    {
+      "tag": "pembatalan",
+      "patterns": [
+        "batal", "tidak", "tidak jadi", "no", "jangan", "nanti saja", "cancel", 
+        "tunda", "gak jadi", "ga jadi", "engga", "gak", "ngga"
+      ],
+      "responses": [
+        "Oke kak, tidak apa-apa.",
+        "Baik kak, pesanan dibatalkan."
+      ]
+    },
+    {
+      "tag": "konfirmasi_pembayaran",
+      "patterns": [
+        "sudah bayar", "sudah transfer", "konfirmasi bayar", "lunas",
+        "bukti transfer", "udah tf", "udah bayar", "sudah tf", "udah tranfer"
+      ],
+      "responses": [
+        "Terima kasih kak! ✅\nPesanan kakak sedang kami verifikasi pembayarannya.\nMohon tunggu sebentar ya!",
+        "Mantap kak! Bukti pembayarannya kami proses dulu.\nPesanan akan segera disiapkan!"
+      ]
+    },
+    {
+      "tag": "tanya_harga",
+      "patterns": [
+        "berapa harga", "harga", "harganya berapa", "berapa", "price",
+        "kisaran harga", "range harga", "mahal ga"
+      ],
+      "responses": [
+        "Untuk harga menu kami mulai dari Rp 3.000 sampai Rp 18.000 kak.\nMau lihat menu lengkapnya?",
+        "Harga bervariasi kak. Ketik 'menu' untuk lihat daftar lengkap ya!"
+      ]
+    },
+    {
+      "tag": "delivery",
+      "patterns": [
+        "delivery", "antar", "diantar", "pesan antar", "kirim", "bisa delivery",
+        "bisa antar", "ongkir", "ongkos kirim", "jarak", "area"
+      ],
+      "responses": [
+        "Kami melayani delivery dalam radius 5km dari kedai 🛵\nOngkir mulai Rp 5.000 tergantung jarak.\nMau pesan delivery kak?",
+        "Bisa delivery kak! Ongkir Rp 5.000-15.000 tergantung lokasi."
+      ]
+    },
+    {
+      "tag": "chitchat_baik",
+      "patterns": [
+        "apa kabar", "kabar baik", "baik", "sehat", "lagi apa"
+      ],
+      "responses": [
+        "Alhamdulillah baik kak! Ada yang bisa dibantu hari ini?",
+        "Baik kak, siap melayani! Mau pesan apa?"
+      ]
+    }
+  ]
+}
