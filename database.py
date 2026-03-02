@@ -5,7 +5,8 @@ from config import Config
 class Database:
     def __init__(self):
         self.connection = None
-        self.connect()
+        # Do not connect automatically on init to prevent Gunicorn worker crash
+        # Connection will be established when needed
     
     def connect(self):
         try:
