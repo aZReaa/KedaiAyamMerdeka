@@ -2,16 +2,23 @@ import spacy
 import json
 import re
 from typing import Dict, List, Tuple
+import os
+
+print(f"[BOOT] Initializing NLU module... (PID: {os.getpid()})")
 
 class NLU:
     def __init__(self):
+        print(f"[BOOT] NLU __init__ called. Loading spaCy model...")
         try:
             self.nlp = spacy.load("xx_ent_wiki_sm")
-        except OSError:
-            print("Model spaCy belum diinstall. Install dengan: python -m spacy download xx_ent_wiki_sm")
+            print(f"[BOOT] spaCy model loaded successfully!")
+        except Exception as e:
+            print(f"[BOOT] FATAL ERROR loading spaCy: {e}")
             self.nlp = None
         
+        print(f"[BOOT] Loading intents...")
         self.intents = self._load_intents()
+        print(f"[BOOT] NLU Initialization complete.")
     
     def _load_intents(self) -> Dict:
         try:
