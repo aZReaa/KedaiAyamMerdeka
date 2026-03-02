@@ -6,3 +6,5 @@ werkzeug==3.0.1
 requests==2.31.0
 gunicorn==21.2.0
 https://github.com/explosion/spacy-models/releases/download/xx_ent_wiki_sm-3.7.0/xx_ent_wiki_sm-3.7.0.tar.gz
+thefuzz==0.22.1
+python-Levenshtein==0.27.3
