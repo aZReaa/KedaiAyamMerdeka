@@ -3,6 +3,7 @@ import json
 import re
 from typing import Dict, List, Tuple
 import os
+from thefuzz import fuzz, process
 
 print(f"[BOOT] Initializing NLU module... (PID: {os.getpid()})")
 
@@ -51,37 +52,37 @@ class NLU:
             tag = intent["tag"]
             tag_priority = priority_tags.index(tag) if tag in priority_tags else 50
             
-            for pattern in intent["patterns"]:
-                pattern_lower = pattern.lower()
+            if not intent["patterns"]:
+                continue
                 
-                # Exact match gets highest score
-                if text_lower == pattern_lower:
-                    score = len(pattern) * 3
-                # Pattern contained in text
-                elif pattern_lower in text_lower:
-                    score = len(pattern) * 2
-                # Text contained in pattern (partial)
-                elif text_lower in pattern_lower:
-                    score = len(text_lower)
-                else:
-                    continue
-                
-                # Compare: prefer higher score, then higher priority (lower index)
+            # Gunakan token_set_ratio agar frase urutan kebalik atau typo tetap terdeteksi
+            match = process.extractOne(text_lower, intent["patterns"], scorer=fuzz.token_set_ratio)
+            if match:
+                score = match[1]
                 if score > best_score or (score == best_score and tag_priority < best_priority):
                     best_match = tag
                     best_score = score
                     best_priority = tag_priority
         
+        # Ambang batas skor minimal untuk menghindari salah maksud (false positive)
+        if best_score < 70:
+            return "unknown"
+            
         return best_match
     
-    def extract_entities(self, text: str) -> Dict[str, str]:
+    def extract_entities(self, text: str) -> Dict:
         entities = {
             "NAMA_MENU": None,
             "JUMLAH": None,
-            "JENIS_SAMBAL": None
+            "JENIS_SAMBAL": None,
+            "ITEMS": []
         }
         
         text_lower = text.lower()
+        
+        # Pisahkan berdasarkan kata hubung
+        separators = r'\bdan\b|\bsama\b|\bdengan\b|\bterus\b|\bkasih\b|,|&|\+'
+        parts = re.split(separators, text_lower)
         
         # Menu keywords - more comprehensive
         menu_keywords = [
@@ -93,39 +94,55 @@ class NLU:
             "sate ayam", "sate"
         ]
         
-        # Sort by length descending to match longer patterns first
-        menu_keywords.sort(key=len, reverse=True)
-        
-        for menu in menu_keywords:
-            if menu in text_lower:
-                entities["NAMA_MENU"] = menu
-                break
-        
         # Sambal keywords
         sambal_keywords = ["sambal ijo", "sambal hijau", "sambal bawang", "sambal terasi", 
                           "sambal kecap", "sambal matah", "tanpa sambal", "tidak pakai sambal"]
-        for sambal in sambal_keywords:
-            if sambal in text_lower:
-                entities["JENIS_SAMBAL"] = sambal.replace("sambal hijau", "sambal ijo")
-                break
-        
+                          
         # Number extraction - ordinal words
         angka_ordinal = {
             "satu": "1", "dua": "2", "tiga": "3", "empat": "4", "lima": "5",
             "enam": "6", "tujuh": "7", "delapan": "8", "sembilan": "9", "sepuluh": "10",
-            "seporsi": "1", "se porsi": "1", "sebuah": "1"
+            "seporsi": "1", "se porsi": "1", "sebungkus": "1", "segelas": "1"
         }
         
-        for word, value in angka_ordinal.items():
-            if word in text_lower:
-                entities["JUMLAH"] = value
-                break
-        
-        # Numeric extraction (override ordinal if explicit number found)
-        numbers = re.findall(r'\d+', text)
-        if numbers:
-            entities["JUMLAH"] = numbers[0]
-        
+        for part in parts:
+            part = part.strip()
+            if not part: continue
+            
+            item_entity = {
+                "NAMA_MENU": None,
+                "JUMLAH": None,
+                "JENIS_SAMBAL": None
+            }
+            
+            # Use fuzzy matching for menu items
+            best_menu_match = process.extractOne(part, menu_keywords, scorer=fuzz.token_set_ratio)
+            if best_menu_match and best_menu_match[1] >= 75:
+                item_entity["NAMA_MENU"] = best_menu_match[0]
+                
+            best_sambal_match = process.extractOne(part, sambal_keywords, scorer=fuzz.token_set_ratio)
+            if best_sambal_match and best_sambal_match[1] >= 80:
+                item_entity["JENIS_SAMBAL"] = best_sambal_match[0].replace("sambal hijau", "sambal ijo")
+            
+            for word, value in angka_ordinal.items():
+                if word in part:
+                    item_entity["JUMLAH"] = value
+                    break
+            
+            if not item_entity["JUMLAH"]:
+                numbers = re.findall(r'\d+', part)
+                if numbers:
+                    item_entity["JUMLAH"] = numbers[0]
+                    
+            if item_entity["NAMA_MENU"]:
+                entities["ITEMS"].append(item_entity)
+                
+        # For backward compatibility
+        if entities["ITEMS"]:
+            entities["NAMA_MENU"] = entities["ITEMS"][0]["NAMA_MENU"]
+            entities["JUMLAH"] = entities["ITEMS"][0]["JUMLAH"]
+            entities["JENIS_SAMBAL"] = entities["ITEMS"][0]["JENIS_SAMBAL"]
+            
         return entities
     
     def process(self, text: str) -> Tuple[str, Dict[str, str]]:

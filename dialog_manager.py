@@ -6,8 +6,6 @@ from datetime import datetime
 
 class DialogManager:
     def __init__(self):
-        self.user_states = {}
-        
         # Menu yang perlu tanya sambal
         self.MENU_NEED_SAMBAL = ['ayam geprek', 'ayam bakar', 'ayam goreng', 'ayam penyet', 'ayam crispy']
         
@@ -15,27 +13,13 @@ class DialogManager:
         self.SAMBAL_OPTIONS = ['sambal bawang', 'sambal ijo', 'sambal terasi', 'sambal matah', 'tanpa sambal']
     
     def get_user_state(self, user_id: str) -> dict:
-        if user_id not in self.user_states:
-            self.user_states[user_id] = {
-                'state': 'idle',
-                'data': {},
-                'cart': []
-            }
-        return self.user_states[user_id]
+        return db.get_user_state(user_id)
     
     def update_user_state(self, user_id: str, state: str, data: dict = None):
-        if user_id not in self.user_states:
-            self.user_states[user_id] = {'state': state, 'data': {}, 'cart': []}
-        self.user_states[user_id]['state'] = state
-        if data:
-            self.user_states[user_id]['data'].update(data)
+        db.update_user_state(user_id, state, data)
     
     def reset_user_state(self, user_id: str):
-        self.user_states[user_id] = {
-            'state': 'idle',
-            'data': {},
-            'cart': []
-        }
+        db.reset_user_state(user_id)
     
     def generate_response(self, user_id: str, message: str) -> str:
         """Main response generator with improved flow handling."""
@@ -162,35 +146,57 @@ class DialogManager:
         return f"Halo kak! Ada yang bisa dibantu?\n\n{menu_list}\n\n💡 Ketik 'pesan' untuk mulai memesan!"
     
     def _start_ordering_flow(self, user_id: str, entities: dict) -> str:
-        """Start the ordering flow with detected menu."""
-        menu_name = entities.get('NAMA_MENU')
-        jumlah = entities.get('JUMLAH')
-        sambal = entities.get('JENIS_SAMBAL')
+        """Start the ordering flow with multi-item support."""
+        items = entities.get('ITEMS', [])
         
-        menu = db.get_menu_by_name(menu_name)
-        if not menu:
-            return f"Maaf kak, *{menu_name}* tidak tersedia 😔\n\n{self._format_menu_list()}"
+        if not items and entities.get('NAMA_MENU'):
+            items = [{
+                'NAMA_MENU': entities.get('NAMA_MENU'),
+                'JUMLAH': entities.get('JUMLAH'),
+                'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
+            }]
+            
+        if not items:
+            return "Maaf kak, pesanan tidak terbaca. Mau pesan apa?"
+            
+        state = self.get_user_state(user_id)
+        cart = state.get('cart', [])
+        if state['state'] not in ['asking_menu', 'confirming']:
+            cart = []
+            
+        not_found = []
         
-        state_data = {
-            'NAMA_MENU': menu_name,
-            'menu_detail': menu,
-            'JUMLAH': jumlah,
-            'JENIS_SAMBAL': sambal
-        }
-        
-        # Check what info we still need
-        if not jumlah:
-            self.update_user_state(user_id, 'asking_quantity', state_data)
-            return f"Oke, *{menu['nama_menu']}* ya kak! 👍\n\nMau pesan berapa porsi?"
-        
-        # Check if this menu needs sambal preference
-        needs_sambal = any(m in menu_name.lower() for m in self.MENU_NEED_SAMBAL)
-        if needs_sambal and not sambal:
-            self.update_user_state(user_id, 'asking_sambal', state_data)
-            return self._ask_sambal_preference(menu['nama_menu'], jumlah)
-        
-        # All info complete, go to confirmation
-        return self._go_to_confirmation(user_id, state_data)
+        for item in items:
+            menu_name = item.get('NAMA_MENU')
+            if not menu_name: continue
+            
+            menu = db.get_menu_by_name(menu_name)
+            if not menu:
+                not_found.append(menu_name)
+            else:
+                cart.append({
+                    'menu_detail': menu,
+                    'JUMLAH': item.get('JUMLAH') or '1',
+                    'JENIS_SAMBAL': item.get('JENIS_SAMBAL')
+                })
+                
+        if not cart:
+            nf_msg = ", ".join(not_found)
+            return f"Maaf kak, menu *{nf_msg}* tidak tersedia 😔\n\n{self._format_menu_list()}"
+            
+        msg_prefix = ""
+        if not_found:
+            msg_prefix = f"Maaf kak, menu *{', '.join(not_found)}* tidak tersedia jadi tidak kami masukkan ya.\n\n"
+            
+        # Check if any item needs sambal
+        for idx, cart_item in enumerate(cart):
+            menu_name = cart_item['menu_detail']['nama_menu'].lower()
+            needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
+            if needs_sambal and not cart_item.get('JENIS_SAMBAL'):
+                self.update_user_state(user_id, 'asking_sambal', {'cart_index': idx}, cart=cart)
+                return msg_prefix + self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
+                
+        return msg_prefix + self._go_to_confirmation(user_id, cart)
     
     def _handle_asking_menu_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle when bot is asking for menu choice."""
@@ -210,49 +216,15 @@ class DialogManager:
         return f"Maaf kak, menu tidak ditemukan 😔\n\nSilakan pilih dari:\n{self._format_menu_list()}"
     
     def _handle_asking_quantity_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
-        """Handle when bot is asking for quantity."""
-        state_data = state['data']
-        
-        if intent == 'pembatalan' or intent == 'batalkan_pesanan':
-            self.reset_user_state(user_id)
-            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' 😊"
-        
-        # Extract quantity from entities or message
-        jumlah = entities.get('JUMLAH')
-        if not jumlah:
-            # Try to find number in message
-            import re
-            numbers = re.findall(r'\d+', message)
-            if numbers:
-                jumlah = numbers[0]
-            else:
-                # Check ordinal words
-                ordinals = {'satu': '1', 'dua': '2', 'tiga': '3', 'empat': '4', 'lima': '5',
-                           'enam': '6', 'tujuh': '7', 'delapan': '8', 'sembilan': '9', 'sepuluh': '10'}
-                for word, num in ordinals.items():
-                    if word in message.lower():
-                        jumlah = num
-                        break
-        
-        if not jumlah:
-            return "Mau berapa porsi kak? Ketik angkanya ya (contoh: 1, 2, atau 3)"
-        
-        state_data['JUMLAH'] = jumlah
-        menu_name = state_data.get('NAMA_MENU', '')
-        
-        # Check if need sambal
-        needs_sambal = any(m in menu_name.lower() for m in self.MENU_NEED_SAMBAL)
-        if needs_sambal and not state_data.get('JENIS_SAMBAL'):
-            self.update_user_state(user_id, 'asking_sambal', state_data)
-            menu = state_data.get('menu_detail', {})
-            return self._ask_sambal_preference(menu.get('nama_menu', menu_name), jumlah)
-        
-        # Go to confirmation
-        return self._go_to_confirmation(user_id, state_data)
+        # Kept for backward compatibility but bypassed by _start_ordering_flow defaulting JUMLAH to 1
+        return self._start_ordering_flow(user_id, entities)
     
     def _handle_asking_sambal_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle when bot is asking for sambal preference."""
         state_data = state['data']
+        cart = state.get('cart', [])
+        idx = state_data.get('cart_index', 0)
+        
         msg_lower = message.lower().strip()
         
         print(f"[DEBUG] Asking Sambal - Message: '{message}'")
@@ -283,24 +255,39 @@ class DialogManager:
                 import re
                 nums = re.findall(r'\d', message)
                 if nums:
-                    idx = int(nums[0]) - 1
-                    if 0 <= idx < len(self.SAMBAL_OPTIONS):
-                        sambal = self.SAMBAL_OPTIONS[idx]
-                        print(f"[DEBUG] Sambal selected by number: {idx+1} -> {sambal}")
+                    val = int(nums[0]) - 1
+                    if 0 <= val < len(self.SAMBAL_OPTIONS):
+                        sambal = self.SAMBAL_OPTIONS[val]
+                        print(f"[DEBUG] Sambal selected by number: {val+1} -> {sambal}")
         
-        # If still no sambal detected, ask again with hint
         if not sambal:
-            menu_name = state_data.get('NAMA_MENU', '')
-            jumlah = state_data.get('JUMLAH', '1')
-            return f"""Maaf kak, pilihan sambal tidak valid 😅
+            if idx < len(cart):
+                cart_item = cart[idx]
+                menu_name = cart_item['menu_detail']['nama_menu']
+                jumlah = cart_item['JUMLAH']
+                return f"""Maaf kak, pilihan sambal tidak valid 😅
 
 {self._ask_sambal_preference(menu_name, jumlah)}
 
 💡 *Tip:* Balas dengan angka (1-5) atau nama sambal (contoh: "bawang" atau "ijo")"""
+            else:
+                return "Maaf kak, pesanan tidak valid."
         
         print(f"[DEBUG] Sambal confirmed: {sambal}")
-        state_data['JENIS_SAMBAL'] = sambal
-        return self._go_to_confirmation(user_id, state_data)
+        if idx < len(cart):
+            cart[idx]['JENIS_SAMBAL'] = sambal
+            
+        # Check if there are other items needing sambal
+        for next_idx in range(idx + 1, len(cart)):
+            cart_item = cart[next_idx]
+            menu_name = cart_item['menu_detail']['nama_menu'].lower()
+            needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
+            if needs_sambal and not cart_item.get('JENIS_SAMBAL'):
+                self.update_user_state(user_id, 'asking_sambal', {'cart_index': next_idx}, cart=cart)
+                return self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
+                
+        # All complete
+        return self._go_to_confirmation(user_id, cart)
     
     def _ask_sambal_preference(self, menu_name: str, jumlah: str) -> str:
         """Generate sambal preference question."""
@@ -316,66 +303,75 @@ class DialogManager:
 {options}
 Balas dengan angka (1-5) atau nama sambalnya"""
     
-    def _go_to_confirmation(self, user_id: str, state_data: dict) -> str:
+    def _go_to_confirmation(self, user_id: str, cart: list) -> str:
         """Generate confirmation message and update state."""
-        menu_name = state_data.get('NAMA_MENU')
-        menu = state_data.get('menu_detail') or db.get_menu_by_name(menu_name)
-        
-        if not menu:
+        if not cart:
             self.reset_user_state(user_id)
-            return "Maaf ada kesalahan. Silakan pesan ulang kak."
+            return "Keranjang kosong."
+            
+        total_harga = 0
+        details = []
         
-        jumlah = state_data.get('JUMLAH', '1')
-        jumlah_int = int(jumlah) if str(jumlah).isdigit() else 1
-        sambal = state_data.get('JENIS_SAMBAL', '')
+        for item in cart:
+            menu = item['menu_detail']
+            jumlah = int(item['JUMLAH']) if str(item['JUMLAH']).isdigit() else 1
+            sambal = item.get('JENIS_SAMBAL', '')
+            
+            subtotal = menu['harga'] * jumlah
+            total_harga += subtotal
+            
+            detail_str = f"{jumlah} {menu['nama_menu']}"
+            if sambal: detail_str += f" ({sambal.title()})"
+            details.append(detail_str)
+            
+        detail_text = "\n".join([f"• {d}" for d in details])
         
-        total = menu['harga'] * jumlah_int
-        
-        state_data['total_harga'] = total
-        state_data['harga_satuan'] = menu['harga']
-        state_data['menu_detail'] = menu
-        state_data['JUMLAH'] = str(jumlah_int)
-        
-        self.update_user_state(user_id, 'confirming', state_data)
-        
-        sambal_text = f"\n🌶️ Sambal: {sambal.title()}" if sambal else ""
+        # Save to state
+        self.update_user_state(user_id, 'confirming', {
+            'total_harga': total_harga,
+            'details_list': details,
+            'detail_text': detail_text
+        }, cart=cart)
         
         return f"""📝 *KONFIRMASI PESANAN*
 
-🍽️ Menu: {menu['nama_menu']}
-📦 Jumlah: {jumlah_int} porsi{sambal_text}
-💰 Total: Rp {total:,}
+{detail_text}
+💰 Total: Rp {total_harga:,}
 
 ━━━━━━━━━━━━━━━━
 ✅ Balas *YA* untuk konfirmasi
-❌ Balas *BATAL* untuk membatalkan"""
+❌ Balas *BATAL* untuk membatalkan
+🛒 Balas *TAMBAH* jika ada yang kurang"""
     
     def _handle_confirming_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle order confirmation."""
         state_data = state['data']
         msg_lower = message.lower().strip()
         
+        # User wants to add more
+        if 'tambah' in msg_lower or 'pesan lagi' in msg_lower or entities.get('ITEMS'):
+            if entities.get('ITEMS'):
+                return self._start_ordering_flow(user_id, entities)
+            else:
+                return f"Boleh kak, mau tambah pesanan apa?\n\n{self._format_menu_list()}"
+                
         # User confirms
-        if intent == 'konfirmasi' or msg_lower in ['ya', 'yes', 'iya', 'ok', 'oke', 'siap', 'lanjut', 'gas', 'y']:
-            menu = state_data.get('menu_detail', {})
-            menu_name = menu.get('nama_menu', state_data.get('NAMA_MENU', ''))
-            jumlah = state_data.get('JUMLAH', '1')
-            sambal = state_data.get('JENIS_SAMBAL', '')
+        if intent == 'konfirmasi' or msg_lower in ['ya', 'yes', 'iya', 'ok', 'oke', 'siap', 'lanjut', 'gas', 'y', 'betul']:
             total = state_data.get('total_harga', 0)
+            detail_text = state_data.get('detail_text', '')
+            details_list = state_data.get('details_list', [])
             
-            detail = menu_name
-            if sambal:
-                detail += f" ({sambal})"
-            detail += f" x {jumlah} porsi"
+            full_detail = ", ".join(details_list)
             
-            pesanan_id = db.create_pesanan(user_id, detail, total)
+            pesanan_id = db.create_pesanan(user_id, full_detail, total)
             
-            self.update_user_state(user_id, 'awaiting_payment', {'id_pesanan': pesanan_id, 'total': total, 'detail': detail})
+            self.update_user_state(user_id, 'awaiting_payment', {'id_pesanan': pesanan_id, 'total': total, 'detail': detail_text})
             
             return f"""✅ *PESANAN BERHASIL DIBUAT!*
 
 📋 ID Pesanan: #{pesanan_id}
-🍽️ {detail}
+
+{detail_text}
 💰 Total: Rp {total:,}
 
 ━━━━━━━━━━━━━━━━
@@ -387,19 +383,9 @@ Balas dengan angka (1-5) atau nama sambalnya"""
         elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or msg_lower in ['batal', 'tidak', 'no', 'cancel', 'gak jadi', 'n']:
             self.reset_user_state(user_id)
             return "❌ Pesanan dibatalkan.\n\nMau pesan lagi? Ketik 'menu' 😊"
-        
-        # Change sambal
-        elif 'ganti sambal' in msg_lower or 'ubah sambal' in msg_lower:
-            self.update_user_state(user_id, 'asking_sambal', state_data)
-            return self._ask_sambal_preference(state_data.get('NAMA_MENU', ''), state_data.get('JUMLAH', '1'))
-        
-        # Change quantity
-        elif 'ganti jumlah' in msg_lower or 'ubah jumlah' in msg_lower:
-            self.update_user_state(user_id, 'asking_quantity', state_data)
-            return "Mau ganti jadi berapa porsi kak?"
-        
+            
         else:
-            return "Mohon konfirmasi pesanan:\n\n✅ Balas *YA* untuk konfirmasi\n❌ Balas *BATAL* untuk membatalkan\n\n💡 Atau ketik 'ganti sambal'/'ganti jumlah' untuk mengubah"
+            return "Mohon konfirmasi pesanan:\n\n✅ Balas *YA* untuk memproses pesanan\n❌ Balas *BATAL* untuk membatalkan\n🛒 Balas *TAMBAH* jika ada yang kurang"
     
     def _handle_awaiting_payment_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle payment confirmation state."""

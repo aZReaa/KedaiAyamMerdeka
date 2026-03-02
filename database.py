@@ -79,6 +79,17 @@ class Database:
                 )
             """)
             
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS conversation_states (
+                    id_pelanggan VARCHAR(20) PRIMARY KEY,
+                    state VARCHAR(50) DEFAULT 'idle',
+                    data TEXT,
+                    cart TEXT,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan)
+                )
+            """)
+            
             self.connection.commit()
             print("Tabel database berhasil dibuat")
             
@@ -243,6 +254,70 @@ class Database:
         finally:
             cursor.close()
     
+    def get_user_state(self, id_pelanggan):
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return {'state': 'idle', 'data': {}, 'cart': []}
+        try:
+            # Pastikan pelanggan ada
+            self.insert_or_update_pelanggan(id_pelanggan, "Pelanggan")
+            
+            query = "SELECT state, data, cart FROM conversation_states WHERE id_pelanggan = %s"
+            cursor.execute(query, (id_pelanggan,))
+            result = cursor.fetchone()
+            
+            if result:
+                import json
+                data = json.loads(result['data']) if result['data'] else {}
+                cart = json.loads(result['cart']) if result['cart'] else []
+                return {'state': result['state'], 'data': data, 'cart': cart}
+            else:
+                return {'state': 'idle', 'data': {}, 'cart': []}
+        except Error as e:
+            print(f"Error get user state: {e}")
+            return {'state': 'idle', 'data': {}, 'cart': []}
+        finally:
+            if cursor: cursor.close()
+
+    def update_user_state(self, id_pelanggan, state, data=None, cart=None):
+        cursor = self.get_cursor()
+        if not cursor: return False
+        try:
+            # Pastikan pelanggan ada
+            self.insert_or_update_pelanggan(id_pelanggan, "Pelanggan")
+            
+            import json
+            current = self.get_user_state(id_pelanggan)
+            
+            new_data = current['data']
+            if data is not None:
+                new_data.update(data)
+                
+            new_cart = cart if cart is not None else current['cart']
+            
+            query = """
+                INSERT INTO conversation_states (id_pelanggan, state, data, cart) 
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE state = %s, data = %s, cart = %s
+            """
+            
+            data_json = json.dumps(new_data)
+            cart_json = json.dumps(new_cart)
+            
+            cursor.execute(query, (
+                id_pelanggan, state, data_json, cart_json,
+                state, data_json, cart_json
+            ))
+            self.connection.commit()
+            return True
+        except Error as e:
+            print(f"Error update user state: {e}")
+            return False
+        finally:
+            if cursor: cursor.close()
+
+    def reset_user_state(self, id_pelanggan):
+        return self.update_user_state(id_pelanggan, 'idle', {}, [])
+
     def close(self):
         if self.connection and self.connection.is_connected():
             self.connection.close()
