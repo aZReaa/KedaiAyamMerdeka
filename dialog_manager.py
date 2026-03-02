@@ -15,8 +15,8 @@ class DialogManager:
     def get_user_state(self, user_id: str) -> dict:
         return db.get_user_state(user_id)
     
-    def update_user_state(self, user_id: str, state: str, data: dict = None):
-        db.update_user_state(user_id, state, data)
+    def update_user_state(self, user_id: str, state: str, data: dict = None, cart: list = None):
+        db.update_user_state(user_id, state, data, cart)
     
     def reset_user_state(self, user_id: str):
         db.reset_user_state(user_id)

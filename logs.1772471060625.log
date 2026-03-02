@@ -1,0 +1,837 @@
+2026-03-02T16:59:46.633356617Z [inf]  Starting Container
+2026-03-02T16:59:46.920716644Z [inf]  [BOOT] app.py starting... (PID: 1)
+2026-03-02T16:59:46.920722257Z [inf]  [BOOT] Initializing NLU module... (PID: 1)
+2026-03-02T16:59:46.920727743Z [inf]  [BOOT] NLU __init__ called. Loading spaCy model...
+2026-03-02T16:59:48.471206807Z [err]  [33mPress CTRL+C to quit[0m
+2026-03-02T16:59:48.471211000Z [inf]  [BOOT] spaCy model loaded successfully!
+2026-03-02T16:59:48.471216175Z [inf]  [BOOT] Loading intents...
+2026-03-02T16:59:48.471221073Z [inf]  [BOOT] NLU Initialization complete.
+2026-03-02T16:59:48.471227402Z [inf]  [BOOT] All modules imported successfully!
+2026-03-02T16:59:48.471231726Z [inf]  [BOOT] Flask app created and ready to serve!
+2026-03-02T16:59:48.471236121Z [inf]  [BOOT] Starting Flask on port 8080...
+2026-03-02T16:59:48.471241019Z [inf]   * Serving Flask app 'app'
+2026-03-02T16:59:48.471245352Z [inf]   * Debug mode: off
+2026-03-02T16:59:48.471249870Z [err]  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2026-03-02T16:59:48.471253918Z [err]   * Running on all addresses (0.0.0.0)
+2026-03-02T16:59:48.471258781Z [err]   * Running on http://127.0.0.1:8080
+2026-03-02T16:59:48.471262708Z [err]   * Running on http://10.243.151.128:8080
+2026-03-02T16:59:54.349941744Z [inf]  Stopping Container
+2026-03-02T17:00:58.809633683Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:00:58.809656511Z [inf]        "id": 1441958956,
+2026-03-02T17:00:58.809668192Z [inf]        "first_name": "unkown",
+2026-03-02T17:00:58.809672774Z [inf]  
+2026-03-02T17:00:58.809678797Z [inf]        "username": "yashehew",
+2026-03-02T17:00:58.809681269Z [inf]  ==================================================
+2026-03-02T17:00:58.809688153Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:00:58.809689279Z [inf]        "type": "private"
+2026-03-02T17:00:58.809695543Z [inf]  ==================================================
+2026-03-02T17:00:58.809699477Z [inf]      },
+2026-03-02T17:00:58.809701065Z [inf]  Data: {
+2026-03-02T17:00:58.809705921Z [inf]    "update_id": 69411131,
+2026-03-02T17:00:58.809710471Z [inf]      "date": 1772470849,
+2026-03-02T17:00:58.809714086Z [inf]    "message": {
+2026-03-02T17:00:58.809719303Z [inf]      "message_id": 117,
+2026-03-02T17:00:58.809722147Z [inf]      "text": "hai"
+2026-03-02T17:00:58.809725005Z [inf]      "from": {
+2026-03-02T17:00:58.809730577Z [inf]        "id": 1441958956,
+2026-03-02T17:00:58.809733592Z [inf]    }
+2026-03-02T17:00:58.809736715Z [inf]        "is_bot": false,
+2026-03-02T17:00:58.809742212Z [inf]        "first_name": "unkown",
+2026-03-02T17:00:58.809744571Z [inf]  }
+2026-03-02T17:00:58.809748210Z [inf]        "username": "yashehew",
+2026-03-02T17:00:58.809754248Z [inf]        "language_code": "en"
+2026-03-02T17:00:58.809756641Z [inf]  
+2026-03-02T17:00:58.809760073Z [inf]      },
+2026-03-02T17:00:58.809765857Z [inf]      "chat": {
+2026-03-02T17:00:58.809766680Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:00:58.809774833Z [inf]  💬 Pesan: hai
+2026-03-02T17:00:58.809781891Z [inf]  Koneksi database terputus. Mencoba menghubungkan ulang...
+2026-03-02T17:00:58.809788618Z [inf]  Berhasil terkoneksi ke database MySQL
+2026-03-02T17:00:58.810092759Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: salam | Entities: {'NAMA_MENU': None, 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': []}
+2026-03-02T17:00:58.810099226Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:00:58.810099667Z [inf]  Token: SET
+2026-03-02T17:00:58.810099888Z [inf]  Response: {
+2026-03-02T17:00:58.810106326Z [inf]  
+2026-03-02T17:00:58.810125230Z [inf]  🤖 Balasan: Selamat sore kak! Selamat datang di Kedai Ayam Merdeka 🍗
+2026-03-02T17:00:58.810129383Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:00:58.810130446Z [inf]      },
+2026-03-02T17:00:58.810134955Z [inf]    "ok": true,
+2026-03-02T17:00:58.810135083Z [inf]  
+2026-03-02T17:00:58.810138991Z [inf]  To: 1441958956
+2026-03-02T17:00:58.810141128Z [inf]      "chat": {
+2026-03-02T17:00:58.810145708Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:00:58.810147648Z [inf]    "result": {
+2026-03-02T17:00:58.810148413Z [inf]  Text: Selamat sore kak! Selamat datang di Kedai Ayam Mer...
+2026-03-02T17:00:58.810151625Z [inf]        "id": 1441958956,
+2026-03-02T17:00:58.810156460Z [inf]  
+2026-03-02T17:00:58.810157152Z [inf]      "message_id": 118,
+2026-03-02T17:00:58.810158081Z [inf]  
+2026-03-02T17:00:58.810166088Z [inf]      "from": {
+2026-03-02T17:00:58.810166649Z [inf]  *Ayam:*
+2026-03-02T17:00:58.810166860Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:00:58.810174311Z [inf]        "id": 8476689629,
+2026-03-02T17:00:58.810176380Z [inf]  • Aya...
+2026-03-02T17:00:58.810179353Z [inf]  Status Code: 200
+2026-03-02T17:00:58.810185523Z [inf]        "is_bot": true,
+2026-03-02T17:00:58.810186080Z [inf]  
+2026-03-02T17:00:58.810195515Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:00:58.810195802Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:00:58.810456690Z [inf]      "message_id": 119,
+2026-03-02T17:00:58.810465760Z [inf]      "from": {
+2026-03-02T17:00:58.810469375Z [inf]        "first_name": "unkown",
+2026-03-02T17:00:58.810474629Z [inf]        "id": 1441958956,
+2026-03-02T17:00:58.810479455Z [inf]        "username": "yashehew",
+2026-03-02T17:00:58.810485943Z [inf]        "type": "private"
+2026-03-02T17:00:58.810487225Z [inf]        "is_bot": false,
+2026-03-02T17:00:58.810492580Z [inf]      },
+2026-03-02T17:00:58.810497235Z [inf]        "first_name": "unkown",
+2026-03-02T17:00:58.810499605Z [inf]      "date": 1772470851,
+2026-03-02T17:00:58.810507530Z [inf]        "username": "yashehew",
+2026-03-02T17:00:58.810508043Z [inf]      "text": "Selamat sore kak! Selamat datang di Kedai Ayam Merdeka \ud83c\udf57\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00\n\n\n\u23f0 Jam Operasional: 10:00 - 22:00"
+2026-03-02T17:00:58.810513952Z [inf]    }
+2026-03-02T17:00:58.810518943Z [inf]  }
+2026-03-02T17:00:58.810524054Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:00:58.810528626Z [err]  100.64.0.2 - - [02/Mar/2026 17:00:51] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:00:58.810532794Z [inf]  
+2026-03-02T17:00:58.810538052Z [inf]  ==================================================
+2026-03-02T17:00:58.810542640Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:00:58.810547496Z [inf]  ==================================================
+2026-03-02T17:00:58.810553345Z [inf]  Data: {
+2026-03-02T17:00:58.810558419Z [inf]    "update_id": 69411132,
+2026-03-02T17:00:58.810563256Z [inf]    "message": {
+2026-03-02T17:00:58.811136698Z [inf]  *Ayam:*
+2026-03-02T17:00:58.811142156Z [inf]        "language_code": "en"
+2026-03-02T17:00:58.811144438Z [inf]  • Ayam Geprek - R...
+2026-03-02T17:00:58.811149127Z [inf]      },
+2026-03-02T17:00:58.811152090Z [inf]  
+2026-03-02T17:00:58.811154992Z [inf]      "chat": {
+2026-03-02T17:00:58.811159466Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:00:58.811160933Z [inf]        "id": 1441958956,
+2026-03-02T17:00:58.811167135Z [inf]  Token: SET
+2026-03-02T17:00:58.811167970Z [inf]        "first_name": "unkown",
+2026-03-02T17:00:58.811174025Z [inf]        "username": "yashehew",
+2026-03-02T17:00:58.811180618Z [inf]        "type": "private"
+2026-03-02T17:00:58.811187112Z [inf]      },
+2026-03-02T17:00:58.811192931Z [inf]      "date": 1772470857,
+2026-03-02T17:00:58.811198602Z [inf]      "text": "saya mau pesan esteh sama nasi"
+2026-03-02T17:00:58.811204316Z [inf]    }
+2026-03-02T17:00:58.811210757Z [inf]  }
+2026-03-02T17:00:58.811216196Z [inf]  
+2026-03-02T17:00:58.811222110Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:00:58.811228081Z [inf]  💬 Pesan: saya mau pesan esteh sama nasi
+2026-03-02T17:00:58.811233916Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:00:58.811240846Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'nasi putih', 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'nasi putih', 'JUMLAH': None, 'JENIS_SAMBAL': None}]}
+2026-03-02T17:00:58.811245248Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:00:58.811250003Z [inf]  
+2026-03-02T17:00:58.811254568Z [inf]  🤖 Balasan: Maaf kak, menu *nasi putih* tidak tersedia 😔
+2026-03-02T17:00:58.811258325Z [inf]  
+2026-03-02T17:00:58.811262627Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:00:58.811268712Z [inf]  
+2026-03-02T17:00:58.811693947Z [inf]  Status Code: 200
+2026-03-02T17:00:58.811700275Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:00:58.811700563Z [inf]  Response: {
+2026-03-02T17:00:58.811705254Z [inf]    "ok": true,
+2026-03-02T17:00:58.811711577Z [inf]    "result": {
+2026-03-02T17:00:58.811712217Z [inf]  To: 1441958956
+2026-03-02T17:00:58.811715635Z [inf]      "from": {
+2026-03-02T17:00:58.811717485Z [inf]      "date": 1772470858,
+2026-03-02T17:00:58.811719388Z [inf]      "message_id": 120,
+2026-03-02T17:00:58.811723073Z [inf]  Text: Maaf kak, menu *nasi putih* tidak tersedia 😔
+2026-03-02T17:00:58.811725534Z [inf]        "id": 8476689629,
+2026-03-02T17:00:58.811727601Z [inf]      "text": "Maaf kak, menu *nasi putih* tidak tersedia \ud83d\ude14\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00"
+2026-03-02T17:00:58.811733356Z [inf]  
+2026-03-02T17:00:58.811734114Z [inf]        "is_bot": true,
+2026-03-02T17:00:58.811735985Z [inf]      "chat": {
+2026-03-02T17:00:58.811744720Z [inf]  📋 *M...
+2026-03-02T17:00:58.811744784Z [inf]        "id": 1441958956,
+2026-03-02T17:00:58.811746117Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:00:58.811754912Z [inf]        "first_name": "unkown",
+2026-03-02T17:00:58.811755130Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:00:58.811756221Z [inf]  
+2026-03-02T17:00:58.811762209Z [inf]        "username": "yashehew",
+2026-03-02T17:00:58.811763066Z [inf]      },
+2026-03-02T17:00:58.811768245Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:00:58.811769853Z [inf]        "type": "private"
+2026-03-02T17:00:58.811775523Z [inf]      },
+2026-03-02T17:00:58.811851653Z [inf]    }
+2026-03-02T17:00:58.811858679Z [inf]  }
+2026-03-02T17:00:58.811866783Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:00:58.811873538Z [err]  100.64.0.3 - - [02/Mar/2026 17:00:58] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:01:28.851897334Z [inf]      "chat": {
+2026-03-02T17:01:28.851908998Z [inf]        "id": 1441958956,
+2026-03-02T17:01:28.851915384Z [inf]  
+2026-03-02T17:01:28.851916529Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:28.851922903Z [inf]  ==================================================
+2026-03-02T17:01:28.851923753Z [inf]        "username": "yashehew",
+2026-03-02T17:01:28.851929461Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:01:28.851931249Z [inf]        "type": "private"
+2026-03-02T17:01:28.851935118Z [inf]  ==================================================
+2026-03-02T17:01:28.851938832Z [inf]      },
+2026-03-02T17:01:28.851942707Z [inf]  Data: {
+2026-03-02T17:01:28.851947853Z [inf]      "date": 1772470880,
+2026-03-02T17:01:28.851951622Z [inf]    "update_id": 69411133,
+2026-03-02T17:01:28.851956698Z [inf]      "text": "saya mau pesan ayam geprek saja pale"
+2026-03-02T17:01:28.851960635Z [inf]    "message": {
+2026-03-02T17:01:28.851965625Z [inf]    }
+2026-03-02T17:01:28.851970019Z [inf]      "message_id": 121,
+2026-03-02T17:01:28.851975179Z [inf]  }
+2026-03-02T17:01:28.851979091Z [inf]      "from": {
+2026-03-02T17:01:28.851982662Z [inf]  
+2026-03-02T17:01:28.851987961Z [inf]        "id": 1441958956,
+2026-03-02T17:01:28.851990043Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:01:28.851994507Z [inf]        "is_bot": false,
+2026-03-02T17:01:28.851997634Z [inf]  💬 Pesan: saya mau pesan ayam geprek saja pale
+2026-03-02T17:01:28.852000500Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:28.852004131Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:01:28.852006778Z [inf]        "username": "yashehew",
+2026-03-02T17:01:28.852011440Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'ayam geprek', 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'ayam geprek', 'JUMLAH': None, 'JENIS_SAMBAL': None}]}
+2026-03-02T17:01:28.852014530Z [inf]        "language_code": "en"
+2026-03-02T17:01:28.852020825Z [inf]      },
+2026-03-02T17:01:28.852500080Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:01:28.852508962Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:01:28.852509576Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:01:28.852514742Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:01:28.852515685Z [inf]      },
+2026-03-02T17:01:28.852519284Z [inf]  Status Code: 200
+2026-03-02T17:01:28.852525351Z [inf]  Response: {
+2026-03-02T17:01:28.852528401Z [inf]      "chat": {
+2026-03-02T17:01:28.852532737Z [inf]    "ok": true,
+2026-03-02T17:01:28.852538985Z [inf]  [ERROR] generate_response: DialogManager.update_user_state() got an unexpected keyword argument 'cart'
+2026-03-02T17:01:28.852539403Z [inf]    "result": {
+2026-03-02T17:01:28.852544612Z [inf]        "id": 1441958956,
+2026-03-02T17:01:28.852548861Z [inf]      "message_id": 122,
+2026-03-02T17:01:28.852551002Z [inf]  
+2026-03-02T17:01:28.852554037Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:28.852558470Z [inf]      "from": {
+2026-03-02T17:01:28.852561069Z [inf]  🤖 Balasan: Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!...
+2026-03-02T17:01:28.852561810Z [inf]        "username": "yashehew",
+2026-03-02T17:01:28.852567421Z [inf]        "id": 8476689629,
+2026-03-02T17:01:28.852573238Z [inf]  
+2026-03-02T17:01:28.852575886Z [inf]        "is_bot": true,
+2026-03-02T17:01:28.852582664Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:01:28.852588915Z [inf]  Token: SET
+2026-03-02T17:01:28.852596750Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:01:28.852603105Z [inf]  To: 1441958956
+2026-03-02T17:01:28.852610168Z [inf]  Text: Maaf kak, ada sedikit gangguan. Coba ulangi pesana...
+2026-03-02T17:01:28.852616643Z [inf]  
+2026-03-02T17:01:28.853025150Z [inf]        "type": "private"
+2026-03-02T17:01:28.853033012Z [inf]      },
+2026-03-02T17:01:28.853037478Z [inf]      "date": 1772470881,
+2026-03-02T17:01:28.853041655Z [inf]      "text": "Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!"
+2026-03-02T17:01:28.853045520Z [inf]    }
+2026-03-02T17:01:28.853050843Z [inf]  }
+2026-03-02T17:01:28.853055209Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:01:28.853059241Z [err]  100.64.0.4 - - [02/Mar/2026 17:01:21] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:01:48.804829516Z [inf]        "id": 1441958956,
+2026-03-02T17:01:48.804835194Z [inf]  
+2026-03-02T17:01:48.804840058Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:48.804845750Z [inf]  ==================================================
+2026-03-02T17:01:48.804851966Z [inf]        "username": "yashehew",
+2026-03-02T17:01:48.804854147Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:01:48.804860101Z [inf]        "type": "private"
+2026-03-02T17:01:48.804862186Z [inf]  ==================================================
+2026-03-02T17:01:48.804867744Z [inf]      },
+2026-03-02T17:01:48.804870822Z [inf]  Data: {
+2026-03-02T17:01:48.804875459Z [inf]      "date": 1772470902,
+2026-03-02T17:01:48.804880248Z [inf]    "update_id": 69411134,
+2026-03-02T17:01:48.804882548Z [inf]      "text": "saya mau pesan ayam geprek saja"
+2026-03-02T17:01:48.804888944Z [inf]    }
+2026-03-02T17:01:48.804891284Z [inf]    "message": {
+2026-03-02T17:01:48.804896010Z [inf]  }
+2026-03-02T17:01:48.804899877Z [inf]      "message_id": 123,
+2026-03-02T17:01:48.804905703Z [inf]      "from": {
+2026-03-02T17:01:48.804907932Z [inf]  
+2026-03-02T17:01:48.804911253Z [inf]        "id": 1441958956,
+2026-03-02T17:01:48.804915112Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:01:48.804919366Z [inf]        "is_bot": false,
+2026-03-02T17:01:48.804924001Z [inf]  💬 Pesan: saya mau pesan ayam geprek saja
+2026-03-02T17:01:48.804925845Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:48.804931458Z [inf]        "username": "yashehew",
+2026-03-02T17:01:48.804934132Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:01:48.804938430Z [inf]        "language_code": "en"
+2026-03-02T17:01:48.804943652Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'ayam geprek', 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'ayam geprek', 'JUMLAH': None, 'JENIS_SAMBAL': None}]}
+2026-03-02T17:01:48.804947155Z [inf]      },
+2026-03-02T17:01:48.804955635Z [inf]      "chat": {
+2026-03-02T17:01:48.805537708Z [inf]      },
+2026-03-02T17:01:48.805544331Z [inf]        "id": 8476689629,
+2026-03-02T17:01:48.805547177Z [inf]      "chat": {
+2026-03-02T17:01:48.805547585Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:01:48.805550428Z [inf]  
+2026-03-02T17:01:48.805553327Z [inf]        "is_bot": true,
+2026-03-02T17:01:48.805557979Z [inf]        "id": 1441958956,
+2026-03-02T17:01:48.805561383Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:01:48.805562741Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:01:48.805563699Z [inf]  [ERROR] generate_response: DialogManager.update_user_state() got an unexpected keyword argument 'cart'
+2026-03-02T17:01:48.805567059Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:48.805571341Z [inf]  Status Code: 200
+2026-03-02T17:01:48.805572829Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:01:48.805573537Z [inf]  
+2026-03-02T17:01:48.805578915Z [inf]  Response: {
+2026-03-02T17:01:48.805581247Z [inf]  🤖 Balasan: Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!...
+2026-03-02T17:01:48.805587113Z [inf]    "ok": true,
+2026-03-02T17:01:48.805588508Z [inf]  
+2026-03-02T17:01:48.805594242Z [inf]    "result": {
+2026-03-02T17:01:48.805597501Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:01:48.805602012Z [inf]      "message_id": 124,
+2026-03-02T17:01:48.805604712Z [inf]  Token: SET
+2026-03-02T17:01:48.805610799Z [inf]      "from": {
+2026-03-02T17:01:48.805611812Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:01:48.805617270Z [inf]  To: 1441958956
+2026-03-02T17:01:48.805622679Z [inf]  Text: Maaf kak, ada sedikit gangguan. Coba ulangi pesana...
+2026-03-02T17:01:48.805936367Z [inf]        "username": "yashehew",
+2026-03-02T17:01:48.805942506Z [inf]        "type": "private"
+2026-03-02T17:01:48.805947440Z [inf]      },
+2026-03-02T17:01:48.805952371Z [inf]      "date": 1772470904,
+2026-03-02T17:01:48.805957550Z [inf]      "text": "Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!"
+2026-03-02T17:01:48.805962708Z [inf]    }
+2026-03-02T17:01:48.805967625Z [inf]  }
+2026-03-02T17:01:48.805972085Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:01:48.805976710Z [err]  100.64.0.5 - - [02/Mar/2026 17:01:44] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:01:50.171452603Z [inf]  }
+2026-03-02T17:01:50.171464169Z [inf]  
+2026-03-02T17:01:50.171470517Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:01:50.171475727Z [inf]  💬 Pesan: pesan ayam
+2026-03-02T17:01:50.171480889Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:01:50.171486682Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'ayam penyet', 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'ayam penyet', 'JUMLAH': None, 'JENIS_SAMBAL': None}]}
+2026-03-02T17:01:50.171489945Z [inf]  
+2026-03-02T17:01:50.171496006Z [inf]  ==================================================
+2026-03-02T17:01:50.171501562Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:01:50.171506472Z [inf]  ==================================================
+2026-03-02T17:01:50.171511717Z [inf]  Data: {
+2026-03-02T17:01:50.171516912Z [inf]    "update_id": 69411135,
+2026-03-02T17:01:50.171522161Z [inf]    "message": {
+2026-03-02T17:01:50.171528385Z [inf]      "message_id": 125,
+2026-03-02T17:01:50.171533377Z [inf]      "from": {
+2026-03-02T17:01:50.171538561Z [inf]        "id": 1441958956,
+2026-03-02T17:01:50.171544744Z [inf]        "is_bot": false,
+2026-03-02T17:01:50.171549416Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:50.171554008Z [inf]        "username": "yashehew",
+2026-03-02T17:01:50.171559028Z [inf]        "language_code": "en"
+2026-03-02T17:01:50.171568414Z [inf]      },
+2026-03-02T17:01:50.171573757Z [inf]      "chat": {
+2026-03-02T17:01:50.171579506Z [inf]        "id": 1441958956,
+2026-03-02T17:01:50.171584341Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:50.171588894Z [inf]        "username": "yashehew",
+2026-03-02T17:01:50.171593558Z [inf]        "type": "private"
+2026-03-02T17:01:50.171598270Z [inf]      },
+2026-03-02T17:01:50.171602589Z [inf]      "date": 1772470909,
+2026-03-02T17:01:50.171607542Z [inf]      "text": "pesan ayam"
+2026-03-02T17:01:50.171611889Z [inf]    }
+2026-03-02T17:01:50.171874343Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:01:50.171883506Z [inf]  
+2026-03-02T17:01:50.171888903Z [inf]  🤖 Balasan: Maaf kak, menu *ayam penyet* tidak tersedia 😔
+2026-03-02T17:01:50.171895466Z [inf]  
+2026-03-02T17:01:50.171900855Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:01:50.171906894Z [inf]  
+2026-03-02T17:01:50.171911591Z [inf]  *Ayam:*
+2026-03-02T17:01:50.171915935Z [inf]  • Ayam Geprek - ...
+2026-03-02T17:01:50.171921685Z [inf]  
+2026-03-02T17:01:50.171926570Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:01:50.171931407Z [inf]  Token: SET
+2026-03-02T17:01:50.171936248Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:01:50.171940631Z [inf]  To: 1441958956
+2026-03-02T17:01:50.171945229Z [inf]  Text: Maaf kak, menu *ayam penyet* tidak tersedia 😔
+2026-03-02T17:01:50.171949393Z [inf]  
+2026-03-02T17:01:50.171954285Z [inf]  📋 *...
+2026-03-02T17:01:50.171959054Z [inf]  
+2026-03-02T17:01:50.171963875Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:01:50.874004014Z [inf]      "date": 1772470910,
+2026-03-02T17:01:50.874014236Z [inf]      "text": "Maaf kak, menu *ayam penyet* tidak tersedia \ud83d\ude14\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00"
+2026-03-02T17:01:50.874014899Z [inf]  Status Code: 200
+2026-03-02T17:01:50.874021287Z [inf]  Response: {
+2026-03-02T17:01:50.874022077Z [inf]    }
+2026-03-02T17:01:50.874027383Z [inf]    "ok": true,
+2026-03-02T17:01:50.874029256Z [inf]  }
+2026-03-02T17:01:50.874034746Z [inf]    "result": {
+2026-03-02T17:01:50.874036004Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:01:50.874040938Z [inf]      "message_id": 126,
+2026-03-02T17:01:50.874043115Z [err]  100.64.0.6 - - [02/Mar/2026 17:01:50] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:01:50.874046742Z [inf]      "from": {
+2026-03-02T17:01:50.874052013Z [inf]        "id": 8476689629,
+2026-03-02T17:01:50.874057785Z [inf]        "is_bot": true,
+2026-03-02T17:01:50.874063737Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:01:50.874069354Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:01:50.874074828Z [inf]      },
+2026-03-02T17:01:50.874080972Z [inf]      "chat": {
+2026-03-02T17:01:50.874086590Z [inf]        "id": 1441958956,
+2026-03-02T17:01:50.874092848Z [inf]        "first_name": "unkown",
+2026-03-02T17:01:50.874098729Z [inf]        "username": "yashehew",
+2026-03-02T17:01:50.874104234Z [inf]        "type": "private"
+2026-03-02T17:01:50.874139853Z [inf]      },
+2026-03-02T17:02:10.874668791Z [inf]  
+2026-03-02T17:02:10.874676518Z [inf]      "date": 1772470920,
+2026-03-02T17:02:10.874680673Z [inf]  ==================================================
+2026-03-02T17:02:10.874689869Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:02:10.874691008Z [inf]      "text": "hai"
+2026-03-02T17:02:10.874699599Z [inf]  ==================================================
+2026-03-02T17:02:10.874702119Z [inf]    }
+2026-03-02T17:02:10.874708783Z [inf]  Data: {
+2026-03-02T17:02:10.874710984Z [inf]  }
+2026-03-02T17:02:10.874718370Z [inf]    "update_id": 69411136,
+2026-03-02T17:02:10.874720793Z [inf]  
+2026-03-02T17:02:10.874728598Z [inf]    "message": {
+2026-03-02T17:02:10.874731125Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:02:10.874737452Z [inf]      "message_id": 127,
+2026-03-02T17:02:10.874740579Z [inf]  💬 Pesan: hai
+2026-03-02T17:02:10.874746400Z [inf]      "from": {
+2026-03-02T17:02:10.874748314Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:10.874756694Z [inf]        "id": 1441958956,
+2026-03-02T17:02:10.874757006Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: salam | Entities: {'NAMA_MENU': None, 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': []}
+2026-03-02T17:02:10.874764703Z [inf]        "is_bot": false,
+2026-03-02T17:02:10.874771950Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:10.874779212Z [inf]        "username": "yashehew",
+2026-03-02T17:02:10.874786797Z [inf]        "language_code": "en"
+2026-03-02T17:02:10.874794782Z [inf]      },
+2026-03-02T17:02:10.874801536Z [inf]      "chat": {
+2026-03-02T17:02:10.874808757Z [inf]        "id": 1441958956,
+2026-03-02T17:02:10.874816142Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:10.874823618Z [inf]        "username": "yashehew",
+2026-03-02T17:02:10.874830338Z [inf]        "type": "private"
+2026-03-02T17:02:10.874837955Z [inf]      },
+2026-03-02T17:02:10.875358599Z [inf]  
+2026-03-02T17:02:10.875368431Z [inf]  🤖 Balasan: Selamat sore kak! Selamat datang di Kedai Ayam Merdeka 🍗
+2026-03-02T17:02:10.875376665Z [inf]  
+2026-03-02T17:02:10.875384108Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:02:10.875390548Z [inf]  
+2026-03-02T17:02:10.875396572Z [inf]  *Ayam:*
+2026-03-02T17:02:10.875403089Z [inf]  • Aya...
+2026-03-02T17:02:10.875410410Z [inf]  
+2026-03-02T17:02:10.875416626Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:02:10.875423484Z [inf]  Token: SET
+2026-03-02T17:02:10.875429998Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:10.875436706Z [inf]  To: 1441958956
+2026-03-02T17:02:10.875442860Z [inf]  Text: Selamat sore kak! Selamat datang di Kedai Ayam Mer...
+2026-03-02T17:02:10.875449368Z [inf]  
+2026-03-02T17:02:10.875456117Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:10.875462537Z [inf]  Status Code: 200
+2026-03-02T17:02:10.875469492Z [inf]  Response: {
+2026-03-02T17:02:10.875476514Z [inf]    "ok": true,
+2026-03-02T17:02:10.875482653Z [inf]    "result": {
+2026-03-02T17:02:10.875488817Z [inf]      "message_id": 128,
+2026-03-02T17:02:10.875495150Z [inf]      "from": {
+2026-03-02T17:02:10.875501689Z [inf]        "id": 8476689629,
+2026-03-02T17:02:10.875507769Z [inf]        "is_bot": true,
+2026-03-02T17:02:10.875514140Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:02:10.875520500Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:02:10.875527703Z [inf]      },
+2026-03-02T17:02:10.875534718Z [inf]      "chat": {
+2026-03-02T17:02:10.875542296Z [inf]        "id": 1441958956,
+2026-03-02T17:02:10.875549298Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:10.875556203Z [inf]        "username": "yashehew",
+2026-03-02T17:02:10.875831266Z [inf]        "language_code": "en"
+2026-03-02T17:02:10.875836249Z [inf]    "update_id": 69411137,
+2026-03-02T17:02:10.875840170Z [inf]      },
+2026-03-02T17:02:10.875846060Z [inf]    "message": {
+2026-03-02T17:02:10.875848162Z [inf]        "is_bot": false,
+2026-03-02T17:02:10.875853347Z [inf]        "type": "private"
+2026-03-02T17:02:10.875856631Z [inf]      "message_id": 129,
+2026-03-02T17:02:10.875857323Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:10.875865438Z [inf]      },
+2026-03-02T17:02:10.875866784Z [inf]      "from": {
+2026-03-02T17:02:10.875868267Z [inf]        "username": "yashehew",
+2026-03-02T17:02:10.875873303Z [inf]      "date": 1772470921,
+2026-03-02T17:02:10.875876135Z [inf]        "id": 1441958956,
+2026-03-02T17:02:10.875880593Z [inf]      "text": "Selamat sore kak! Selamat datang di Kedai Ayam Merdeka \ud83c\udf57\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00\n\n\n\u23f0 Jam Operasional: 10:00 - 22:00"
+2026-03-02T17:02:10.875896929Z [inf]    }
+2026-03-02T17:02:10.875902622Z [inf]  }
+2026-03-02T17:02:10.875907699Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:02:10.875912602Z [err]  100.64.0.7 - - [02/Mar/2026 17:02:01] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:02:10.875917321Z [inf]  
+2026-03-02T17:02:10.875924355Z [inf]  ==================================================
+2026-03-02T17:02:10.875929259Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:02:10.875934664Z [inf]  ==================================================
+2026-03-02T17:02:10.875939586Z [inf]  Data: {
+2026-03-02T17:02:10.876699846Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:02:10.876705981Z [inf]  
+2026-03-02T17:02:10.876709568Z [inf]  Token: SET
+2026-03-02T17:02:10.876710103Z [inf]      "chat": {
+2026-03-02T17:02:10.876717169Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:02:10.876720769Z [inf]        "id": 1441958956,
+2026-03-02T17:02:10.876725549Z [inf]  
+2026-03-02T17:02:10.876730542Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:10.876735188Z [inf]  *Ayam:*
+2026-03-02T17:02:10.876740371Z [inf]        "username": "yashehew",
+2026-03-02T17:02:10.876744936Z [inf]  • Ayam Geprek - Rp 15,000.00
+2026-03-02T17:02:10.876747313Z [inf]        "type": "private"
+2026-03-02T17:02:10.876752165Z [inf]  • Ayam B...
+2026-03-02T17:02:10.876757383Z [inf]      },
+2026-03-02T17:02:10.876761124Z [inf]  
+2026-03-02T17:02:10.876765223Z [inf]      "date": 1772470925,
+2026-03-02T17:02:10.876770719Z [inf]      "text": "saya mau pesan ayam"
+2026-03-02T17:02:10.876776131Z [inf]    }
+2026-03-02T17:02:10.876782356Z [inf]  }
+2026-03-02T17:02:10.876787952Z [inf]  
+2026-03-02T17:02:10.876793535Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:02:10.876803353Z [inf]  💬 Pesan: saya mau pesan ayam
+2026-03-02T17:02:10.876808976Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:10.876814141Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': None, 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': []}
+2026-03-02T17:02:10.876819112Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:10.876824227Z [inf]  Error update user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:10.876829522Z [inf]  
+2026-03-02T17:02:10.876834112Z [inf]  🤖 Balasan: Siap kak! Mau pesan apa?
+2026-03-02T17:02:10.877170357Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:10.877176236Z [inf]  To: 1441958956
+2026-03-02T17:02:10.877181259Z [inf]  Text: Siap kak! Mau pesan apa?
+2026-03-02T17:02:10.877187631Z [inf]  
+2026-03-02T17:02:10.877191114Z [inf]        "is_bot": true,
+2026-03-02T17:02:10.877193986Z [inf]  📋 *MENU KEDAI AYAM MERDE...
+2026-03-02T17:02:10.877199018Z [inf]  
+2026-03-02T17:02:10.877203928Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:02:10.877206860Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:10.877212043Z [inf]  Status Code: 200
+2026-03-02T17:02:10.877212645Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:02:10.877218577Z [inf]  Response: {
+2026-03-02T17:02:10.877220891Z [inf]      },
+2026-03-02T17:02:10.877225352Z [inf]    "ok": true,
+2026-03-02T17:02:10.877227728Z [inf]      "chat": {
+2026-03-02T17:02:10.877230691Z [inf]    "result": {
+2026-03-02T17:02:10.877235735Z [inf]        "id": 1441958956,
+2026-03-02T17:02:10.877237072Z [inf]      "message_id": 130,
+2026-03-02T17:02:10.877244269Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:10.877244466Z [inf]      "from": {
+2026-03-02T17:02:10.877251899Z [inf]        "username": "yashehew",
+2026-03-02T17:02:10.877252349Z [inf]        "id": 8476689629,
+2026-03-02T17:02:10.877257356Z [inf]        "type": "private"
+2026-03-02T17:02:10.877261965Z [inf]      },
+2026-03-02T17:02:10.877266518Z [inf]      "date": 1772470926,
+2026-03-02T17:02:10.877270718Z [inf]      "text": "Siap kak! Mau pesan apa?\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00\n\n\n\ud83d\udca1 *Contoh:* Ayam Geprek, Es Teh Manis"
+2026-03-02T17:02:10.877619041Z [inf]    }
+2026-03-02T17:02:10.877626296Z [inf]  }
+2026-03-02T17:02:10.877632228Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:02:10.877638214Z [err]  100.64.0.3 - - [02/Mar/2026 17:02:07] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:02:15.344264602Z [inf]  
+2026-03-02T17:02:15.344272780Z [inf]  ==================================================
+2026-03-02T17:02:15.344277989Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:02:15.344284177Z [inf]  ==================================================
+2026-03-02T17:02:15.344284483Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:15.344290036Z [inf]        "type": "private"
+2026-03-02T17:02:15.344292000Z [inf]  Data: {
+2026-03-02T17:02:15.344297753Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'ayam geprek', 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'ayam geprek', 'JUMLAH': None, 'JENIS_SAMBAL': None}]}
+2026-03-02T17:02:15.344298808Z [inf]    "update_id": 69411138,
+2026-03-02T17:02:15.344301327Z [inf]      },
+2026-03-02T17:02:15.344306897Z [inf]    "message": {
+2026-03-02T17:02:15.344312228Z [inf]      "date": 1772470934,
+2026-03-02T17:02:15.344315214Z [inf]      "message_id": 131,
+2026-03-02T17:02:15.344321504Z [inf]      "from": {
+2026-03-02T17:02:15.344321893Z [inf]      "text": "ayam geprek"
+2026-03-02T17:02:15.344328525Z [inf]        "id": 1441958956,
+2026-03-02T17:02:15.344330649Z [inf]    }
+2026-03-02T17:02:15.344335816Z [inf]        "is_bot": false,
+2026-03-02T17:02:15.344339408Z [inf]  }
+2026-03-02T17:02:15.344347480Z [inf]  
+2026-03-02T17:02:15.344348295Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:15.344353630Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:02:15.344358217Z [inf]        "username": "yashehew",
+2026-03-02T17:02:15.344361036Z [inf]  💬 Pesan: ayam geprek
+2026-03-02T17:02:15.344365377Z [inf]        "language_code": "en"
+2026-03-02T17:02:15.344370995Z [inf]      },
+2026-03-02T17:02:15.344379058Z [inf]      "chat": {
+2026-03-02T17:02:15.344386804Z [inf]        "id": 1441958956,
+2026-03-02T17:02:15.344392617Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:15.344397970Z [inf]        "username": "yashehew",
+2026-03-02T17:02:15.344783004Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:15.344790163Z [inf]  [ERROR] generate_response: DialogManager.update_user_state() got an unexpected keyword argument 'cart'
+2026-03-02T17:02:15.344796178Z [inf]  
+2026-03-02T17:02:15.344801804Z [inf]  🤖 Balasan: Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!...
+2026-03-02T17:02:15.344807385Z [inf]  
+2026-03-02T17:02:15.344813225Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:02:15.344818449Z [inf]  Token: SET
+2026-03-02T17:02:15.344823825Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:15.344829875Z [inf]  To: 1441958956
+2026-03-02T17:02:15.344835387Z [inf]  Text: Maaf kak, ada sedikit gangguan. Coba ulangi pesana...
+2026-03-02T17:02:15.344840307Z [inf]  
+2026-03-02T17:02:15.344845483Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:16.091017353Z [inf]      "text": "Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!"
+2026-03-02T17:02:16.091026747Z [inf]    }
+2026-03-02T17:02:16.091033518Z [inf]  Status Code: 200
+2026-03-02T17:02:16.091033582Z [inf]  }
+2026-03-02T17:02:16.091039897Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:02:16.091042415Z [inf]  Response: {
+2026-03-02T17:02:16.091046795Z [err]  100.64.0.8 - - [02/Mar/2026 17:02:16] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:02:16.091049129Z [inf]    "ok": true,
+2026-03-02T17:02:16.091054873Z [inf]    "result": {
+2026-03-02T17:02:16.091061336Z [inf]      "message_id": 132,
+2026-03-02T17:02:16.091066966Z [inf]      "from": {
+2026-03-02T17:02:16.091072219Z [inf]        "id": 8476689629,
+2026-03-02T17:02:16.091079673Z [inf]        "is_bot": true,
+2026-03-02T17:02:16.091085597Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:02:16.091091003Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:02:16.091096677Z [inf]      },
+2026-03-02T17:02:16.091101998Z [inf]      "chat": {
+2026-03-02T17:02:16.091107167Z [inf]        "id": 1441958956,
+2026-03-02T17:02:16.091111576Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:16.091120237Z [inf]        "username": "yashehew",
+2026-03-02T17:02:16.091126762Z [inf]        "type": "private"
+2026-03-02T17:02:16.091134422Z [inf]      },
+2026-03-02T17:02:16.091139942Z [inf]      "date": 1772470935,
+2026-03-02T17:02:46.105770847Z [inf]  
+2026-03-02T17:02:46.105780270Z [inf]  ==================================================
+2026-03-02T17:02:46.105786831Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:02:46.105797607Z [inf]  ==================================================
+2026-03-02T17:02:46.105803267Z [inf]  Data: {
+2026-03-02T17:02:46.105809299Z [inf]    "update_id": 69411139,
+2026-03-02T17:02:46.105814712Z [inf]    "message": {
+2026-03-02T17:02:46.105820107Z [inf]      "message_id": 133,
+2026-03-02T17:02:46.105825564Z [inf]      "from": {
+2026-03-02T17:02:46.105831005Z [inf]        "id": 1441958956,
+2026-03-02T17:02:46.105837683Z [inf]        "is_bot": false,
+2026-03-02T17:02:46.105843368Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:46.105848510Z [inf]        "username": "yashehew",
+2026-03-02T17:02:46.105854599Z [inf]        "language_code": "en"
+2026-03-02T17:02:46.105860146Z [inf]      },
+2026-03-02T17:02:46.105865019Z [inf]      "chat": {
+2026-03-02T17:02:46.105870384Z [inf]        "id": 1441958956,
+2026-03-02T17:02:46.105879655Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:46.105885174Z [inf]        "username": "yashehew",
+2026-03-02T17:02:46.105891497Z [inf]        "type": "private"
+2026-03-02T17:02:46.105895550Z [inf]      },
+2026-03-02T17:02:46.105900542Z [inf]      "date": 1772470958,
+2026-03-02T17:02:46.105905417Z [inf]      "text": "halo"
+2026-03-02T17:02:46.105909920Z [inf]    }
+2026-03-02T17:02:46.105914825Z [inf]  }
+2026-03-02T17:02:46.105919597Z [inf]  
+2026-03-02T17:02:46.105924286Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:02:46.105929127Z [inf]  💬 Pesan: halo
+2026-03-02T17:02:46.105935578Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:46.105940296Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: salam | Entities: {'NAMA_MENU': None, 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': []}
+2026-03-02T17:02:46.106463204Z [inf]  
+2026-03-02T17:02:46.106474819Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:02:46.106475544Z [inf]  🤖 Balasan: Selamat sore kak! Selamat datang di Kedai Ayam Merdeka 🍗
+2026-03-02T17:02:46.106481064Z [inf]      "chat": {
+2026-03-02T17:02:46.106484821Z [inf]  
+2026-03-02T17:02:46.106490351Z [inf]        "id": 1441958956,
+2026-03-02T17:02:46.106495572Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:02:46.106499393Z [inf]  Token: SET
+2026-03-02T17:02:46.106500529Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:46.106506583Z [inf]  
+2026-03-02T17:02:46.106510718Z [inf]      "message_id": 134,
+2026-03-02T17:02:46.106511354Z [inf]        "username": "yashehew",
+2026-03-02T17:02:46.106511723Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:46.106521452Z [inf]  To: 1441958956
+2026-03-02T17:02:46.106523840Z [inf]  *Ayam:*
+2026-03-02T17:02:46.106525672Z [inf]      "from": {
+2026-03-02T17:02:46.106526752Z [inf]  
+2026-03-02T17:02:46.106532925Z [inf]  Text: Selamat sore kak! Selamat datang di Kedai Ayam Mer...
+2026-03-02T17:02:46.106535532Z [inf]  • Aya...
+2026-03-02T17:02:46.106536307Z [inf]        "id": 8476689629,
+2026-03-02T17:02:46.106539125Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:46.106544932Z [inf]  
+2026-03-02T17:02:46.106548335Z [inf]        "is_bot": true,
+2026-03-02T17:02:46.106549747Z [inf]  Status Code: 200
+2026-03-02T17:02:46.106559337Z [inf]  Response: {
+2026-03-02T17:02:46.106559709Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:02:46.106569361Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:02:46.106575875Z [inf]    "ok": true,
+2026-03-02T17:02:46.106578902Z [inf]      },
+2026-03-02T17:02:46.106585020Z [inf]    "result": {
+2026-03-02T17:02:46.107007096Z [inf]        "type": "private"
+2026-03-02T17:02:46.107012199Z [inf]        "language_code": "en"
+2026-03-02T17:02:46.107014801Z [inf]      },
+2026-03-02T17:02:46.107019599Z [inf]      "date": 1772470959,
+2026-03-02T17:02:46.107024518Z [inf]      "text": "Selamat sore kak! Selamat datang di Kedai Ayam Merdeka \ud83c\udf57\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00\n\n\n\u23f0 Jam Operasional: 10:00 - 22:00"
+2026-03-02T17:02:46.107028959Z [inf]    }
+2026-03-02T17:02:46.107033484Z [inf]  }
+2026-03-02T17:02:46.107037972Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:02:46.107042127Z [err]  100.64.0.9 - - [02/Mar/2026 17:02:39] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:02:46.107046707Z [inf]  
+2026-03-02T17:02:46.107051393Z [inf]  ==================================================
+2026-03-02T17:02:46.107055340Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:02:46.107059422Z [inf]  ==================================================
+2026-03-02T17:02:46.107063539Z [inf]  Data: {
+2026-03-02T17:02:46.107068606Z [inf]    "update_id": 69411140,
+2026-03-02T17:02:46.107075450Z [inf]    "message": {
+2026-03-02T17:02:46.107081172Z [inf]      "message_id": 135,
+2026-03-02T17:02:46.107086605Z [inf]      "from": {
+2026-03-02T17:02:46.107091839Z [inf]        "id": 1441958956,
+2026-03-02T17:02:46.107098124Z [inf]        "is_bot": false,
+2026-03-02T17:02:46.107105282Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:46.107110883Z [inf]        "username": "yashehew",
+2026-03-02T17:02:46.107946717Z [inf]      },
+2026-03-02T17:02:46.107956117Z [inf]      "chat": {
+2026-03-02T17:02:46.107960132Z [inf]    }
+2026-03-02T17:02:46.107962642Z [inf]        "id": 1441958956,
+2026-03-02T17:02:46.107970190Z [inf]  *Ayam:*
+2026-03-02T17:02:46.107971187Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:02:46.107972939Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:46.107974103Z [inf]  
+2026-03-02T17:02:46.107976155Z [inf]  }
+2026-03-02T17:02:46.107982527Z [inf]  • Ayam Geprek - Rp 15,000.00
+2026-03-02T17:02:46.107983495Z [inf]        "username": "yashehew",
+2026-03-02T17:02:46.107984177Z [inf]  💬 Pesan: saya mau pesan geprek 1
+2026-03-02T17:02:46.107987180Z [inf]  
+2026-03-02T17:02:46.107992737Z [inf]        "type": "private"
+2026-03-02T17:02:46.107993797Z [inf]  • Ayam B...
+2026-03-02T17:02:46.107994937Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:46.108000846Z [inf]      },
+2026-03-02T17:02:46.108003866Z [inf]  
+2026-03-02T17:02:46.108005855Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': None, 'JUMLAH': None, 'JENIS_SAMBAL': None, 'ITEMS': []}
+2026-03-02T17:02:46.108008342Z [inf]      "date": 1772470963,
+2026-03-02T17:02:46.108013870Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:02:46.108016110Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:46.108016317Z [inf]      "text": "saya mau pesan geprek 1"
+2026-03-02T17:02:46.108018999Z [inf]  🤖 Balasan: Siap kak! Mau pesan apa?
+2026-03-02T17:02:46.108026243Z [inf]  Error update user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:46.108028748Z [inf]  
+2026-03-02T17:02:46.108035895Z [inf]  📋 *MENU KEDAI AYAM MERDEKA*
+2026-03-02T17:02:46.108040872Z [inf]  
+2026-03-02T17:02:46.108958771Z [inf]        "type": "private"
+2026-03-02T17:02:46.108962236Z [inf]        "id": 8476689629,
+2026-03-02T17:02:46.108969172Z [inf]      },
+2026-03-02T17:02:46.108972892Z [inf]        "is_bot": true,
+2026-03-02T17:02:46.108973256Z [inf]  Token: SET
+2026-03-02T17:02:46.108981515Z [inf]      "date": 1772470965,
+2026-03-02T17:02:46.108982738Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:02:46.108986104Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:46.108992049Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:02:46.108994085Z [inf]      "text": "Siap kak! Mau pesan apa?\n\n\ud83d\udccb *MENU KEDAI AYAM MERDEKA*\n\n*Ayam:*\n\u2022 Ayam Geprek - Rp 15,000.00\n\u2022 Ayam Bakar - Rp 18,000.00\n\u2022 Ayam Goreng - Rp 15,000.00\n\n*Lauk:*\n\u2022 Nasi - Rp 5,000.00\n\u2022 Tahu Crispy - Rp 3,000.00\n\u2022 Tempe Crispy - Rp 3,000.00\n\n*Minuman:*\n\u2022 Es Teh Manis - Rp 5,000.00\n\u2022 Es Jeruk - Rp 6,000.00\n\u2022 Es Campur - Rp 12,000.00\n\u2022 Es Teler - Rp 10,000.00\n\n\n\ud83d\udca1 *Contoh:* Ayam Geprek, Es Teh Manis"
+2026-03-02T17:02:46.108995752Z [inf]  To: 1441958956
+2026-03-02T17:02:46.109000313Z [inf]      },
+2026-03-02T17:02:46.109005594Z [inf]  Text: Siap kak! Mau pesan apa?
+2026-03-02T17:02:46.109009414Z [inf]      "chat": {
+2026-03-02T17:02:46.109014406Z [inf]  
+2026-03-02T17:02:46.109017997Z [inf]        "id": 1441958956,
+2026-03-02T17:02:46.109021016Z [inf]  📋 *MENU KEDAI AYAM MERDE...
+2026-03-02T17:02:46.109026211Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:46.109029486Z [inf]  
+2026-03-02T17:02:46.109035083Z [inf]        "username": "yashehew",
+2026-03-02T17:02:46.109036787Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:46.109041812Z [inf]  Status Code: 200
+2026-03-02T17:02:46.109046754Z [inf]  Response: {
+2026-03-02T17:02:46.109052030Z [inf]    "ok": true,
+2026-03-02T17:02:46.109057045Z [inf]    "result": {
+2026-03-02T17:02:46.109061712Z [inf]      "message_id": 136,
+2026-03-02T17:02:46.109066889Z [inf]      "from": {
+2026-03-02T17:02:46.109126517Z [err]  100.64.0.10 - - [02/Mar/2026 17:02:45] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:02:46.109157964Z [inf]    }
+2026-03-02T17:02:46.109169404Z [inf]  }
+2026-03-02T17:02:46.109176189Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:02:55.702201453Z [inf]  
+2026-03-02T17:02:55.702206232Z [inf]      },
+2026-03-02T17:02:55.702212542Z [inf]  ==================================================
+2026-03-02T17:02:55.702215978Z [inf]      "chat": {
+2026-03-02T17:02:55.702219903Z [inf]  }
+2026-03-02T17:02:55.702220946Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:55.702222133Z [inf]        "id": 1441958956,
+2026-03-02T17:02:55.702229521Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:02:55.702232921Z [inf]  
+2026-03-02T17:02:55.702233530Z [inf]        "username": "yashehew",
+2026-03-02T17:02:55.702236304Z [inf]  ==================================================
+2026-03-02T17:02:55.702242924Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:02:55.702243004Z [inf]  Data: {
+2026-03-02T17:02:55.702245308Z [inf]        "type": "private"
+2026-03-02T17:02:55.702252354Z [inf]  💬 Pesan: ayam geprek 1
+2026-03-02T17:02:55.702252969Z [inf]    "update_id": 69411141,
+2026-03-02T17:02:55.702258824Z [inf]    "message": {
+2026-03-02T17:02:55.702261086Z [inf]      },
+2026-03-02T17:02:55.702267198Z [inf]      "message_id": 137,
+2026-03-02T17:02:55.702270156Z [inf]      "date": 1772470975,
+2026-03-02T17:02:55.702278357Z [inf]      "from": {
+2026-03-02T17:02:55.702278776Z [inf]      "text": "ayam geprek 1"
+2026-03-02T17:02:55.702285426Z [inf]        "id": 1441958956,
+2026-03-02T17:02:55.702288867Z [inf]    }
+2026-03-02T17:02:55.702292114Z [inf]        "is_bot": false,
+2026-03-02T17:02:55.702296471Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:55.702301349Z [inf]        "username": "yashehew",
+2026-03-02T17:02:55.702306991Z [inf]        "language_code": "en"
+2026-03-02T17:02:55.706510237Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:55.706517567Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'ayam geprek', 'JUMLAH': '1', 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'ayam geprek', 'JUMLAH': '1', 'JENIS_SAMBAL': None}]}
+2026-03-02T17:02:55.711389868Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:55.711399333Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:02:55.711412752Z [inf]  [ERROR] generate_response: DialogManager.update_user_state() got an unexpected keyword argument 'cart'
+2026-03-02T17:02:55.711419548Z [inf]  
+2026-03-02T17:02:55.711425196Z [inf]  🤖 Balasan: Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!...
+2026-03-02T17:02:55.711430471Z [inf]  
+2026-03-02T17:02:55.711436328Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:02:55.711443131Z [inf]  Token: SET
+2026-03-02T17:02:55.711449077Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:02:55.711454718Z [inf]  To: 1441958956
+2026-03-02T17:02:55.711459135Z [inf]  Text: Maaf kak, ada sedikit gangguan. Coba ulangi pesana...
+2026-03-02T17:02:55.711464537Z [inf]  
+2026-03-02T17:02:56.395083352Z [inf]      },
+2026-03-02T17:02:56.395083472Z [inf]  Status Code: 200
+2026-03-02T17:02:56.395090837Z [inf]  Response: {
+2026-03-02T17:02:56.395097503Z [inf]    "ok": true,
+2026-03-02T17:02:56.395098330Z [inf]      "date": 1772470976,
+2026-03-02T17:02:56.395102936Z [inf]    "result": {
+2026-03-02T17:02:56.395108697Z [inf]      "message_id": 138,
+2026-03-02T17:02:56.395108837Z [inf]      "text": "Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!"
+2026-03-02T17:02:56.395114075Z [inf]      "from": {
+2026-03-02T17:02:56.395119356Z [inf]        "id": 8476689629,
+2026-03-02T17:02:56.395120004Z [inf]    }
+2026-03-02T17:02:56.395125562Z [inf]        "is_bot": true,
+2026-03-02T17:02:56.395129558Z [inf]  }
+2026-03-02T17:02:56.395131338Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:02:56.395137067Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:02:56.395139533Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:02:56.395142539Z [inf]      },
+2026-03-02T17:02:56.395146066Z [err]  100.64.0.8 - - [02/Mar/2026 17:02:56] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:02:56.395148484Z [inf]      "chat": {
+2026-03-02T17:02:56.395152742Z [inf]        "id": 1441958956,
+2026-03-02T17:02:56.395157060Z [inf]        "first_name": "unkown",
+2026-03-02T17:02:56.395161117Z [inf]        "username": "yashehew",
+2026-03-02T17:02:56.395164990Z [inf]        "type": "private"
+2026-03-02T17:03:01.117685672Z [inf]  
+2026-03-02T17:03:01.117692059Z [inf]  ==================================================
+2026-03-02T17:03:01.117698506Z [inf]  📩 WEBHOOK DITERIMA
+2026-03-02T17:03:01.117699353Z [inf]        "language_code": "en"
+2026-03-02T17:03:01.117706328Z [inf]  ==================================================
+2026-03-02T17:03:01.117712921Z [inf]      },
+2026-03-02T17:03:01.117714752Z [inf]  Data: {
+2026-03-02T17:03:01.117715707Z [inf]  Mengirim ke: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:03:01.117716439Z [inf]  === MENGIRIM PESAN ===
+2026-03-02T17:03:01.117720050Z [inf]  👤 Dari: unkown (1441958956)
+2026-03-02T17:03:01.117724533Z [inf]      "chat": {
+2026-03-02T17:03:01.117725282Z [inf]    "update_id": 69411142,
+2026-03-02T17:03:01.117730922Z [inf]  Token: SET
+2026-03-02T17:03:01.117734955Z [inf]  💬 Pesan: es teler 1
+2026-03-02T17:03:01.117735058Z [inf]    "message": {
+2026-03-02T17:03:01.117736957Z [inf]        "id": 1441958956,
+2026-03-02T17:03:01.117737961Z [inf]  To: 1441958956
+2026-03-02T17:03:01.117743121Z [inf]  API URL: https://api.telegram.org/bot8476689629:AAHNbWN3jmYCNvkK0LRS2kgrPpmACJoS5oE/sendMessage
+2026-03-02T17:03:01.117747820Z [inf]    }
+2026-03-02T17:03:01.117747913Z [inf]      "message_id": 139,
+2026-03-02T17:03:01.117748748Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:03:01.117749142Z [inf]  Text: Maaf kak, ada sedikit gangguan. Coba ulangi pesana...
+2026-03-02T17:03:01.117758728Z [inf]      "from": {
+2026-03-02T17:03:01.117760292Z [inf]  
+2026-03-02T17:03:01.117761245Z [inf]  }
+2026-03-02T17:03:01.117764225Z [inf]  
+2026-03-02T17:03:01.117767268Z [inf]  [DEBUG] User: 1441958956 | State: idle | Intent: pesan_menu | Entities: {'NAMA_MENU': 'es teler', 'JUMLAH': '1', 'JENIS_SAMBAL': None, 'ITEMS': [{'NAMA_MENU': 'es teler', 'JUMLAH': '1', 'JENIS_SAMBAL': None}]}
+2026-03-02T17:03:01.117768736Z [inf]        "id": 1441958956,
+2026-03-02T17:03:01.117773797Z [inf]  🤖 Balasan: Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!...
+2026-03-02T17:03:01.117776654Z [inf]        "is_bot": false,
+2026-03-02T17:03:01.117778788Z [inf]  
+2026-03-02T17:03:01.117786804Z [inf]  Error get user state: 1146 (42S02): Table 'railway.conversation_states' doesn't exist
+2026-03-02T17:03:01.117788839Z [inf]  
+2026-03-02T17:03:01.117789441Z [inf]        "first_name": "unkown",
+2026-03-02T17:03:01.117798088Z [inf]        "username": "yashehew",
+2026-03-02T17:03:01.117798708Z [inf]  [ERROR] generate_response: DialogManager.update_user_state() got an unexpected keyword argument 'cart'
+2026-03-02T17:03:01.117881046Z [inf]        "first_name": "unkown",
+2026-03-02T17:03:01.117890710Z [inf]        "username": "yashehew",
+2026-03-02T17:03:01.117897023Z [inf]        "type": "private"
+2026-03-02T17:03:01.117903756Z [inf]      },
+2026-03-02T17:03:01.117908701Z [inf]      "date": 1772470980,
+2026-03-02T17:03:01.117913511Z [inf]      "text": "es teler 1"
+2026-03-02T17:03:01.817354124Z [inf]  Status Code: 200
+2026-03-02T17:03:01.817355660Z [inf]    }
+2026-03-02T17:03:01.817366279Z [inf]        "is_bot": true,
+2026-03-02T17:03:01.817366300Z [inf]  Response: {
+2026-03-02T17:03:01.817367204Z [inf]  }
+2026-03-02T17:03:01.817375320Z [inf]  ✅ Pesan berhasil dikirim ke 1441958956
+2026-03-02T17:03:01.817375926Z [inf]    "ok": true,
+2026-03-02T17:03:01.817377869Z [inf]        "first_name": "KedaiAyamBot",
+2026-03-02T17:03:01.817383649Z [inf]    "result": {
+2026-03-02T17:03:01.817384813Z [err]  100.64.0.8 - - [02/Mar/2026 17:03:01] "POST /webhook HTTP/1.1" 200 -
+2026-03-02T17:03:01.817385626Z [inf]        "username": "kedai_ayam_bot"
+2026-03-02T17:03:01.817390292Z [inf]      "message_id": 140,
+2026-03-02T17:03:01.817394203Z [inf]      },
+2026-03-02T17:03:01.817396858Z [inf]      "from": {
+2026-03-02T17:03:01.817403221Z [inf]      "chat": {
+2026-03-02T17:03:01.817403725Z [inf]        "id": 8476689629,
+2026-03-02T17:03:01.817411086Z [inf]        "id": 1441958956,
+2026-03-02T17:03:01.817416851Z [inf]        "first_name": "unkown",
+2026-03-02T17:03:01.817422211Z [inf]        "username": "yashehew",
+2026-03-02T17:03:01.817427313Z [inf]        "type": "private"
+2026-03-02T17:03:01.817432351Z [inf]      },
+2026-03-02T17:03:01.817437350Z [inf]      "date": 1772470981,
+2026-03-02T17:03:01.817442507Z [inf]      "text": "Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!"
