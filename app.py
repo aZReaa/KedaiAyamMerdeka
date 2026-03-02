@@ -1,12 +1,21 @@
 from flask import Flask, request, jsonify, render_template
 from config import Config
+import os
+
+print(f"[BOOT] app.py starting... (PID: {os.getpid()})")
+
+# Lazy imports - only load heavy modules when needed
 from database import db
 from dialog_manager import dialog_manager
 import requests
 import json
 
+print(f"[BOOT] All modules imported successfully!")
+
 app = Flask(__name__)
 app.config.from_object(Config)
+
+print(f"[BOOT] Flask app created and ready to serve!")
 
 @app.route('/')
 def index():
