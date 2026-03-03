@@ -179,7 +179,8 @@ class NLU:
         entities = self.extract_entities(text)
         
         # Smart override: if menu entity is detected, likely ordering intent
-        if entities["NAMA_MENU"] and intent in ["unknown", "konfirmasi", "salam"]:
+        # Jangan override salam/terima_kasih agar sapaan tetap dijawab sapaan
+        if entities["NAMA_MENU"] and intent in ["unknown", "konfirmasi"]:
             intent = "pesan_menu"
         
         return intent, entities

@@ -29,6 +29,16 @@ class DialogManager:
             
             print(f"[DEBUG] User: {user_id} | State: {state['state']} | Intent: {intent} | Entities: {entities}")
             
+            # Global intents — berlaku di semua state kecuali idle (ditangani sendiri)
+            if state['state'] != 'idle':
+                if intent == 'salam':
+                    self.reset_user_state(user_id)
+                    greeting = self._get_time_greeting()
+                    return f"{greeting}\n\nAda yang bisa dibantu? 😊\n\n💡 Ketik *pesan* untuk mulai memesan\n📋 Ketik *menu* untuk lihat daftar menu"
+                elif intent == 'terima_kasih':
+                    self.reset_user_state(user_id)
+                    return self._get_response(intent)
+            
             if state['state'] == 'idle':
                 return self._handle_idle_state(user_id, intent, entities, message)
             elif state['state'] == 'asking_menu':
@@ -58,8 +68,7 @@ class DialogManager:
         
         if intent == 'salam':
             greeting = self._get_time_greeting()
-            menu_list = self._format_menu_list()
-            return f"{greeting}\n\n{menu_list}\n\n⏰ Jam Operasional: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
+            return f"{greeting}\n\nAda yang bisa dibantu? 😊\n\n💡 Ketik *pesan* untuk mulai memesan\n📋 Ketik *menu* untuk lihat daftar menu\n⏰ Jam operasional: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
         
         elif intent == 'terima_kasih':
             return self._get_response(intent)
@@ -141,9 +150,8 @@ class DialogManager:
             if response != "Maaf, saya tidak mengerti.":
                 return response
         
-        # Fallback
-        menu_list = self._format_menu_list()
-        return f"Halo kak! Ada yang bisa dibantu?\n\n{menu_list}\n\n💡 Ketik 'pesan' untuk mulai memesan!"
+        # Fallback — jangan dump menu, arahkan user
+        return "Maaf kak, saya belum mengerti 😅\n\nCoba ketik salah satu:\n📋 *menu* — lihat daftar menu\n🛒 *pesan* — mulai memesan\n📍 *lokasi* — alamat kedai\n⏰ *jam* — jam operasional"
     
     def _start_ordering_flow(self, user_id: str, entities: dict) -> str:
         """Start the ordering flow with multi-item support."""
