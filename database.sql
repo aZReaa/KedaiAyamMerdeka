@@ -38,6 +38,16 @@ CREATE TABLE IF NOT EXISTS pesanan (
     FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan)
 );
 
+-- Table Structure for 'conversation_states'
+CREATE TABLE IF NOT EXISTS conversation_states (
+    id_pelanggan VARCHAR(20) PRIMARY KEY,
+    state VARCHAR(50) DEFAULT 'idle',
+    data TEXT,
+    cart TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan)
+);
+
 -- Dump Data for 'menu'
 INSERT INTO menu (nama_menu, harga, kategori, ketersediaan) VALUES 
 ('Ayam Geprek', 15000, 'Ayam', 1),

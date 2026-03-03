@@ -286,6 +286,14 @@ class Database:
             self.insert_or_update_pelanggan(id_pelanggan, "Pelanggan")
             
             import json
+            from decimal import Decimal
+            
+            class DecimalEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, Decimal):
+                        return float(obj)
+                    return super().default(obj)
+            
             current = self.get_user_state(id_pelanggan)
             
             new_data = current['data']
@@ -300,8 +308,8 @@ class Database:
                 ON DUPLICATE KEY UPDATE state = %s, data = %s, cart = %s
             """
             
-            data_json = json.dumps(new_data)
-            cart_json = json.dumps(new_cart)
+            data_json = json.dumps(new_data, cls=DecimalEncoder)
+            cart_json = json.dumps(new_cart, cls=DecimalEncoder)
             
             cursor.execute(query, (
                 id_pelanggan, state, data_json, cart_json,
