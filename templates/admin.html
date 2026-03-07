@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Kedai Ayam Merdeka</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
@@ -14,6 +14,7 @@
             <button class="tab-btn active" onclick="showTab('menu')">Menu</button>
             <button class="tab-btn" onclick="showTab('pesanan')">Pesanan</button>
             <button class="tab-btn" onclick="showTab('chat')">Test Chat</button>
+            <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
         </div>
         
         <div id="menu" class="tab-content active">
@@ -103,12 +104,108 @@
             </div>
         </div>
         
+        <div id="analytics" class="tab-content">
+            <h2>📊 Analytics & Evaluasi</h2>
+            
+            <div class="analytics-summary">
+                <h3>Ringkasan Statistik</h3>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <h4>Total Interaksi</h4>
+                        <p id="totalInteractions">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Avg Confidence</h4>
+                        <p id="avgConfidence">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Feedback</h4>
+                        <p id="totalFeedback">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Avg Rating</h4>
+                        <p id="avgRating">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analytics-section">
+                <h3>Distribusi Intent</h3>
+                <table id="intentDistributionTable">
+                    <thead>
+                        <tr>
+                            <th>Intent</th>
+                            <th>Jumlah</th>
+                            <th>Persentase</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="analytics-section">
+                <h3>Distribusi Confidence Score</h3>
+                <table id="confidenceDistributionTable">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="analytics-section">
+                <h3>Chat Logs Terbaru</h3>
+                <button onclick="loadChatLogs()" class="refresh-btn">🔄 Refresh</button>
+                <div class="table-container">
+                    <table id="chatLogsTable">
+                        <thead>
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Pelanggan</th>
+                                <th>Input</th>
+                                <th>Intent</th>
+                                <th>Confidence</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="analytics-section">
+                <h3>Distribusi Rating (Feedback)</h3>
+                <div id="feedbackDetails">
+                    <table id="ratingDistributionTable">
+                        <thead>
+                            <tr>
+                                <th>Rating</th>
+                                <th>Jumlah</th>
+                                <th>Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="analytics-section">
+                <h3>Export Data (Untuk Evaluasi Bab 4)</h3>
+                <button onclick="exportChatLogs()" class="primary-btn">📥 Export Chat Logs (CSV)</button>
+                <button onclick="exportConfusionMatrix()" class="primary-btn">📥 Export Confusion Matrix Data</button>
+                <button onclick="exportFeedback()" class="primary-btn">📥 Export Feedback (CSV)</button>
+            </div>
+        </div>
+        
         <div class="actions">
             <button onclick="initDatabase()" class="danger-btn">🗄️ Initialize Database</button>
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="../static/app.js"></script>
+    <script src="/static/app.js"></script>
 </body>
 </html>

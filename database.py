@@ -75,6 +75,8 @@ class Database:
                     total_harga DECIMAL(10,2),
                     status ENUM('dipesan', 'diproses', 'selesai', 'batal') DEFAULT 'dipesan',
                     waktu_pesan DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    waktu_pengambilan VARCHAR(50),
+                    tipe_pengambilan ENUM('immediate', 'specific', 'relative', 'later') DEFAULT 'immediate',
                     FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan)
                 )
             """)
@@ -87,6 +89,39 @@ class Database:
                     cart TEXT,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan)
+                )
+            """)
+            
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS chat_logs (
+                    id_log INT AUTO_INCREMENT PRIMARY KEY,
+                    id_pelanggan VARCHAR(20),
+                    nama_pelanggan VARCHAR(100),
+                    pesan_masuk TEXT,
+                    intent_terdeteksi VARCHAR(50),
+                    confidence_score DECIMAL(5,4),
+                    entities_extracted TEXT,
+                    pesan_keluar TEXT,
+                    state_sebelumnya VARCHAR(50),
+                    state_setelahnya VARCHAR(50),
+                    waktu_interaksi DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan),
+                    INDEX idx_waktu (waktu_interaksi),
+                    INDEX idx_intent (intent_terdeteksi),
+                    INDEX idx_pelanggan (id_pelanggan)
+                )
+            """)
+            
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS feedback (
+                    id_feedback INT AUTO_INCREMENT PRIMARY KEY,
+                    id_pelanggan VARCHAR(20),
+                    id_pesanan INT,
+                    rating INT CHECK (rating BETWEEN 1 AND 5),
+                    saran TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan),
+                    FOREIGN KEY (id_pesanan) REFERENCES pesanan(id_pesanan)
                 )
             """)
             
@@ -116,8 +151,13 @@ class Database:
         cursor = self.get_cursor(dictionary=True)
         if not cursor: return []
         try:
-            cursor.execute("SELECT * FROM menu WHERE ketersediaan = TRUE")
-            return cursor.fetchall()
+            cursor.execute("SELECT * FROM menu ORDER BY id_menu ASC")
+            results = cursor.fetchall()
+            # Convert Decimal to float for JSON serialization
+            for row in results:
+                if row.get('harga') is not None:
+                    row['harga'] = float(row['harga'])
+            return results
         except Error as e:
             print(f"Error get menu: {e}")
             return []
@@ -137,12 +177,16 @@ class Database:
         finally:
             cursor.close()
     
-    def create_pesanan(self, id_pelanggan, detail_pesanan, total_harga):
+    def create_pesanan(self, id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan=None, tipe_pengambilan='immediate'):
         cursor = self.get_cursor()
         if not cursor: return None
         try:
-            query = "INSERT INTO pesanan (id_pelanggan, detail_pesanan, total_harga) VALUES (%s, %s, %s)"
-            cursor.execute(query, (id_pelanggan, detail_pesanan, total_harga))
+            query = """
+                INSERT INTO pesanan (id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan, tipe_pengambilan) 
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            waktu_str = waktu_pengambilan['formatted'] if isinstance(waktu_pengambilan, dict) else waktu_pengambilan
+            cursor.execute(query, (id_pelanggan, detail_pesanan, total_harga, waktu_str, tipe_pengambilan))
             self.connection.commit()
             return cursor.lastrowid
         except Error as e:
@@ -175,6 +219,20 @@ class Database:
         except Error as e:
             print(f"Error get pesanan: {e}")
             return []
+        finally:
+            cursor.close()
+    
+    def get_pesanan_by_id(self, id_pesanan):
+        """Get single order by ID"""
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return None
+        try:
+            query = "SELECT * FROM pesanan WHERE id_pesanan = %s"
+            cursor.execute(query, (id_pesanan,))
+            return cursor.fetchone()
+        except Error as e:
+            print(f"Error get pesanan by id: {e}")
+            return None
         finally:
             cursor.close()
     
@@ -325,6 +383,233 @@ class Database:
 
     def reset_user_state(self, id_pelanggan):
         return self.update_user_state(id_pelanggan, 'idle', {}, [])
+
+    # ==================== CHAT LOGGING & ANALYTICS ====================
+    
+    def log_chat_interaction(self, id_pelanggan, nama_pelanggan, pesan_masuk, 
+                            intent_terdeteksi, confidence_score, entities_extracted,
+                            pesan_keluar, state_sebelumnya, state_setelahnya):
+        """
+        Log setiap interaksi chat untuk evaluasi dan analisis
+        """
+        cursor = self.get_cursor()
+        if not cursor: return False
+        try:
+            import json
+            query = """
+                INSERT INTO chat_logs 
+                (id_pelanggan, nama_pelanggan, pesan_masuk, intent_terdeteksi, 
+                 confidence_score, entities_extracted, pesan_keluar, 
+                 state_sebelumnya, state_setelahnya)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            entities_json = json.dumps(entities_extracted) if entities_extracted else '{}'
+            cursor.execute(query, (
+                id_pelanggan, nama_pelanggan, pesan_masuk, intent_terdeteksi,
+                confidence_score, entities_json, pesan_keluar,
+                state_sebelumnya, state_setelahnya
+            ))
+            self.connection.commit()
+            return True
+        except Error as e:
+            print(f"Error logging chat: {e}")
+            return False
+        finally:
+            if cursor: cursor.close()
+
+    def get_chat_analytics(self, start_date=None, end_date=None):
+        """
+        Get analytics data for evaluation
+        Returns: dict dengan metrics untuk evaluasi Bab 4
+        """
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return {}
+        try:
+            # Base query conditions
+            date_condition = ""
+            params = []
+            if start_date and end_date:
+                date_condition = "WHERE waktu_interaksi BETWEEN %s AND %s"
+                params = [start_date, end_date]
+
+            # Total interactions
+            cursor.execute(f"SELECT COUNT(*) as total FROM chat_logs {date_condition}", params)
+            total_interactions = cursor.fetchone()['total']
+
+            # Intent distribution
+            cursor.execute(f"""
+                SELECT intent_terdeteksi, COUNT(*) as count 
+                FROM chat_logs 
+                {date_condition}
+                GROUP BY intent_terdeteksi
+                ORDER BY count DESC
+            """, params)
+            intent_distribution = cursor.fetchall()
+
+            # Average confidence score
+            cursor.execute(f"""
+                SELECT AVG(confidence_score) as avg_confidence 
+                FROM chat_logs 
+                {date_condition}
+            """, params)
+            avg_confidence = cursor.fetchone()['avg_confidence'] or 0
+
+            # Confidence distribution
+            cursor.execute(f"""
+                SELECT 
+                    CASE 
+                        WHEN confidence_score >= 0.8 THEN 'High (>=0.8)'
+                        WHEN confidence_score >= 0.6 THEN 'Medium (0.6-0.8)'
+                        ELSE 'Low (<0.6)'
+                    END as confidence_level,
+                    COUNT(*) as count
+                FROM chat_logs
+                {date_condition}
+                GROUP BY confidence_level
+            """, params)
+            confidence_distribution = cursor.fetchall()
+
+            # State transitions
+            cursor.execute(f"""
+                SELECT state_sebelumnya, state_setelahnya, COUNT(*) as count
+                FROM chat_logs
+                {date_condition}
+                GROUP BY state_sebelumnya, state_setelahnya
+                ORDER BY count DESC
+                LIMIT 10
+            """, params)
+            state_transitions = cursor.fetchall()
+
+            return {
+                'total_interactions': total_interactions,
+                'intent_distribution': intent_distribution,
+                'average_confidence': round(float(avg_confidence), 4),
+                'confidence_distribution': confidence_distribution,
+                'top_state_transitions': state_transitions
+            }
+        except Error as e:
+            print(f"Error getting analytics: {e}")
+            return {}
+        finally:
+            if cursor: cursor.close()
+
+    def get_chat_logs_for_evaluation(self, limit=1000):
+        """
+        Get raw chat logs for manual evaluation (precision/recall calculation)
+        """
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return []
+        try:
+            query = """
+                SELECT * FROM chat_logs 
+                ORDER BY waktu_interaksi DESC
+                LIMIT %s
+            """
+            cursor.execute(query, (limit,))
+            return cursor.fetchall()
+        except Error as e:
+            print(f"Error getting chat logs: {e}")
+            return []
+        finally:
+            if cursor: cursor.close()
+
+    def get_intent_confusion_matrix_data(self):
+        """
+        Get data untuk membuat confusion matrix
+        Returns: list of (predicted_intent, actual_intent) - actual perlu diisi manual evaluasi
+        """
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return []
+        try:
+            query = """
+                SELECT id_log, pesan_masuk, intent_terdeteksi, confidence_score
+                FROM chat_logs
+                ORDER BY waktu_interaksi DESC
+            """
+            cursor.execute(query)
+            return cursor.fetchall()
+        except Error as e:
+            print(f"Error getting confusion matrix data: {e}")
+            return []
+        finally:
+            if cursor: cursor.close()
+
+    # ==================== FEEDBACK SYSTEM ====================
+    
+    def save_feedback(self, id_pelanggan, id_pesanan, rating, saran=None):
+        """
+        Simpan feedback rating dari pelanggan (untuk SUS evaluation)
+        """
+        cursor = self.get_cursor()
+        if not cursor: return False
+        try:
+            query = """
+                INSERT INTO feedback (id_pelanggan, id_pesanan, rating, saran)
+                VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(query, (id_pelanggan, id_pesanan, rating, saran))
+            self.connection.commit()
+            return True
+        except Error as e:
+            print(f"Error saving feedback: {e}")
+            return False
+        finally:
+            if cursor: cursor.close()
+
+    def get_feedback_stats(self):
+        """
+        Get feedback statistics untuk evaluasi
+        """
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return {}
+        try:
+            cursor.execute("""
+                SELECT 
+                    AVG(rating) as avg_rating,
+                    COUNT(*) as total_feedback,
+                    SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) as positive_count,
+                    SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as neutral_count,
+                    SUM(CASE WHEN rating <= 2 THEN 1 ELSE 0 END) as negative_count
+                FROM feedback
+            """)
+            stats = cursor.fetchone()
+            return {
+                'average_rating': round(float(stats['avg_rating'] or 0), 2),
+                'total_feedback': stats['total_feedback'] or 0,
+                'positive': stats['positive_count'] or 0,
+                'neutral': stats['neutral_count'] or 0,
+                'negative': stats['negative_count'] or 0
+            }
+        except Error as e:
+            print(f"Error getting feedback stats: {e}")
+            return {}
+        finally:
+            if cursor: cursor.close()
+
+    def get_feedback_rating_distribution(self):
+        """
+        Get distribution of ratings (1-5) untuk analisis detail
+        """
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return {}
+        try:
+            cursor.execute("""
+                SELECT rating, COUNT(*) as count
+                FROM feedback
+                GROUP BY rating
+                ORDER BY rating DESC
+            """)
+            results = cursor.fetchall()
+            distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            for row in results:
+                if row['rating'] in distribution:
+                    distribution[row['rating']] = row['count']
+            return distribution
+        except Error as e:
+            print(f"Error getting rating distribution: {e}")
+            return {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        finally:
+            if cursor: cursor.close()
 
     def close(self):
         if self.connection and self.connection.is_connected():

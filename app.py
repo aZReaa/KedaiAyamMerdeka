@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 from config import Config
 import os
+import json
+from decimal import Decimal
+from datetime import datetime, date
 
 print(f"[BOOT] app.py starting... (PID: {os.getpid()})")
 
@@ -14,6 +17,16 @@ print(f"[BOOT] All modules imported successfully!")
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return super().default(obj)
+
+app.json_encoder = CustomJSONEncoder
 
 print(f"[BOOT] Flask app created and ready to serve!")
 
@@ -72,8 +85,8 @@ def webhook():
             # Register/Update customer
             db.insert_or_update_pelanggan(from_number, profile_name)
             
-            # Generate response from dialog manager
-            response_text = dialog_manager.generate_response(from_number, text)
+            # Generate response from dialog manager (with nama_pelanggan for logging)
+            response_text = dialog_manager.generate_response(from_number, text, profile_name)
             print(f"\n🤖 Balasan: {response_text[:100]}...")
             
             # Send back to Telegram
@@ -135,12 +148,13 @@ def chat():
     data = request.json
     user_id = data.get('user_id', 'default')
     message = data.get('message', '')
+    user_name = data.get('user_name', 'Test User')
     
     if not message:
         return jsonify({'error': 'Message is required'}), 400
     
-    db.insert_or_update_pelanggan(user_id, "Test User")
-    response = dialog_manager.generate_response(user_id, message)
+    db.insert_or_update_pelanggan(user_id, user_name)
+    response = dialog_manager.generate_response(user_id, message, user_name)
     
     return jsonify({'response': response})
 
@@ -172,7 +186,9 @@ def api_menu():
 
 @app.route('/api/menu/<int:menu_id>', methods=['DELETE'])
 def delete_menu(menu_id):
-    cursor = db.connection.cursor()
+    cursor = db.get_cursor()
+    if not cursor:
+        return jsonify({'error': 'Database connection failed'}), 500
     try:
         query = "DELETE FROM menu WHERE id_menu = %s"
         cursor.execute(query, (menu_id,))
@@ -201,6 +217,7 @@ def api_pesanan():
 def update_pesanan_status(pesanan_id):
     data = request.json
     new_status = data.get('status')
+    send_notification = data.get('send_notification', True)  # Option to notify customer
     
     if not new_status:
         return jsonify({'error': 'status is required'}), 400
@@ -208,10 +225,25 @@ def update_pesanan_status(pesanan_id):
     if new_status not in ['dipesan', 'diproses', 'selesai', 'batal']:
         return jsonify({'error': 'Invalid status'}), 400
     
+    # Get order info before updating
+    pesanan = db.get_pesanan_by_id(pesanan_id)
+    
     success = db.update_status_pesanan(pesanan_id, new_status)
     
     if success:
-        return jsonify({'success': True, 'message': f'Status updated to {new_status}'})
+        response_data = {'success': True, 'message': f'Status updated to {new_status}'}
+        
+        # If status changed to 'selesai' and notification enabled, trigger feedback request
+        if new_status == 'selesai' and send_notification and pesanan:
+            id_pelanggan = pesanan.get('id_pelanggan')
+            if id_pelanggan:
+                feedback_message = dialog_manager.request_feedback(id_pelanggan, pesanan_id)
+                # Send notification to customer
+                notification_sent = send_telegram_message(id_pelanggan, feedback_message)
+                response_data['notification_sent'] = notification_sent
+                response_data['feedback_requested'] = True
+        
+        return jsonify(response_data)
     else:
         return jsonify({'error': 'Failed to update status'}), 500
 
@@ -245,6 +277,83 @@ def init_db():
         return jsonify({'success': True, 'message': 'Database initialized with sample data'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ==================== CHAT ANALYTICS API ====================
+
+@app.route('/api/analytics/chat', methods=['GET'])
+def get_chat_analytics():
+    """Get chat analytics for evaluation (Bab 4)"""
+    try:
+        from datetime import datetime, timedelta
+        
+        # Optional date range
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        analytics = db.get_chat_analytics(start_date, end_date)
+        return jsonify(analytics)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/chat-logs', methods=['GET'])
+def get_chat_logs():
+    """Get raw chat logs for manual evaluation"""
+    try:
+        limit = request.args.get('limit', 1000, type=int)
+        logs = db.get_chat_logs_for_evaluation(limit)
+        
+        # Convert datetime to string for JSON serialization
+        for log in logs:
+            if log.get('waktu_interaksi'):
+                log['waktu_interaksi'] = log['waktu_interaksi'].isoformat()
+        
+        return jsonify(logs)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/confusion-matrix', methods=['GET'])
+def get_confusion_matrix_data():
+    """Get data for confusion matrix (predicted vs actual)"""
+    try:
+        data = db.get_intent_confusion_matrix_data()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/feedback', methods=['GET', 'POST'])
+def handle_feedback():
+    """Handle feedback submission and retrieval"""
+    if request.method == 'POST':
+        try:
+            data = request.json
+            success = db.save_feedback(
+                id_pelanggan=data.get('id_pelanggan'),
+                id_pesanan=data.get('id_pesanan'),
+                rating=data.get('rating'),
+                saran=data.get('saran')
+            )
+            if success:
+                return jsonify({'success': True, 'message': 'Feedback saved'})
+            else:
+                return jsonify({'error': 'Failed to save feedback'}), 500
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        # GET - get feedback stats
+        try:
+            show_details = request.args.get('details', 'false').lower() == 'true'
+            stats = db.get_feedback_stats()
+            
+            if show_details:
+                # Add rating distribution
+                rating_dist = db.get_feedback_rating_distribution()
+                stats['rating_distribution'] = rating_dist
+            
+            return jsonify(stats)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
