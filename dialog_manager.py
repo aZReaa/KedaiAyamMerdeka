@@ -33,12 +33,12 @@ class DialogManager:
             
             response = None
             
-            # Global intents — berlaku di semua state kecuali idle (ditangani sendiri)
+            # Global intents - berlaku di semua state kecuali idle (ditangani sendiri)
             if state['state'] != 'idle':
                 if intent == 'salam':
                     self.reset_user_state(user_id)
                     greeting = self._get_time_greeting()
-                    response = f"{greeting}\n\nAda yang bisa dibantu? 😊\n\n💡 Ketik *pesan* untuk mulai memesan\n📋 Ketik *menu* untuk lihat daftar menu"
+                    response = f"{greeting}\n\nAda yang bisa dibantu? \n\n Ketik *pesan* untuk mulai memesan\n Ketik *menu* untuk lihat daftar menu"
                 elif intent == 'terima_kasih':
                     self.reset_user_state(user_id)
                     response = self._get_response(intent)
@@ -119,7 +119,7 @@ class DialogManager:
         
         if intent == 'salam':
             greeting = self._get_time_greeting()
-            return f"{greeting}\n\nAda yang bisa dibantu? 😊\n\n💡 Ketik *pesan* untuk mulai memesan\n📋 Ketik *menu* untuk lihat daftar menu\n⏰ Jam operasional: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
+            return f"{greeting}\n\nAda yang bisa dibantu? \n\n Ketik *pesan* untuk mulai memesan\n Ketik *menu* untuk lihat daftar menu\n Jam operasional: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
         
         elif intent == 'terima_kasih':
             return self._get_response(intent)
@@ -127,32 +127,32 @@ class DialogManager:
         elif intent == 'pesan_menu':
             menu_list = self._format_menu_list()
             self.update_user_state(user_id, 'asking_menu', {})
-            return f"Siap kak! Mau pesan apa?\n\n{menu_list}\n\n💡 *Contoh:* Ayam Geprek, Es Teh Manis"
+            return f"Siap kak! Mau pesan apa?\n\n{menu_list}\n\n *Contoh:* Ayam Geprek, Es Teh Manis"
         
         elif intent == 'cek_ketersediaan':
             if entities.get('NAMA_MENU'):
                 menu = db.get_menu_by_name(entities['NAMA_MENU'])
                 if menu:
-                    return f"✅ *{menu['nama_menu']}* tersedia kak!\nHarga: Rp {menu['harga']:,}\n\nMau pesan? Ketik 'pesan {menu['nama_menu']}'"
+                    return f"[OK] *{menu['nama_menu']}* tersedia kak!\nHarga: Rp {menu['harga']:,}\n\nMau pesan? Ketik 'pesan {menu['nama_menu']}'"
                 else:
-                    return "Maaf kak, menu tersebut tidak tersedia 😔"
+                    return "Maaf kak, menu tersebut tidak tersedia "
             else:
                 return "Menu apa yang mau dicek kak?"
         
         elif intent == 'cek_status':
             pesanan = db.get_last_pesanan(user_id)
             if pesanan:
-                status_emoji = {'dipesan': '🕐', 'diproses': '👨‍🍳', 'selesai': '✅', 'batal': '❌'}
-                emoji = status_emoji.get(pesanan['status'], '📋')
+                status_emoji = {'dipesan': '', 'diproses': '', 'selesai': '[OK]', 'batal': '[X]'}
+                emoji = status_emoji.get(pesanan['status'], '')
                 return f"{emoji} *Status Pesanan #{pesanan['id_pesanan']}*\n\nDetail: {pesanan['detail_pesanan']}\nTotal: Rp {pesanan['total_harga']:,}\nStatus: *{pesanan['status'].upper()}*"
             else:
                 return "Kakak belum memiliki pesanan aktif. Mau pesan sekarang? Ketik 'pesan'"
         
         elif intent == 'info_promo':
-            return self._get_response(intent) if self._get_response(intent) != "Maaf, saya tidak mengerti." else "🎉 Promo: Beli 2 Ayam Geprek GRATIS Es Teh Manis!"
+            return self._get_response(intent) if self._get_response(intent) != "Maaf, saya tidak mengerti." else " Promo: Beli 2 Ayam Geprek GRATIS Es Teh Manis!"
         
         elif intent == 'info_jam':
-            return f"⏰ *Jam Operasional Kedai Ayam Merdeka*\n\nSetiap Hari: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
+            return f" *Jam Operasional Kedai Ayam Merdeka*\n\nSetiap Hari: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
         
         elif intent == 'info_pembayaran':
             return self._get_payment_info()
@@ -161,7 +161,7 @@ class DialogManager:
             menus = db.get_all_menu()
             if menus:
                 menu = random.choice(menus)
-                return f"🌟 *Rekomendasi Hari Ini:*\n\n*{menu['nama_menu']}*\nHarga: Rp {menu['harga']:,}\n\nMau pesan kak? Ketik 'pesan {menu['nama_menu']}'"
+                return f" *Rekomendasi Hari Ini:*\n\n*{menu['nama_menu']}*\nHarga: Rp {menu['harga']:,}\n\nMau pesan kak? Ketik 'pesan {menu['nama_menu']}'"
             return "Menu belum tersedia saat ini."
         
         elif intent == 'ubah_pesanan':
@@ -170,7 +170,7 @@ class DialogManager:
                 self.update_user_state(user_id, 'modifying', {'id_pesanan': pesanan['id_pesanan']})
                 return f"Pesanan #{pesanan['id_pesanan']} akan diubah.\nDetail: {pesanan['detail_pesanan']}\n\nMau ganti jadi apa kak?"
             elif pesanan:
-                return "Maaf kak, pesanan sudah diproses 🙏"
+                return "Maaf kak, pesanan sudah diproses "
             return "Kakak belum punya pesanan aktif."
         
         elif intent == 'batalkan_pesanan' or intent == 'pembatalan':
@@ -178,31 +178,31 @@ class DialogManager:
             if pesanan and pesanan['status'] == 'dipesan':
                 db.update_status_pesanan(pesanan['id_pesanan'], 'batal')
                 self.reset_user_state(user_id)
-                return f"❌ Pesanan #{pesanan['id_pesanan']} dibatalkan.\n\nMau pesan lagi? Ketik 'menu'"
+                return f"[X] Pesanan #{pesanan['id_pesanan']} dibatalkan.\n\nMau pesan lagi? Ketik 'menu'"
             elif pesanan:
-                return "Maaf kak, pesanan sudah diproses 🙏"
+                return "Maaf kak, pesanan sudah diproses "
             return "Kakak belum punya pesanan aktif."
         
         elif intent == 'konfirmasi_pembayaran':
             pesanan = db.get_last_pesanan(user_id)
             if pesanan and pesanan['status'] == 'dipesan':
                 db.update_status_pesanan(pesanan['id_pesanan'], 'diproses')
-                return f"✅ *Pembayaran Dikonfirmasi!*\n\nPesanan #{pesanan['id_pesanan']} sedang diproses.\nEstimasi 15-30 menit.\n\nTerima kasih! 🍗"
+                return f"[OK] *Pembayaran Dikonfirmasi!*\n\nPesanan #{pesanan['id_pesanan']} sedang diproses.\nEstimasi 15-30 menit.\n\nTerima kasih! "
             return "Kakak belum punya pesanan yang menunggu pembayaran."
         
         elif intent == 'tanya_harga':
             return f"Berikut daftar harga:\n\n{self._format_menu_list()}"
         
         elif intent == 'delivery':
-            return "🛵 *Layanan Delivery*\n\nRadius: 5km\nOngkir: Rp 5.000 - Rp 15.000\n\nMau pesan delivery? Ketik 'pesan'"
+            return " *Layanan Delivery*\n\nRadius: 5km\nOngkir: Rp 5.000 - Rp 15.000\n\nMau pesan delivery? Ketik 'pesan'"
         
         elif intent in ['lokasi', 'komplain', 'menu_pedas', 'chitchat_baik']:
             response = self._get_response(intent)
             if response != "Maaf, saya tidak mengerti.":
                 return response
         
-        # Fallback — jangan dump menu, arahkan user
-        return "Maaf kak, saya belum mengerti 😅\n\nCoba ketik salah satu:\n📋 *menu* — lihat daftar menu\n🛒 *pesan* — mulai memesan\n📍 *lokasi* — alamat kedai\n⏰ *jam* — jam operasional"
+        # Fallback - jangan dump menu, arahkan user
+        return "Maaf kak, saya belum mengerti \n\nCoba ketik salah satu:\n *menu* - lihat daftar menu\n *pesan* - mulai memesan\n *lokasi* - alamat kedai\n *jam* - jam operasional"
     
     def _start_ordering_flow(self, user_id: str, entities: dict) -> str:
         """Start the ordering flow with multi-item support."""
@@ -241,7 +241,7 @@ class DialogManager:
                 
         if not cart:
             nf_msg = ", ".join(not_found)
-            return f"Maaf kak, menu *{nf_msg}* tidak tersedia 😔\n\n{self._format_menu_list()}"
+            return f"Maaf kak, menu *{nf_msg}* tidak tersedia \n\n{self._format_menu_list()}"
             
         msg_prefix = ""
         if not_found:
@@ -267,7 +267,7 @@ class DialogManager:
         """Handle when bot is asking for menu choice."""
         if intent == 'pembatalan' or intent == 'batalkan_pesanan':
             self.reset_user_state(user_id)
-            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' 😊"
+            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
         
         if entities.get('NAMA_MENU'):
             return self._start_ordering_flow(user_id, entities)
@@ -278,7 +278,7 @@ class DialogManager:
             entities['NAMA_MENU'] = message.strip().lower()
             return self._start_ordering_flow(user_id, entities)
         
-        return f"Maaf kak, menu tidak ditemukan 😔\n\nSilakan pilih dari:\n{self._format_menu_list()}"
+        return f"Maaf kak, menu tidak ditemukan \n\nSilakan pilih dari:\n{self._format_menu_list()}"
     
     def _handle_asking_quantity_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         # Kept for backward compatibility but bypassed by _start_ordering_flow defaulting JUMLAH to 1
@@ -296,7 +296,7 @@ class DialogManager:
         
         if intent == 'pembatalan' or intent == 'batalkan_pesanan':
             self.reset_user_state(user_id)
-            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' 😊"
+            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
         
         # Check for sambal entity from NLU
         sambal = entities.get('JENIS_SAMBAL')
@@ -330,11 +330,11 @@ class DialogManager:
                 cart_item = cart[idx]
                 menu_name = cart_item['menu_detail']['nama_menu']
                 jumlah = cart_item['JUMLAH']
-                return f"""Maaf kak, pilihan sambal tidak valid 😅
+                return f"""Maaf kak, pilihan sambal tidak valid 
 
 {self._ask_sambal_preference(menu_name, jumlah)}
 
-💡 *Tip:* Balas dengan angka (1-5) atau nama sambal (contoh: "bawang" atau "ijo")"""
+ *Tip:* Balas dengan angka (1-5) atau nama sambal (contoh: "bawang" atau "ijo")"""
             else:
                 return "Maaf kak, pesanan tidak valid."
         
@@ -364,27 +364,27 @@ class DialogManager:
         """Generate sambal preference question."""
         options = ""
         for i, opt in enumerate(self.SAMBAL_OPTIONS, 1):
-            emoji = "🌶️" if "sambal" in opt and opt != "tanpa sambal" else "🚫"
+            emoji = "" if "sambal" in opt and opt != "tanpa sambal" else ""
             options += f"{i}. {opt.title()} {emoji}\n"
         
-        return f"""*{menu_name}* x {jumlah} porsi 👍
+        return f"""*{menu_name}* x {jumlah} porsi 
 
-🌶️ Mau pakai sambal apa kak?
+ Mau pakai sambal apa kak?
 
 {options}
 Balas dengan angka (1-5) atau nama sambalnya"""
     
     def _ask_pickup_time(self) -> str:
         """Generate pickup time question."""
-        return f"""⏰ *KAPAN PESANAN DIAMBIL?*
+        return f""" *KAPAN PESANAN DIAMBIL?*
 
 Pilih salah satu:
-• *Sekarang* — Pesanan langsung disiapkan
-• *Jam 12:00* — Spesifik waktu (contoh)
-• *30 menit lagi* — Waktu relatif
-• *Pagi/Siang/Sore/Malam* — Perkiraan waktu
+- *Sekarang* - Pesanan langsung disiapkan
+- *Jam 12:00* - Spesifik waktu (contoh)
+- *30 menit lagi* - Waktu relatif
+- *Pagi/Siang/Sore/Malam* - Perkiraan waktu
 
-💡 Contoh: 'jam 12 siang' atau '1 jam lagi'"
+ Contoh: 'jam 12 siang' atau '1 jam lagi'"
     
     def _handle_asking_time_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle when bot is asking for pickup time."""
@@ -393,7 +393,7 @@ Pilih salah satu:
         
         if intent == 'pembatalan' or intent == 'batalkan_pesanan':
             self.reset_user_state(user_id)
-            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' 😊"
+            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
         
         # Try to extract time from message
         waktu = entities.get('WAKTU_PENGAMBILAN')
@@ -414,11 +414,11 @@ Pilih salah satu:
                 waktu = {"type": "specific", "value": "19:00", "formatted": "19:00"}
         
         if not waktu:
-            return f"""Maaf kak, waktu tidak dikenali 😅
+            return f"""Maaf kak, waktu tidak dikenali
 
 {self._ask_pickup_time()}
 
-💡 *Tip:* Balas dengan "sekarang", "jam 12", atau "1 jam lagi""""
+*Tip:* Balas dengan 'sekarang', 'jam 12', atau '1 jam lagi'"""
         
         # Save time and go to confirmation
         return self._go_to_confirmation(user_id, cart, waktu)
@@ -444,7 +444,7 @@ Pilih salah satu:
             if sambal: detail_str += f" ({sambal.title()})"
             details.append(detail_str)
             
-        detail_text = "\n".join([f"• {d}" for d in details])
+        detail_text = "\n".join([f"- {d}" for d in details])
         
         # Format time display
         waktu_text = "Sekarang"
@@ -460,16 +460,16 @@ Pilih salah satu:
         }
         self.update_user_state(user_id, 'confirming', state_data, cart=cart)
         
-        return f"""📝 *KONFIRMASI PESANAN*
+        return f""" *KONFIRMASI PESANAN*
 
 {detail_text}
-💰 Total: Rp {total_harga:,}
-⏰ Waktu Ambil: {waktu_text}
+Rp Total: Rp {total_harga:,}
+ Waktu Ambil: {waktu_text}
 
-━━━━━━━━━━━━━━━━
-✅ Balas *YA* untuk konfirmasi
-❌ Balas *BATAL* untuk membatalkan
-🛒 Balas *TAMBAH* jika ada yang kurang"""
+----------------
+[OK] Balas *YA* untuk konfirmasi
+[X] Balas *BATAL* untuk membatalkan
+ Balas *TAMBAH* jika ada yang kurang"""
     
     def _handle_confirming_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle order confirmation."""
@@ -509,26 +509,26 @@ Pilih salah satu:
             # Format time for display
             waktu_display = waktu_formatted if waktu_formatted else 'Sekarang'
             
-            return f"""✅ *PESANAN BERHASIL DIBUAT!*
+            return f"""[OK] *PESANAN BERHASIL DIBUAT!*
 
-📋 ID Pesanan: #{pesanan_id}
-⏰ Waktu Ambil: {waktu_display}
+ ID Pesanan: #{pesanan_id}
+ Waktu Ambil: {waktu_display}
 
 {detail_text}
-💰 Total: Rp {total:,}
+Rp Total: Rp {total:,}
 
-━━━━━━━━━━━━━━━━
+----------------
 {self._get_payment_info()}
 
-📲 Setelah transfer, kirim *'SUDAH BAYAR'* ya kak!"""
+> Setelah transfer, kirim *'SUDAH BAYAR'* ya kak!"""
         
         # User cancels
         elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or msg_lower in ['batal', 'tidak', 'no', 'cancel', 'gak jadi', 'n']:
             self.reset_user_state(user_id)
-            return "❌ Pesanan dibatalkan.\n\nMau pesan lagi? Ketik 'menu' 😊"
+            return "[X] Pesanan dibatalkan.\n\nMau pesan lagi? Ketik 'menu' "
             
         else:
-            return "Mohon konfirmasi pesanan:\n\n✅ Balas *YA* untuk memproses pesanan\n❌ Balas *BATAL* untuk membatalkan\n🛒 Balas *TAMBAH* jika ada yang kurang"
+            return "Mohon konfirmasi pesanan:\n\n[OK] Balas *YA* untuk memproses pesanan\n[X] Balas *BATAL* untuk membatalkan\n Balas *TAMBAH* jika ada yang kurang"
     
     def _handle_awaiting_payment_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle payment confirmation state."""
@@ -547,12 +547,12 @@ Pilih salah satu:
             
             self.reset_user_state(user_id)
             
-            return f"""✅ *PEMBAYARAN DIKONFIRMASI!*
+            return f"""[OK] *PEMBAYARAN DIKONFIRMASI!*
 
-Pesanan #{pesanan_id} sedang diproses 👨‍🍳
-⏱️ Estimasi: 15-30 menit
+Pesanan #{pesanan_id} sedang diproses 
+ Estimasi: 15-30 menit
 
-Terima kasih sudah memesan di Kedai Ayam Merdeka! 🍗
+Terima kasih sudah memesan di Kedai Ayam Merdeka! 
 Ditunggu orderan berikutnya ya kak!"""
         
         # Priority 2: Check for payment-related keywords
@@ -566,12 +566,12 @@ Ditunggu orderan berikutnya ya kak!"""
             
             self.reset_user_state(user_id)
             
-            return f"""✅ *PEMBAYARAN DIKONFIRMASI!*
+            return f"""[OK] *PEMBAYARAN DIKONFIRMASI!*
 
-Pesanan #{pesanan_id} sedang diproses 👨‍🍳
-⏱️ Estimasi: 15-30 menit
+Pesanan #{pesanan_id} sedang diproses 
+ Estimasi: 15-30 menit
 
-Terima kasih sudah memesan di Kedai Ayam Merdeka! 🍗
+Terima kasih sudah memesan di Kedai Ayam Merdeka! 
 Ditunggu orderan berikutnya ya kak!"""
         
         # Check for payment info request
@@ -584,7 +584,7 @@ Ditunggu orderan berikutnya ya kak!"""
             if pesanan_id:
                 db.update_status_pesanan(pesanan_id, 'batal')
             self.reset_user_state(user_id)
-            return f"❌ Pesanan #{pesanan_id} dibatalkan.\n\nMau pesan lagi? Ketik 'menu' 😊"
+            return f"[X] Pesanan #{pesanan_id} dibatalkan.\n\nMau pesan lagi? Ketik 'menu' "
         
         # Default: remind about payment
         else:
@@ -592,15 +592,15 @@ Ditunggu orderan berikutnya ya kak!"""
             detail = state_data.get('detail', '')
             pesanan_id = state_data.get('id_pesanan', '')
             
-            return f"""💳 *MENUNGGU PEMBAYARAN*
+            return f""" *MENUNGGU PEMBAYARAN*
 
-📋 Pesanan #{pesanan_id}
-🍽️ {detail}
-💰 Total: Rp {total:,}
+ Pesanan #{pesanan_id}
+ {detail}
+Rp Total: Rp {total:,}
 
 {self._get_payment_info()}
 
-📲 Kirim *'SUDAH BAYAR'* setelah transfer ya kak!"""
+> Kirim *'SUDAH BAYAR'* setelah transfer ya kak!"""
     
     def _handle_modifying_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle order modification."""
@@ -629,7 +629,7 @@ Ditunggu orderan berikutnya ya kak!"""
             return "Mau diubah jadi apa kak? Sebutkan menu dan jumlahnya."
         
         self.reset_user_state(user_id)
-        return f"✅ Pesanan diubah!\n\nDetail: {detail}\nTotal: Rp {total:,}\n\nSilakan lanjutkan pembayaran."
+        return f"[OK] Pesanan diubah!\n\nDetail: {detail}\nTotal: Rp {total:,}\n\nSilakan lanjutkan pembayaran."
     
     def _handle_asking_feedback_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle feedback collection after order completion."""
@@ -670,25 +670,25 @@ Ditunggu orderan berikutnya ya kak!"""
                 
                 # Thank user based on rating
                 if rating >= 4:
-                    thanks = "Makasih banyak kak! 😊"
+                    thanks = "Makasih banyak kak! "
                 elif rating >= 3:
-                    thanks = "Terima kasih kak! 🙏"
+                    thanks = "Terima kasih kak! "
                 else:
-                    thanks = "Terima kasih kak, kami akan berusaha lebih baik 🙏"
+                    thanks = "Terima kasih kak, kami akan berusaha lebih baik "
                 
                 return f"""{thanks}
 
 Ada saran atau komentar untuk kami?
-💬 Ketik pesan kakak atau balas "tidak ada" kalau sudah cukup"""
+ Ketik pesan kakak atau balas "tidak ada" kalau sudah cukup"""
             else:
-                return """Maaf kak, format rating tidak valid 😅
+                return """Maaf kak, format rating tidak valid 
 
-⭐ *BERI RATING* (1-5)
-• 1 = Sangat Kurang Puas
-• 2 = Kurang Puas  
-• 3 = Cukup Puas
-• 4 = Puas
-• 5 = Sangat Puas
+* *BERI RATING* (1-5)
+- 1 = Sangat Kurang Puas
+- 2 = Kurang Puas  
+- 3 = Cukup Puas
+- 4 = Puas
+- 5 = Sangat Puas
 
 Balas dengan angka 1-5 ya kak!"""
         
@@ -703,15 +703,15 @@ Balas dengan angka 1-5 ya kak!"""
             
             self.reset_user_state(user_id)
             
-            return """🙏 *TERIMA KASIH ATAS FEEDBACKNYA!*
+            return """ *TERIMA KASIH ATAS FEEDBACKNYA!*
 
 Komentar kakak sangat berarti untuk perbaikan layanan kami.
 
-Mau pesan lagi? Ketik *menu* kapan saja ya kak! 🍗"""
+Mau pesan lagi? Ketik *menu* kapan saja ya kak! """
         
         # Default fallback
         self.reset_user_state(user_id)
-        return "Terima kasih kak! Ditunggu orderan berikutnya ya 🍗"
+        return "Terima kasih kak! Ditunggu orderan berikutnya ya "
     
     def request_feedback(self, user_id: str, pesanan_id: int) -> str:
         """
@@ -724,18 +724,18 @@ Mau pesan lagi? Ketik *menu* kapan saja ya kak! 🍗"""
             'feedback_stage': 'asking_rating'
         })
         
-        return """🎉 *PESANAN SELESAI!*
+        return """ *PESANAN SELESAI!*
 
 Terima kasih sudah memesan di Kedai Ayam Merdeka!
 
-⭐ *MOHON BERI RATING* (1-5)
-• 1 = Sangat Kurang Puas
-• 2 = Kurang Puas
-• 3 = Cukup Puas
-• 4 = Puas
-• 5 = Sangat Puas
+* *MOHON BERI RATING* (1-5)
+- 1 = Sangat Kurang Puas
+- 2 = Kurang Puas
+- 3 = Cukup Puas
+- 4 = Puas
+- 5 = Sangat Puas
 
-Balas dengan angka 1-5 ya kak! 🙏"""
+Balas dengan angka 1-5 ya kak! """
     
     def _get_response(self, intent: str) -> str:
         """Get random response for intent from JSON."""
@@ -759,21 +759,21 @@ Balas dengan angka 1-5 ya kak! 🙏"""
                 categories[cat] = []
             categories[cat].append(menu)
         
-        menu_text = "📋 *MENU KEDAI AYAM MERDEKA*\n"
+        menu_text = " *MENU KEDAI AYAM MERDEKA*\n"
         
         for cat, items in categories.items():
             menu_text += f"\n*{cat}:*\n"
             for item in items:
-                menu_text += f"• {item['nama_menu']} - Rp {item['harga']:,}\n"
+                menu_text += f"- {item['nama_menu']} - Rp {item['harga']:,}\n"
         
         return menu_text
     
     def _get_payment_info(self) -> str:
         """Return payment information."""
-        return """💳 *METODE PEMBAYARAN*
+        return """ *METODE PEMBAYARAN*
 
-🏦 Bank BCA: 1234567890
-📱 OVO/GoPay: 081234567890
+ Bank BCA: 1234567890
+ OVO/GoPay: 081234567890
 a.n. Kedai Ayam Merdeka"""
     
     def _get_time_greeting(self) -> str:
@@ -789,6 +789,6 @@ a.n. Kedai Ayam Merdeka"""
         else:
             greeting = "Selamat malam"
         
-        return f"{greeting} kak! Selamat datang di Kedai Ayam Merdeka 🍗"
+        return f"{greeting} kak! Selamat datang di Kedai Ayam Merdeka "
 
 dialog_manager = DialogManager()
