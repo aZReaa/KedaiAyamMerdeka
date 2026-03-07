@@ -70,15 +70,179 @@ class NLU:
             
         return best_match
     
+    def __init__(self):
+        print(f"[BOOT] NLU __init__ called. Loading spaCy model...")
+        try:
+            self.nlp = spacy.load("xx_ent_wiki_sm")
+            print(f"[BOOT] spaCy model loaded successfully!")
+        except Exception as e:
+            print(f"[BOOT] FATAL ERROR loading spaCy: {e}")
+            self.nlp = None
+        
+        print(f"[BOOT] Loading intents...")
+        self.intents = self._load_intents()
+        
+        # Setup time extraction patterns
+        self._setup_time_patterns()
+        
+        print(f"[BOOT] NLU Initialization complete.")
+    
+    def _setup_time_patterns(self):
+        """Setup regex patterns for time extraction"""
+        # Time keywords in Indonesian
+        self.time_keywords = {
+            "sekarang": "immediate",
+            "segera": "immediate",
+            "langsung": "immediate",
+            "nanti": "later",
+            "besok": "tomorrow",
+            "pagi": "09:00",
+            "siang": "12:00",
+            "sore": "15:00",
+            "malam": "19:00"
+        }
+        
+        # Regex patterns for time extraction
+        self.time_patterns = [
+            # Format: jam 12.30, jam 12:30, jam 12 30
+            r'\bjam\s*(\d{1,2})[:\.\s]?(\d{2})?\s*(pagi|siang|sore|malam)?\b',
+            # Format: pukul 12.30, pukul 12:30
+            r'\bpukul\s*(\d{1,2})[:\.\s]?(\d{2})?\s*(pagi|siang|sore|malam)?\b',
+            # Format: 12.30, 12:30 (with am/pm context)
+            r'\b(\d{1,2})[:\.](\d{2})\s*(pagi|siang|sore|malam|am|pm)?\b',
+            # Format: 30 menit lagi, 1 jam lagi
+            r'\b(\d+)\s*(menit|jam)\s*lagi\b',
+            # Format: setengah (12:30)
+            r'\bsetengah\s*(\d{1,2})\s*(pagi|siang|sore|malam)?\b'
+        ]
+    
+    def extract_time(self, text: str) -> Dict:
+        """
+        Extract pickup time from text
+        Returns: Dict with 'type', 'value', 'formatted', 'original'
+        """
+        text_lower = text.lower()
+        
+        # Check for immediate keywords
+        for keyword, time_type in self.time_keywords.items():
+            if keyword in text_lower:
+                if time_type == "immediate":
+                    return {
+                        "type": "immediate",
+                        "value": "immediate",
+                        "formatted": "Sekarang",
+                        "original": keyword
+                    }
+                elif time_type in ["tomorrow", "later"]:
+                    return {
+                        "type": time_type,
+                        "value": time_type,
+                        "formatted": "Nanti",
+                        "original": keyword
+                    }
+                else:  # Specific time like 09:00
+                    return {
+                        "type": "specific",
+                        "value": time_type,
+                        "formatted": time_type,
+                        "original": keyword
+                    }
+        
+        # Try regex patterns
+        for pattern in self.time_patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                groups = match.groups()
+                
+                # Pattern: jam/pukul HH:MM or HH:MM with am/pm
+                if len(groups) >= 2 and groups[0] and groups[1]:
+                    hour = int(groups[0])
+                    minute = groups[1]
+                    period = groups[2] if len(groups) > 2 and groups[2] else None
+                    
+                    # Handle am/pm conversion
+                    if period:
+                        if period in ['siang', 'sore'] and hour < 12:
+                            hour += 12
+                        elif period == 'malam' and hour < 12 and hour != 12:
+                            hour += 12
+                        elif period == 'pagi' and hour == 12:
+                            hour = 0
+                    
+                    formatted_time = f"{hour:02d}:{minute}"
+                    return {
+                        "type": "specific",
+                        "value": formatted_time,
+                        "formatted": formatted_time,
+                        "original": match.group(0)
+                    }
+                
+                # Pattern: jam/pukul HH (without minutes)
+                elif len(groups) >= 1 and groups[0]:
+                    hour = int(groups[0])
+                    period = groups[2] if len(groups) > 2 and groups[2] else None
+                    
+                    if period:
+                        if period in ['siang', 'sore'] and hour < 12:
+                            hour += 12
+                        elif period == 'malam' and hour < 12 and hour != 12:
+                            hour += 12
+                        elif period == 'pagi' and hour == 12:
+                            hour = 0
+                    
+                    formatted_time = f"{hour:02d}:00"
+                    return {
+                        "type": "specific",
+                        "value": formatted_time,
+                        "formatted": formatted_time,
+                        "original": match.group(0)
+                    }
+                
+                # Pattern: X menit/jam lagi
+                elif len(groups) >= 2 and groups[1] in ['menit', 'jam']:
+                    amount = int(groups[0])
+                    unit = groups[1]
+                    return {
+                        "type": "relative",
+                        "value": f"{amount}_{unit}",
+                        "formatted": f"{amount} {unit} lagi",
+                        "original": match.group(0)
+                    }
+                
+                # Pattern: setengah X
+                elif 'setengah' in match.group(0):
+                    hour = int(groups[0]) if groups[0] else 12
+                    period = groups[1] if len(groups) > 1 and groups[1] else None
+                    
+                    if period:
+                        if period in ['siang', 'sore'] and hour < 12:
+                            hour += 12
+                    
+                    formatted_time = f"{hour-1:02d}:30"
+                    return {
+                        "type": "specific",
+                        "value": formatted_time,
+                        "formatted": formatted_time,
+                        "original": match.group(0)
+                    }
+        
+        return None
+    
     def extract_entities(self, text: str) -> Dict:
         entities = {
             "NAMA_MENU": None,
             "JUMLAH": None,
             "JENIS_SAMBAL": None,
+            "WAKTU_PENGAMBILAN": None,
             "ITEMS": []
         }
         
         text_lower = text.lower()
+        
+        # Extract time first
+        time_entity = self.extract_time(text)
+        if time_entity:
+            entities["WAKTU_PENGAMBILAN"] = time_entity
         
         # Pisahkan berdasarkan kata hubung
         separators = r'\bdan\b|\bsama\b|\bdengan\b|\bterus\b|\bkasih\b|,|&|\+'

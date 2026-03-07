@@ -1,0 +1,1440 @@
+
+--- HALAMAN 1 ---
+ PROPOSAL PENELITIAN  
+ 
+IMPLEMENTASI CHATBOT PEMESANAN MAKANAN   
+KEDAI  AYAM MERDEKA  DENGAN METODE  
+NATURAL LANGUAGE PROCESSING  
+ 
+ 
+ 
+ 
+ 
+MUSRAFIL  
+22.023.55.202.0 34 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUDI TEKNIK INFORMATIKA  
+FAKULTAS TEKNIK  
+UNIVERSITAS ANDI DJEMMA  
+PALOPO  
+2025 
+
+--- HALAMAN 2 ---
+ii 
+ 
+LEMBAR PERSETUJUAN  
+PROPOSAL PENELITIAN  
+ 
+IMPLEMENTASI CHATBOT PEMESANAN  
+KEDAI AYAM MERDEKA DENGAN METODE  
+ NATURAL LANGUAGE PROCESSING  
+ 
+ 
+Disusun oleh:  
+ 
+ 
+ 
+MUSRAFIL  
+22.023.55.202.0 34 
+ 
+ 
+ 
+Telah diperiksa dan disetujui untuk seminar hasil  
+pada Program Studi Teknik Informatika Fakultas Teknik  
+Universitas Andi Djemma Palopo  
+ 
+ 
+ 
+Palopo, 27 Oktober 2025  
+Menyetujui,  
+  
+  
+Pembimbing I,  
+ 
+ 
+ 
+Dr.Ahmad Ali Hakam Dani , S.SI., M.T.I.  
+NIDN.: 09.2301.9001                Pembimbing II,  
+ 
+ 
+ 
+Rinto Suppa, S.Si., M.Pd.  
+         NIDN.: 09.2603.8802  
+--- HALAMAN 3 ---
+iii 
+ 
+LEMBAR PERSETUJUAN PENGUJI  
+Setelah memeriksa Proposal Penelitian yang ditulis oleh:  
+Nama  : Musrafil  
+NIM : 22.023.55.202.0 34 
+Program Studi  : Informatika  
+Fakultas  : Teknik  
+Judul Skripsi       : Implementasi Chatbot Pemesanan Makanan Kedai Ayam 
+Merdeka Dengan Metode Natural Language Processsing . 
+Telah diujikan pada Hari Jum’at 24 Oktober 2025, dinyatakan telah sesuai 
+dengan saran dan rekomendasi penguji.   
+No Nama  Jabatan  Tanda Tangan  
+1. Dr.Ahmad Ali Hakam Dani, S.S I.,M.T .i..   Ketua   
+2. Rinto Suppa, S.Si., M.Pd.  Anggota   
+3. Hisma Abduh, S.Kom., M .Cs. Anggota   
+4.  Mukramin, S.Kom., M.Kom.  Anggota   
+5. Dr. Hasnawati, S.Pd.I., M.Pd.I.  Anggota   
+  
+--- HALAMAN 4 ---
+iv 
+ LEMBAR PERSETUJUAN  
+PROPOSAL PENELITIAN  
+ 
+IMPLEMENTASI CHATBOT PEMESANAN MAKANAN  
+KEDAI  AYAM MERDEKA DENGAN METODE  
+ NATURAL LANGUAGE PROCESSING  
+ 
+ 
+Disusun oleh:  
+ 
+ 
+ 
+MUSRAFIL  
+22.023.55.202.0 34 
+ 
+Telah diperiksa dan disetujui untuk  membuat  proposal pada program studi Teknik 
+Informatika Fakultas Teknik Universitas Andi Djemma Palopo  
+ 
+Palopo, 13 oktober 2025  
+Menyetujui,  
+  
+Pembimbing I,        Pembimbing II,  
+ 
+Dr.Ahmad Ali Hakam Dani, S.S I., M.T.I.          Rinto Suppa, S.Si., M.Pd.  
+ NIDN.: 09.2301 .9001                             NIDN.: 09.2603.8802  
+--- HALAMAN 5 ---
+v 
+ DAFTAR ISI  
+LEMBAR PERSETUJUAN  ................................ ................................ ..................  ii 
+LEMBAR PERSETUJUAN PENGUJI  ................................ ................................  iii 
+LEMBAR PERSETUJUAN  ................................ ................................ .................  iv 
+DAFTAR ISI  ................................ ................................ ................................ .........  v 
+DAFTAR GAMBAR  ................................ ................................ ...........................  vii 
+DAFTAR TABEL  ................................ ................................ ..............................  viii 
+BAB I PENDAHULUAN  ................................ ................................ ......................  1 
+1.1. Latar Belakang  ................................ ................................ .....................  1 
+1.2. Rumusan Masalah  ................................ ................................ ...............  3 
+1.3. Tujuan Penelitian  ................................ ................................ .................  3 
+1.4. Batasan Masalah  ................................ ................................ .................  3 
+1.5. Manfaat Penulisan  ................................ ................................ ...............  4 
+1.6. Sistematika Penulisan  ................................ ................................ ..........  4 
+BAB II LANDASAN TEORI  ................................ ................................ .................  6 
+2.1. State of The Art Chatbot  ................................ ................................ ...... 6 
+2.1.1  Transformasi Digital Industri Restoran  ................................ ........  6 
+2.1.2  Teknologi Chatbot untuk Restoran  ................................ ..............  7 
+2.2. Chatbot  ................................ ................................ ................................  7 
+2.3. Natural Language Processing (NLP)  ................................ ....................  7 
+2.3.1  Komponen dan Teknik Natural Lenguage Processing  .................  8 
+2.3.2  Penerapan Natural Lenguage Processing  pada chatbot  .............  8 
+2.4. Natural Language Understanding  ................................ ........................  9 
+2.4.1  Entity Direction  ................................ ................................ ............  9 
+2.4.2  Tugas Utama Natural Lenguage Understanding ........................  10 
+2.5. Natural Language Generations (NLG)  ................................ ...............  11 
+2.5.1  Tahapan Proses Natural Processing Generation  .......................  11 
+2.5.2  Integrasi Natural Lenguage Processing , Natural Lenguage 
+Understanding dan Natural Lenguage Generatio pada Chatbot  ...........  11 
+2.6. Spacy  ................................ ................................ ................................  12 
+2.7. Python  dan Flask  ................................ ................................ ...............  13 
+2.8. Augmentasi Data  ................................ ................................ ...............  13 
+2.9. Evaluasi Chatbot  ................................ ................................ ................  13 
+--- HALAMAN 6 ---
+vi 
+ 2.9.1  Metrik Evaluasi Teknis  ................................ ...............................  13 
+2.9.2  Struktur System Usability Scale  (SUS)  ................................ ...... 14 
+2.9.3  Penerapan System Usability Scale pada evaluasi chatbot  ........  14 
+2.10.  Hasil Penelitian yang Relevan  ................................ ...........................  15 
+2.11.  Profil Lokasi Kedai Ayam Merdeka  ................................ .....................  19 
+BAB III  METODE PENELITIAN  ................................ ................................ ........  21 
+3.1. Jenis dan Pendekatan Penelitian  ................................ .......................  21 
+3.2. Tempat dan Penelitian  ................................ ................................ ....... 21 
+3.3. Objek Penelitian  ................................ ................................ .................  22 
+3.4. Metode Pengumpulan Data  ................................ ...............................  23 
+3.4.1  Observasi  ................................ ................................ ..................  23 
+3.4.2  Wawancara  ................................ ................................ ...............  23 
+3.4.3  Dokumentasi  ................................ ................................ .............  24 
+3.4.4  System Usability Scale  (SUS)  ................................ ...................  24 
+3.4.5  Studi Literatur ................................ ................................ ............  24 
+3.5. Kerangka Penelitian  ................................ ................................ ...........  25 
+3.5.1  Tahap Analisis Kebutuhan Sistem  ................................ .............  25 
+3.5.2  Tahap Persiapan Data Natural Language Understanding  ..........  25 
+3.5.3  Tahap Perancangan Sistem  ................................ ......................  28 
+3.5.4  Tahap Implementasi  ................................ ................................ .. 29 
+3.5.5  Tahap Evaluasi  ................................ ................................ ..........  31 
+3.6. Instrumen Penelitian  ................................ ................................ ..........  32 
+3.6.1  Instrumen Pengumpulan Data  ................................ ...................  32 
+3.6.2  Instrumen Pengembangan Sistem  ................................ ............  33 
+3.6.3  Instrumen Evaluasi  ................................ ................................ ... 33 
+3.7. Teknik Analisis Data  ................................ ................................ ...........  33 
+3.7.1  Analisis Data Kuantitatif (Evaluasi Teknis)  ................................ . 33 
+3.7.2  Analisis Data Kuantitatif -Kualitatif (Evaluasi Usability ) ...............  34 
+3.8. Analisis dan Perancangan Sistem  ................................ ......................  35 
+3.8.1  Analisis Sistem yang Berjalan  ................................ ...................  35 
+3.8.2  Rancangan Arsitektur Sistem.  ................................ ...................  36 
+DAFTAR PUSTAKA  ................................ ................................ ..........................  38 
+ 
+--- HALAMAN 7 ---
+vii 
+ DAFTAR GAMBAR  
+Gambar 2. 1 Kedai Ayam Merdeka  ................................ ................................ .... 19 
+Gambar 2. 2 Menu Kedai Ayam Merdeka  ................................ ..........................  19 
+Gambar 3. 1 Analisis sistem yang berjalan  ................................ ........................  35 
+Gambar 3. 2 Racangan Arsitektur Sistem  ................................ ..........................  36 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- HALAMAN 8 ---
+viii 
+ DAFTAR TABEL  
+Tabel 2. 1 Hasil Penelitian yang Relevan  ................................ ...........................  15 
+Table 3.1 Tempat Penelitian  ................................ ................................ ...............  22 
+Table 3.2 Identifikasi Intent  ................................ ................................ ................  26 
+Table 3. 3 Identifikasi Entity  ................................ ................................ ...............  27 
+Table 3.4 Augmentasi Data  ................................ ................................ ................  27 
+Table 3. 5 Tahap Evaluasi  ................................ ................................ ..................  31 
+Table 3. 6 Skor SUS  ................................ ................................ ..........................  32  
+ 
+  
+--- HALAMAN 9 ---
+1 
+ BAB I  
+PENDAHULUAN  
+1.1. Latar Belakang  
+Perkembangan teknologi informasi mendorong cara baru manusia 
+berinteraksi dan bertransaksi, salah satunya melalui chatbot  yang berkomunikasi 
+dengan bahasa alami. Pada praktiknya, chatbot  mengandalkan modul Natural 
+Language Processing  (NLP) untuk menafsirkan konteks percakapan agar interaksi 
+manusia –komputer berlangsung alami dan efisien. Menurut Jurafsky dan Martin 
+(2020) , NLP menjadi landasan komputasional untuk memproses bahasa manusia 
+sehingga sistem dapat memahami konteks dan merespon secara tepat.  
+Pada konteks layanan informasi di Indonesia, adopsi chatbot  menunjukkan 
+hasil menjanjikan. Studi pada Jur nal Rachman, Mardhiyah, dan Jannah (2023)  
+melaporkan layanan informasi wisata berbasis Rasa yang beroperasi sepanjang 
+hari dengan kinerja model yang baik (akurasi 0,91 precision  0,97 recall  0,94 F1 
+0,95). Temuan ini menegaskan kelayakan teknologi percakapan sebagai kanal 
+layanan yang stabil.  Pada lingkup akademik, menurut asisten virtual  Al Fajri dan 
+Hartono (2024)  di JST Undiksha juga dilaporkan meningkatkan kemudahan akses 
+informasi dan diterima pengguna secara baik, menunjukkan kesiapan chatbot  
+berbahasa Indonesia untuk skenario layanan real. 
+Beranjak ke ranah kuliner  yang menjadi fokus Kedai Ayam Merdeka  riset 
+riset lokal mendeskripsikan masalah tipikal pada pemesanan manual  seperti   
+antrean panjang saat jam sibuk, salah catat, dan keterlambatan layanan.  Maka 
+kajian  di berbagai kedai  atau restoran  menyarankan digitalisasi alur pemesanan 
+untuk menekan kesalahan dan waktu tunggu.  Menurut Susesno dan Prasetyo 
+(2024)  pada kasus  yang sama, studi perancangan chatbot  pemesanan        
+--- HALAMAN 10 ---
+2 
+ berbasis Telegram di Jurnal spektrum  mengonfirmasi kelayakan teknis otomasi 
+pemesanan, sementara riset  Zahra dan Iwan Setiawan Wibisono (2023)  
+menunjukkan aplikasi chatbot  mempermudah pelanggan memesan tanpa harus 
+datang ke lokasi.  Temuan ini memperkuat urgensi automasi pemesanan pada 
+konteks UMKM kuliner.  
+Evaluasi kinerja sistem chatbot memerlukan pendekatan komprehensif 
+yang mencakup aspek teknis dan pengalaman pengguna. Pendekatan evaluasi 
+teknis menggunakan metrik standar dalam NLP untuk mengukur akurasi sistem. 
+Precision  mengukur ketepatan prediksi positif dari keseluruhan prediksi yang 
+dibuat sistem, recall  menilai kelengkapan sistem dalam mengenali seluruh 
+instance  positif yang ada, sedangkan F1-score  merupakan rata -rata harmonik 
+yang menyeimbangkan kedua metrik tersebut. Penelitian sebelumnya 
+menunjuk kan bahwa sistem chatbot  yang efektif memerlukan nilai F1-score  
+minimal 0,85 untuk aplikasi transaksional kritis. Sementara itu, evaluasi 
+pengalaman pengguna dilakukan menggunakan System Usability Scale  (SUS), 
+sebuah instrumen standar yang telah teruji reliabilitasnya dalam mengukur 
+kegunaan sistem. Instrumen SUS menghasilkan skor 0 -100, dengan kategori 
+"baik" dimulai dari skor 68 ke atas berdasarkan interpretasi standar yang 
+ditetapkan oleh Brooke pada tahun 1996 . 
+Agar pembahasan teknis relevan dan runtut, terlebih dahulu ditegaskan 
+relasi tiga pilar dalam sistem percakapa n NLP, Natural Language Understanding  
+(NLU), Natural Lenguage Generation  (NLG). NLP mencakup keseluruhan teknik 
+pemrosesan bahasa , NLU berfokus pada pemahaman makna (pemetaan intent  
+dan ekstraksi entitas) dari ujaran pengguna , sedangkan NLG menghasilkan 
+respon  linguistik  dari representasi internal sistem. Literatur inti menempatkan NLG 
+--- HALAMAN 11 ---
+3 
+ sebagai proses “menghasilkan  teks dari data/representasi nonlinguistik ”, 
+melengkapi NLU yang menafsirkan masukan keduanya berjalan serasi di dalam 
+arsitektur dialog.  (Kaplow dan Shavell 2022)  
+Pada penelitian ini, NLU diusulkan berbasis spaCy  karena  menurut Munif, 
+Ariyani, dan Mardiyani (2023)  SpaCy adalah pustaka open source  gratis dalam  
+bahasa Python  yang digunakan untuk NLP. SpaCy  dapat digunakan untuk 
+membangun ekstraksi informasi atau praproses teks untuk deep learning . 
+Beberapa fitur yang didukung spaCy  antara lain tokenisasi, POS Tagging , Named 
+Entity Recognition , dan Rule based  Matching . 
+1.2. Rumusan Masalah  
+Berdasarkan uraian dari latar belakang tersebut maka rumusan masalah 
+yang akan di bahas dalam penelitian ini adalah :  
+Bagaimana mengimplementasikan chatbot pemesanan makanan kedai 
+ayam merdeka dengan metode NLP dan mengintegrasikan chatbot  dengan 
+database  menu inventori kedai.  
+1.3. Tujuan Penelitian  
+Berdasarkan latar belakang dan rumusan masalah yang telah paparkan 
+maka tujuan penelitian ini adalah :  
+Mengimplementasikan chatbot   pemesanan makanan kedai ayam merdeka 
+dengan metode NLP dan mengintegrasikan chatbot  dengan database  menu 
+inventori kedai .  
+1.4. Batasan Masalah  
+Batasan masalah bertujuan untuk  membuat fokus penelitian menjadi 
+terarah. Adapun batasan masalahnya sebagai berikut:  
+a. Bahasa  : Indonesia (termasuk variasi diksi kuliner).  
+--- HALAMAN 12 ---
+4 
+ b. Kanal  : satu kanal utama ( WhatsApp Business  API) pada tahap awal.  
+c. Lingkup  : studi kasus pada satu kedai (Kedai Ayam Merdeka).  
+d. Fitur Sistem : pemesanan, cek ketersediaan, ubah  atau batalkan 
+pesanan, cek status, info operasional /promo , pembayaran daring . 
+e. Pada penelitian ini hanya mengguanakan metode Entity Direction . 
+1.5. Manfaat Penulisan  
+Manfaat yang dapat di hasilkan dari implementasi chatbot  dalam penelitian 
+ini adalah sebagai berikut:  
+a. Praktis (kedai): respon  cepat 24/7, beban layanan berkurang, dan 
+kesalahan pencatatan menuru n sejalan dengan temuan peningkatan 
+efisiensi pada studi chatbot  layanan di Indonesia.  
+b. Pelanggan: pemesanan mandiri tanpa menunggu karyawan  dan 
+transparansi status pesanan.  
+c. Akademis: kontribusi rancangan NLU berbahasa Indonesia berbasis 
+spaCy  untuk domain F&B (inten  entitas dan alur dialog), melengkapi 
+studi lokal tentang chatbot . 
+1.6. Sistematika  Penulisan  
+Dalam penulisan laporan Tugas Akhir ini, penulis membagi bahasan 
+dalambentuk Bab, pemaparannya sebagai berikut :  
+BAB I PENDAHLUAN  
+Pada bab ini menjelaskan tentang Latar Belakang, Rumusan Masalah, 
+Batasan Masalah, Tujuan Penelitian dan Sistematika Penulisan.  
+BAB II LANDASAN TEORI  
+Bab ini di fokuskan untuk mem bahas  mengenai berbagai macam landasan 
+teori yang digunakan dan sesuai dengan kebutuhan, seperti  sistem administrasi 
+--- HALAMAN 13 ---
+5 
+ persuratan Digital , teori yang berkaitan yang digunakan dalam mengembangkan 
+aplikasi ini. 
+BAB III METODE PENELITIAN  
+Pada bab ini menjelaskan tentang analisis terhadap aplikasi yang akan di  
+buat seperti Analisis Sistem dan Perancangan Siste m. 
+DAFTAR PUSTAKA  
+Pada bagian ini berisi tentang referensi -refensi jurnal maupun buku yang 
+menunjang penelitian ini.  
+  
+--- HALAMAN 14 ---
+6 
+ BAB II  
+LANDASAN TEORI  
+2.1. State of The Art Chatbot  
+State of the art  merupakan kondisi terkini dari perkembangan teknologi atau 
+metode dalam suatu bidang penelitian. Dalam konteks chatbot  untuk industri food 
+& beverage  khususnya restoran, warung, dan kedai, perkembangan teknologi 
+telah mengalami transformasi signifikan dari sistem manual menuju otomatisasi 
+digital yang didukung oleh NLP dan Artificial Intelligence . 
+2.1.1  Transformasi Digital Industri Restoran  
+Industri restoran telah mengalami transformasi besar seiring dengan 
+kemajuan teknologi, terutama pada tahun 2024 -2025. Menurut  Mimin.io. 
+(2025) , digitalisasi telah menjadi faktor kunci bagi industri restoran untuk 
+tetap relevan dan kompetitif, 80% pelanggan lebih memilih restoran yang 
+menawarkan pengalaman digital yang cepat dan mulus. Menurut s urvei 
+(Statista 2024)  mengungkapkan bahwa 65% konsumen mengharapkan 
+layanan yang lebih personal dan efisien saat bersantap.  
+Menurut Haq, Waspodo, dan Nuryasin (2021)  menjelaskan bahwa 
+pemanfaatan chatbot  pada restoran digunakan untuk mengerjakan 
+beberapa peran yang biasanya dilakukan oleh staf restoran, seperti 
+melayani pemesanan meja, menjawab pertanyaan seputar menu yang 
+tersedia, melakukan promosi, dan lain -lain. Chatbot  mampu bekerja selama 
+24 jam setiap harinya, memberikan layanan tanpa henti kepada pelanggan.   
+Sistem pemesanan yang awalnya dilakukan secara manual 
+menggunakan alat tulis kini beralih ke sistem digital.  Menurut  Rahmawati, 
+L., & Hidayat (2020)  menyatakan bahwa sistem pencatatan menu pesanan 
+--- HALAMAN 15 ---
+7 
+ pelanggan yang masih manual mengakibatkan keterlambatan dalam 
+pembuatan dan pengantaran pesanan serta terjadi kesalahpahaman dalam 
+pemesanan menu dari pihak pelanggan.  
+2.1.2  Teknologi Chatbot  untuk Restoran  
+Menurut Arif, A., Sudarma, M., & Shandyasa (2024)  
+mengimplementasikan chatbot  pemesanan makanan dan minuman via 
+Telegram di restoran dengan dukungan NLP. Penelitian ini fokus pada 
+analisis kepuasan pengguna dengan metode Heuristic  sebagai alat 
+evaluasi utama untuk mengukur aspek seperti kecepatan layanan, 
+kemudahan penggunaan, dan kejelasan informasi.  
+Hasil analisis menunjukkan respon positif pengguna terhadap 
+chatbot , mengindikasikan tingkat kepuasan yang tinggi dalam penggunaan 
+sistem. Temuan ini mendukung bahwa chatbot  dengan metode Heuristic  
+dapat memberikan pengalaman yang memuaskan bagi pelanggan dalam 
+pemesanan menu makanan dan minuman.  
+2.2. Chatbot  
+Secara umum, chatbot  adalah sistem yang memungkinkan percakapan 
+manusia dan komputer dengan bahasa alami untuk tujuan layanan dan transaksi. 
+Menurut Jurafsky dan Martin (2020) , NLP menjadi landasan komputasional untuk 
+memproses teks/ucapan sehingga sistem dapat memahami dan merespon secara 
+bermakna dalam konteks tugas tertentu.  
+2.3. Natural Language Processing (NLP)  
+Menurut  Naufal et al. (2022) , NLP adalah proses menganalisis teks dengan 
+cara terkomputerasi untuk memahami maksud dan konteks dari bahasa alami 
+manusia. NLP bertujuan untuk membaca, menguraikan, memahami, dan 
+--- HALAMAN 16 ---
+8 
+ menginterpretasikan bahasa manusia dengan cara yang berharga dan dapat 
+digunakan untuk berbagai aplikasi.  
+Menurut Elcholiqi dan Musdholifah (2020)  menjelaskan bahwa NLP berupaya 
+untuk mengubah data bahasa yang tidak terstruktur menjadi terstruktur untuk 
+membuat mesin/program memahami ucapan dan pesan serta merumuskan 
+respon  kontekstual yang sesuai. Dalam konteks chatbot , NLP memungkinkan 
+sistem untuk memproses input  pengguna dalam bentuk bahasa alami dan 
+memberikan respon  yang relevan.  
+2.3.1  Komponen dan Teknik Natural Lenguage Processing  
+Menurut Prasetyo, Benarkah, dan Chrisintha (2021)  menyebutkan 
+bahwa NLP mencakup berbagai teknik pemrosesan bahasa, antara lain:  
+a. Tokenization : proses  memecah teks menjadi unit -unit kecil yang 
+disebut token, seperti kata atau kalimat . 
+b. Lemmatization   : proses mencari kata dasar dari suatu kata 
+untuk memudahkan analisis dan pemahaman konteks 
+Khoirunisa (2020) . 
+c. Parsing  : proses menganalisis struktur gramatikal dari kalimat 
+untuk memahami hubungan antar kata.  
+d. Text Mining  : metode untuk mengekstrak informasi dan pola dari 
+data teks yang tidak terstruktur.  
+2.3.2  Penerapan Natural Lenguage Processing  pada chatbot  
+Dalam implementasi chatbot , NLP berfungsi sebagai fondasi utama 
+yang memungkinkan sistem untuk berkomunikasi secara natural dengan 
+pengguna.  Menurut  Salamun, S., Aprialdo, A. (2024)  menyatakan bahwa 
+NLP memungkinkan chatbot  untuk memberikan komunikasi yang lebih 
+--- HALAMAN 17 ---
+9 
+ natural antara manusia dan komputer, sehingga chatbot  dapat memahami 
+dan merespon  permintaan pengguna dengan lebih akurat.  Menurut Joey 
+Ferelestian, Susanto, dan Senapartha (2023)  menjelaskan bahwa 
+implementasi NLP pada chatbot  Telegram  dapat memproses permintaan 
+dari pengguna dan memberikan respon  sesuai dengan informasi yang 
+diminta dalam waktu singkat. Sistem chatbot  berbasis NLP terdiri dari 
+beberapa komponen utama yang bekerja secara terintegrasi untuk 
+menghasilkan respon  yang relevan.  
+2.4. Natural Langua ge Understanding  (NLU)  
+NLU adalah subset  dari NLP yang berfokus pada kemampuan mesin untuk 
+memahami makna dan konteks dari bahasa alami melalui analisis sintaksis dan 
+semantik (AI, n.d.) . NLU bertanggung jawab untuk menginterpretasikan maksud 
+(intent ) pengguna dan mengekstrak informasi penting ( entity ) dari input  yang 
+diberikan.  
+2.4.1  Entity Direction  
+Entity direction  pada penelitian ini dipahami sebagai pendekatan 
+dalam modul Natural Language Understanding  yang menitikberatkan pada 
+pengenalan dan penarikan entitas penting dari ujaran pengguna agar pesan 
+yang semula berbentuk bahasa alami dapat diubah menjadi data terstruktur 
+untuk diproses sistem. Melalui entity direction , chatbot  tidak hanya 
+mengetahui bahwa pengguna sedang “memesan”, tetapi juga menangkap 
+rincian yang diperlukan untuk mengeksekusi transaksi, seperti nama menu, 
+jumlah pesanan, jenis sa mbal, dan waktu pengambilan. Entitas yang 
+berhasil diekstrak kemudian dipetakan ke atribut (misalnya nama_menu , 
+jumlah , jenis_sambal , waktu ) sehingga modul pengelola dialog dapat 
+--- HALAMAN 18 ---
+10 
+ mengarahkan langkah berikutnya secara tepat, seperti memeriksa 
+ketersediaan stok, menghitung total, meminta klarifikasi apabila informasi 
+belum lengkap, hingga menampilkan konfirmasi pesanan secara ringkas 
+dan akurat. Dengan demikian, entity direction  berperan sebagai 
+penghubung antara variasi ungkapan pengguna dan kebutuhan data 
+operasional kedai, sehingga meminimalkan kesalahan pencatatan serta 
+mempercepat alur layanan pemesanan.  
+2.4.2  Tugas Utama Natural Lenguage Understanding  (NLU)  
+Dalam konteks chatbot , NLU memiliki dua tugas utama   Intent 
+Classification (Klasifikasi Intent ) Intent classification  adalah proses 
+mengidentifikasi maksud atau tujuan pengguna dari input  yang diberikan.  
+Menurut  Permatasari dan Maharani (2021)  dalam penelitiannya tentang 
+booking  bot mencapai akurasi klasifikasi intent  hingga 97.5% menggunakan 
+metode Support Vector Machine  (SVM) dengan ekstraksi fitur TF -IDF. Intent  
+merepresentasikan tujuan atau goal di balik pesan pengguna. Misalnya, 
+ketika pengguna mengatakan "Saya ingin pesan tiket", intent  yang 
+teridentifikasi adalah " booking  tiket". Sistem NLU harus dapat mengenali 
+berbagai variasi cara pengguna mengekspresikan intent  yang sama.  Entity 
+Extraction (Ekstraksi Entitas)  Entity extraction  adalah proses 
+mengidentifikasi dan mengekstrak informasi spesifik yang relevan dari input 
+pengguna. Entitas dapat berupa nama, tanggal, lokasi, jumlah, atau 
+informasi khusus lainnya yang diperlukan untuk memproses request  
+pengguna dengan tepat.  Menu rut Joey Ferelestian, Susanto, dan 
+Senapartha (2023)  menggunakan layanan cloud vendor Wit.ai  untuk 
+melakukan entity  extraction  pada chatbot  Telegram informasi mahasiswa. 
+--- HALAMAN 19 ---
+11 
+ Sistem dapat mengidentifikasi entitas seperti nama mahasiswa, nomor 
+induk, mata kuliah, dan informasi akademik lainnya dari input pengguna.   
+2.5. Natural L anguage Generations  (NLG)  
+NLG adalah subset dari NLP yang berfokus pada proses konstruksi atau 
+pembuatan teks dalam bahasa alami oleh mesin berdasarkan data terstruktur yang 
+diberikan (AI, n.d.)  NLG bertugas mengubah representasi internal sistem menjadi 
+respon bahasa alami yang dapat dipahami manusia.  
+2.5.1  Tahapan Proses Natural Processing Generation   
+Proses NLG dalam menghasilkan respon  natural terbagi menjadi tiga 
+tahap utama  Text Planning  (Perencanaan Teks)  Pada tahap ini, konten 
+umum dirumuskan dan diurutkan secara logis. Sistem menentukan 
+informasi apa yang perlu disampaikan dan bagaimana urutan 
+penyampaiannya agar mudah dipahami pengguna.  Sentence Planning  
+(Perencanaan Kalimat)  Tahap ini mempertimbangkan tanda baca dan alur 
+teks, memecah konten menjadi paragraf dan kalimat, serta 
+menggabungkan kata ganti atau konjungsi di tempat yang sesuai untuk 
+membuat teks lebih natural.  Realization  (Realisasi)  Tahap terakhir ini 
+memastikan akurasi gramatikal, memastikan bahwa aturan tanda baca dan 
+konjugasi diikuti dengan benar. Misalnya, memastikan penggunaan bentuk 
+kata kerja yang tepat sesuai konteks.  
+2.5.2  Integrasi N atural Lenguage Processing , Natural Lenguage 
+Understanding  dan Natural Lenguage Generatio  pada  Chatbot  
+Dalam sistem chatbot  yang lengkap, ketiga komponen ini bekerja 
+secara terintegrasi. Joey Ferelestian, Susanto, dan Senapartha (2023)  
+menjelaskan bahwa chatbot  menggunakan NLP dengan fokus pada NLU 
+--- HALAMAN 20 ---
+12 
+ untuk memahami input  pengguna dan NLG untuk menghasilkan respon  
+yang sesuai. Alur kerjanya adalah:  
+a. Input  Processing : NLP menerima input  dari pengguna  
+b. Understanding : NLU menganalisis  input  untuk mengidentifikasi 
+intent  dan entity  
+c. Processing : Sistem memproses informasi dan menentukan 
+respon  yang tepat  
+d. Generation : NLG menghasilkan respon  dalam bahasa natural  
+e. Output : Respon  disampaikan kepada pengguna , menurut  
+(Prasetyo, Benarkah, dan Chrisintha 2021)  dalam implementasi 
+chatbot  Information  Technology  Universitas Surabaya 
+menggunakan pendekatan NLP dengan akurasi 83.33% 
+berdasarkan cross validation  dan 76% berdasarkan user 
+validation , menunjukkan bahwa integrasi NLP, NLU, dan NLG 
+dapat menghasilkan sistem chatbot  yang efektif untuk 
+menyediakan informasi kepada pengguna.  
+2.6. Spacy 
+Menurut dokumentasi API spacy , text categorizer  memprediksi kategori 
+pada tingkat dokumen dengan dua varian ( textcat  dan textcat_multilabel ), 
+sehingga sesuai untuk memetakan intent  percakapan (mis. pesan_menu, 
+ubah_pesanan, cek_status ). Hasil klasifikasi disimpan pada properti Doc.cats , 
+yakni pemetaan label  skor yang diisi oleh komponen text categorization  selama 
+pemrosesan.  
+--- HALAMAN 21 ---
+13 
+ 2.7. Python  dan Flask  
+Python  adalah Bahasa pemrograman interpretatif, tingkat tinggi, dan 
+serbaguna yang banyak digunakan dalam pengembangan web, analisis data, 
+kecerdasan buatan, dan komputasi ilmiah.  
+Flask  adalah Sebuah micro  web framework  yang ditulis dalam Python . 
+Flask  dirancang agar ringan dan mudah diperluas, cocok untuk membangun 
+aplikasi web dengan cepat, termasuk backend  untuk chatbot . 
+2.8. Augmentasi  Data  
+Data augmentation  atau augmentasi  data adalah trik yang umum untuk 
+mengurangi over-fitting . Pada augmentasi  data, dihasilkan data baru dengan 
+menggunakan transformasi pada data asli. Augmentasi data memungkinkan untuk 
+meningkatkan generalisasi data (Huang et al. 2017) . 
+2.9. Evaluasi Chatbot  
+ Evaluasi chatbot merupakan proses penting untuk mengukur kualitas dan 
+efektivitas sistem dalam memahami input pengguna dan memberikan respon yang 
+tepat. Menurut Hidayat, Nugroho, dan Nurfaizin (2022) , evaluasi chatbot  dapat 
+dilakukan dari dua perspektif utama , evaluasi teknis yang mengukur akurasi 
+sistem, dan evaluasi usability  yang mengukur pengalaman pengguna.  Dalam 
+penelitian ini, evaluasi chatbot  menggunakan metrik F1-Score  dan Recall  untuk 
+mengukur performa NLU, serta  SUS untuk mengukur tingkat usability  dan 
+kepuasan pengguna.  
+2.9.1  Metrik Evaluasi Teknis  
+Evaluasi teknis chatbot  menggunakan metrik standar dalam 
+klasifikasi machine learning  yang terdiri dari precision , recall , dan F1-score . 
+--- HALAMAN 22 ---
+14 
+ Ketiga metrik ini jadi gambaran objektif tentang kemampuan sistem dalam 
+mengenali intent dan mengekstraksi entitas dari input  pengguna.  
+Precision  merupakan metrik yang mengukur ketepatan sistem dalam 
+memprediksi suatu kelas. Rumus perhitungan precision  adalah 
+TP/(TP+FP), dimana TP adalah True Positive  dan FP adalah False Positive . 
+Nilai precision  yang tinggi menunjukkan sistem jarang melakukan 
+kesalahan prediksi positif.  
+Recall  mengukur kelengkapan sistem dalam mengenali seluruh 
+instance  positif yang sebenarnya. Rumus perhitungan recall  adalah 
+TP/(TP+FN), dimana FN adalah False Negative . Nilai recall  yang tinggi 
+menunjukkan sistem mampu mengenali sebagian besar instance  positif 
+yang ada.  
+F1-Score  merupakan rata -rata harmonik dari precision  dan recall , 
+dihitung dengan rumus 2×  (Precision ×Recall ) (Precision +Recall ). Metrik ini 
+memberikan keseimbangan antara ketepatan dan kelengkapan prediksi 
+sistem . 
+2.9.2  Struktur  System Usability Scale  (SUS)  
+SUS menggunakan 10  pertanyaan standar yang mencakup aspek 
+kemudahan penggunaan, kompleksitas sistem, dan kepercayaan 
+pengguna. Hasibuan et al. (2020)  telah mengadaptasi SUS ke dalam 
+Bahasa Indonesia dengan reliabilitas Cronbach's Alpha  sebesar 0.841, 
+yang menunjukkan bahwa versi Indonesia reliable untuk digunakan.   
+2.9.3  Penerapan System Usability Scale  pada evaluasi chatbot  
+Penelitian tentang evaluasi chatbot  menggunakan SUS telah 
+dilakukan di Indonesia.  Hidayat, Nugroho, dan Nurfaizin (2022)  melakukan 
+--- HALAMAN 23 ---
+15 
+ usability evaluation  pada educational  chatbot  menggunakan SUS dan 
+memperoleh skor 61.03, yang berada pada kategori marginal dan 
+memerlukan perbaikan. Sementara itu, penelitian oleh Umam et al. (2023)  
+pada chatb wot PUSADBOT menggunakan kombinasi Black -Box testing  
+dan SUS untuk mengevaluasi tingkat kelayakan dan kegunaan sistem. 
+Hasil penelitian menunjukkan bahwa kombinasi metrik teknis dengan SUS 
+memberikan gambaran komprehensif tentang performa chatbot . 
+2.10.  Hasil Penelitian yang Relevan  
+Penelitian relevan adalah karya ilmiah sebelumnya yang sejalan dengan 
+fokus dan temuan riset, sehingga berguna sebagai landasan, pembanding, dan 
+penentu research gap.. Dapat dilihat pada table 2.1  : 
+Tabel 2. 1 Hasil Penelitian yang Relevan  
+No Nama 
+Peneliti 
+dan 
+Tahun  Judul 
+Penelitian  Metode/  
+Teknologi  Hasil/  
+Temuan  Gap/  
+Kekurangan 
+Penelitian  
+1 Rachman, 
+Mardhiyah , 
+dan 
+Jannah 
+(2023)  Implementasi 
+Chatbot FAQ 
+Layanan 
+Informasi 
+Wisata 
+Berbasis 
+Rasa  Framework 
+Rasa NLU  Akurasi model 
+0,91 precision  
+0,97 recall  
+0,94 F1-score  
+0,95. Layanan 
+24/7 efektif  Fokus pada 
+FAQ statis, 
+belum 
+menangani 
+transaksi 
+pemesanan 
+dan integrasi 
+inventori real-
+time 
+2   Zahra dan 
+Wibisono 
+(2023)  Aplikasi 
+Pemesanan 
+Makanan 
+Online 
+Berbasis 
+Chatbot  di 
+Warung 
+Makan  Chatbot 
+berbasis  rule-
+based  Mempermudah 
+pelanggan 
+memesan 
+tanpa datang 
+ke lokasi  Pendekatan 
+rule-based  
+terbatas untuk 
+variasi bahasa 
+natural, tidak 
+ada evaluasi 
+akurasi NLU  
+--- HALAMAN 24 ---
+16 
+ Tabel 2.1 (Lanjutan)  
+No Nama 
+Peneliti 
+dan  
+Tahun  Judul  
+Penelitian  Metode/  
+Teknologi  Hasil/  
+Temuan  Gap/  
+Kekurangan 
+Penelitian  
+3 Permatasi 
+dan 
+Maharani 
+(2021)  Booking Bot  
+dengan 
+Kombinasi NLU 
+dan 
+Reinforcement 
+Learning  SVM dengan 
+TF-IDF, 
+Reinforcement 
+Learning  Akurasi 
+klasifikasi  
+intent  97,5%  Fokus pada 
+booking  
+sederhana, 
+belum 
+implementasi 
+ekstraksi 
+entitas 
+kompleks 
+untuk domain 
+F&B (menu, 
+modifikasi 
+pesanan)  
+4 Prasetyo, 
+Benarkah, 
+dan 
+Chrisintha 
+(2021)  Implementasi  
+NLP dalam 
+Chatbot  
+Program IT 
+Universitas 
+Surabaya  NLP, Machine 
+Learning  Akurasi  
+83,33% 
+(cross 
+validation ), 
+76% ( user 
+validation ) Akurasi relatif 
+rendah untuk 
+aplikasi 
+transaksional, 
+belum ada 
+augmentasi 
+data untuk 
+meningkatkan 
+performa  
+5 Hidayat, 
+Nugroho, 
+dan 
+Nurfaizin 
+(2022)  Usability 
+Evaluation 
+Educational  
+Chatbot  dengan 
+SUS NLP, System 
+Usability 
+Scale  Skor SUS 
+61,03 
+(kategori 
+marginal, 
+perlu 
+perbaikan)  Evaluasi 
+hanya aspek 
+usability , 
+tidak ada 
+evaluasi 
+mendalam 
+terhadap 
+akurasi NLU 
+(intent  dan 
+entity ) 
+Berdasarkan kajian terhadap penelitian -penelitian relevan di atas, 
+teridentifikasi beberapa gap atau kesenjangan riset yang menjadi ruang kontribusi 
+penelitian ini:  
+a. Sebagian besar penelitian chatbot  di Indonesia menggunakan framework   
+cloud -based  atau berbasis rule-based  sederhana (Rachman, Mardhiyah, dan 
+Jannah 2023) . Meskipun framework  Rasa terbukti efektif dengan akurasi 
+--- HALAMAN 25 ---
+17 
+ tinggi ( F1-score  0,95), implementasinya ketergantungan pada ekosistem 
+tertentu dan belum optimal untuk transaksi pemesanan yang kompleks.  Di sisi 
+lain, penelitian     yang menggunakan pendekatan open -source  seperti spaCy    
+masih terbatas pada aplikasi NER pada dokumen statis, belum merambah ke 
+dialog transaksional real-time. Penelitian ini mengisi gap tersebut dengan 
+mengimplementasikan NLU berbasis spaCy  yang sepenuhnya open -source  
+untuk domain food & beverage , mencakup intent  classification  dan entity 
+extraction  secara terintegrasi dalam konteks pemesanan makanan  
+(Khoirunisa 2020) . 
+b. Penelitian chatbot  pemesanan makanan yang ada cenderung mengevaluasi 
+sistem hanya dari aspek kepuasan pengguna melalui metode Heuristic , tanpa 
+melaporkan metrik teknis NLU seperti precision , recall , dan F1-score  untuk 
+intent classification  maupun entity extraction  (Arif, A., Sudarma, M., & 
+Shandyasa 2024) . Padahal, akurasi NLU merupakan fondasi krusial sistem 
+chatbot  transaksional agar dapat memetakan maksud pengguna dan 
+mengekstrak informasi pesanan dengan tepat. Bahkan penelitian dengan 
+fokus usability  sama seperti menurut  (Hidayat, Nugroho, dan Nurfaizin 2022)  
+yang menggunakan SUS hanya menghasilkan skor 61,03 (kategori marginal) 
+tanpa evaluasi teknis yang mendalam. Penelitian ini mengisi kesenjangan 
+dengan melakukan evaluasi ganda: metrik teknis ( F1 score , recall , precision ) 
+untuk mengukur performa NLU secara objektif, dan SUS  untuk mengukur 
+pengalaman pengguna.  
+c. Mayoritas chatbot  yang dikembangkan untuk layanan informasi atau booking  
+sederhana  menurut  (Permatasari dan Maharani 2021)  belum 
+mengintegrasikan pengelolaan dialog transaksional multi -turn yang 
+--- HALAMAN 26 ---
+18 
+ mencakup pemesanan, modifikasi pesanan, pengecekan ketersediaan real-
+time, dan sinkronisasi dengan sistem inventori. Meskipun mencapai akurasi 
+intent classification  97,5% menggunakan SVM, fokusnya pada booking  
+sederhana tanpa ekstraksi entitas kompleks untuk domain F&B seperti menu, 
+varian rasa, atau level kepedasan. Penelitian ini berkontribusi dengan 
+merancang alur dialog pemesanan yang lengkap ( order , modify , cancel , check 
+status ) yang terintegrasi dengan database  menu dan inventori kedai, 
+meminimalkan salah catat yang sering terjadi pada pemesanan manual.  
+d. Tantangan akurasi model dan data latih yang terbatas untuk domain spesifik 
+masih menjadi permasalahan. Menurut (Prasetyo, Benarkah, dan Chrisintha 
+2021) , Benarkah akurasi 83,33% (cross validation) dan 76% ( user validation ) 
+yang relatif rendah untuk aplikasi transaksional kritis. Penelitian tersebut 
+belum menerapkan teknik. Penelitian ini mengatasi keterbatasan tersebut 
+dengan menerapkan teknik augmentasi data untuk memperkaya dataset  latih 
+NLU, memastikan model dapat menangani variasi cara pengguna 
+mengekspresikan intent  dan entitas pemesanan dalam Bahasa Indonesia 
+(misalnya: "pesan", "mau beli", "order don g") tanpa memerlukan ribuan 
+sampel anotasi manual.  Dengan demikian, penelitian ini mengisi gap krusial 
+dalam literatur chatbot  Indonesia dengan menyediakan solusi open  source  
+berbasis spaCy , terintegrasi penuh (NLU + dialog management + inventori), 
+dan terukur secara teknis maupun  
+usability  untuk konteks  Usaha Mikro Kecil Menengah  (UMKM ) kuliner, khususnya 
+Kedai Ayam Merdeka  yang  sebagai studi kasus . 
+ 
+--- HALAMAN 27 ---
+19 
+ 2.11.  Profil Lokasi Kedai Ayam Merdeka  
+ 
+Gambar 2. 1 Kedai Ayam Merdeka  
+Kedai Ayam Merdeka merupakan salah satu Usaha Mikro Kecil Menengah  
+(UMKM) yang berlokasi di BTN Merdeka Blok C .16, Salekoe, Kecamatan  Wara 
+Timur, Kota Palopo, Sulawesi Selatan, yang menyajikan ola han ayam hingga telur  
+dengan cita rasa khas serta mengutamakan kualitas bahan, kebersihan, dan 
+pelayanan yang ramah untuk memberikan pengalaman makan yang nyaman bagi 
+pelanggan , Slogan utama dari  Ayam Merdeka yaitu “Candu Mengenyangkan”.  
+Menu kedai ayam merdeka antara lain : 
+ 
+Gambar 2. 2 Menu Kedai Ayam Merdeka  
+
+--- HALAMAN 28 ---
+20 
+ Gambar menu diatas  menampilkan daftar produk Kedai Ayam Merdeka 
+yang disusun ke dalam tiga kategori utama, yaitu makanan, minuman, dan paket. 
+Kategori makanan berisi berbagai olahan ayam seperti ayam bakar, ayam goreng, 
+ayam krispi, ayam geprek, dan ayam merah yang disajikan dengan nasi serta 
+pilihan sambal , dilengkapi menu tambahan seperti telur kriwil, hati ampela, leher, 
+ceker, tahu, dan kerupuk. Kategori minuman menyediakan beragam pilihan 
+minuman panas dan dingin, antara lain teh, es jeruk, markisa squash, lemon 
+squash, serta air mineral. Sementara itu,  kategori paket menawarkan kombinasi 
+menu makanan dan minuman dengan harga lebih terjangkau  seperti . 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- HALAMAN 29 ---
+21 
+ BAB III   
+METODE PENELITIAN  
+3.1. Jenis dan Pendekatan Penelitian  
+Penelitian ini merupakan riset terapan dengan model pengembangan 
+prototyping  yang berfokus pada perancangan dan implementasi sistem chatbot  
+pemesanan makanan. Metode komputasional yang digunakan adalah NLU + NLG 
+= NLP, yakni pipeline  NLP yang disusun dari dua modul inti NLU untuk memetakan 
+intent  dan mengekstraksi entitas dari ujaran pengguna dan NLG untuk 
+membangkitkan respon bahasa alami berdasarkan representasi internal sistem 
+serta konteks dialog. Integrasi NLU  NLG ini dirancang untuk menangani 
+percakap an transaksional end-to-end pada domain F &B (misalnya pemesanan,   
+ ubah atau batal pesanan, cek ketersediaa n, sejalan dengan literatur yang 
+menempatkan NLU sebagai pemahaman makna dan NLG sebagai proses 
+menghasilkan teks di dalam arsitektur dialog.  
+Implementasi NLU direncanakan berbasis spaCy  (text categorization  untuk 
+klasifikasi intent dan NER untuk ekstraksi entitas), sedangkan NLG memanfaatkan 
+templat respon yang diisi dinamis dari konteks dialog dan basis data kedai.  
+Penelitian ini juga menggabungkan metode kuantitatif untuk mengukur performa 
+teknis sistem melalui metrik akurasi NLU ( precision , recall , F1 -core) dan metode 
+kualitatif untuk mengukur tingkat kepuasan pengguna menggunakan kuesioner 
+SUS.  
+3.2. Tempat dan Penelitian  
+Penelitian ini dilaksanakan di Kedai Ayam Merdeka yang berlokasi di 
+wilayah Palopo, Sulawesi Selatan. Pemilihan lokasi ini didasarkan pada kebutuhan 
+--- HALAMAN 30 ---
+22 
+ kedai untuk meningkatkan efisiensi layanan pemesanan dan mengurangi 
+kesalahan pencatatan pesanan yang sering terjadi pada sistem manual.  
+Waktu pelaksanaan penelitian adalah selama empat bulan, yaitu dari bulan 
+Oktober 2025 sampai dengan Januari 2026. Jadwal penelitian dirinci pada tab el 
+3.1. : 
+Table 3. 1 Waktu  Penelitian  
+No Kegiatan  Januari  
+2026 Februari  
+2026 Maret  
+2026  April 
+2026  
+1 2 3 4 1 2 3 4 1 2 3 4 1 2 3 4 
+1 Observasi                  
+2 Perancangan 
+Sistem                  
+3 Implementasi                  
+4 Pengujian 
+dan analisis                  
+5 Penyusunan 
+Laporan                  
+ 
+3.3. Objek Penelitian  
+Objek penelitian ini adalah sistem pemesanan makanan di Kedai Ayam 
+Merdeka yang saat ini masih menggunakan cara manual. Fokus penelitian 
+meliputi:  
+1. Proses pemesanan makanan yang dilakukan pelanggan  
+2. Data menu dan inventori makanan yang tersedia di kedai  
+3. Pola komunikasi antara pelanggan dan pihak kedai dalam proses 
+pemesanan  
+4. Permasalahan yang terjadi dalam sistem pemesanan manual (antrean, 
+salah catat  dan keterlambatan)  
+Subjek penelitian adalah pemilik kedai, karyawan yang menangani pemesanan, 
+dan pelanggan Kedai Ayam Merdeka yang akan menggunakan sistem chatbot . 
+--- HALAMAN 31 ---
+23 
+ 3.4. Metode Pengumpulan Data  
+Pengumpulan data dalam penelitian ini menggunakan beberapa metode 
+untuk memperoleh informasi yang komprehensif  : 
+3.4.1  Observasi  
+Observasi dilakukan secara langsung di Kedai Ayam Merdeka untuk 
+mengamati proses pemesanan yang berjalan saat ini. Aspek yang diamati 
+meliputi alur pemesanan, waktu tunggu pelanggan, frekuensi kesalahan 
+pencatatan, dan kendala yang dihadapi karyawan dalam m elayani 
+pesanan. Observasi dilakukan pada jam operasional kedai, terutama pada 
+jam sibuk untuk mendapatkan gambaran permasalahan yang sebenarnya.  
+3.4.2  Wawancara  
+Wawancara dilakukan dengan pemilik kedai dan karyawan untuk 
+menggali informasi tentang kebutuhan sistem, kendala operasional, dan 
+harapan terhadap chatbot  yang akan dikembangkan. Wawancara juga 
+dilakukan dengan beberapa pelanggan untuk memahami preferensi mereka 
+dalam melakukan pemesanan dan fitur -fitur yang diinginkan.  
+3.4.3  Kuesioner  
+Kuesioner digunakan sebagai  instrumen pengumpulan data yang 
+digunakan untuk memperoleh informasi dari responden secara sistematis 
+melalui serangkaian pertanyaan tertulis. Pada penelitian ini, kuesioner 
+dimanfaatkan untuk mengukur tanggapan pengguna terhadap sistem yang 
+dikembangkan,  khususnya terkait kemudahan penggunaan, kejelasan alur 
+interaksi, serta tingkat kepuasan dalam proses pemesanan. Pertanyaan 
+disusun menggunakan bahasa yang jelas dan tidak menimbulkan 
+penafsiran ganda agar responden dapat member ikan jawaban sesuai 
+--- HALAMAN 32 ---
+24 
+ pengalaman penggunaan sistem. Data yang diperoleh dari kuesioner 
+selanjutnya diolah secara kuantitatif untuk menghasilkan nilai dan 
+interpretasi yang mendukung proses evaluasi, sehingga hasil pengujian 
+dapat menjadi dasar perbaikan sistem sebelum diimpleme ntasikan secara 
+lebih luas.  
+3.4.4  Dokumentasi  
+Dokumentasi dilakukan dengan mengumpulkan data menu 
+makanan, harga, varian rasa, dan data inventori kedai. Dokumentasi juga 
+mencakup pencatatan pesanan manual yang ada untuk mengidentifikasi 
+pola pemesanan dan jenis kesalahan yang sering terjadi.  
+3.4.5  System Usability Scale  (SUS)  
+System Usability Scale  (SUS) adalah instrumen evaluasi kegunaan 
+(usability ) yang digunakan untuk mengukur tingkat kemudahan 
+penggunaan suatu sistem berdasarkan persepsi pengguna. SUS berbentuk 
+kuesioner baku yang terdiri atas 10 pernyataan dengan pilihan jawaban 
+menggunakan skala Likert. Pernyataan tersebut mencakup aspek sepert i 
+kemudahan mempelajari sistem, efisiensi penggunaan, konsistensi, 
+kenyamanan, serta tingkat kepercayaan diri pengguna saat berinteraksi 
+dengan sistem. Skor SUS dihitung dengan prosedur penilaian tertentu 
+hingga menghasilkan nilai pada rentang 0 –100, yang kemudian digunakan 
+sebagai indikator ringkas untuk menilai dan membandingkan tingkat 
+kegunaan sistem, baik antarversi maupun antarproduk.  
+3.4.6  Studi Literatur  
+Studi literatur dilakukan dengan mengkaji jurnal, buku, dan sumber 
+ilmiah lainnya yang berkaitan dengan chatbot , NLP, spaCy , dan evaluasi 
+--- HALAMAN 33 ---
+25 
+ sistem. Literatur yang dikaji mencakup penelitian terdahulu tentang 
+implementasi chatbot  di Indonesia, terutama dalam domain food and 
+beverage . 
+3.5. Kerangka Penelitian  
+Kerangka penelitian menggambarkan tahapan -tahapan yang dilakukan 
+secara sistematis untuk mencapai tujuan penelitian. Penelitian ini terdiri dari lima 
+tahap utama sebagai berikut  : 
+3.5.1  Tahap Analisis Kebutuhan  Sistem  
+Tahap ini merupakan tahap awal untuk mengidentifikasi kebutuhan 
+sistem. Kegiatan yang dilakukan meliputi:  
+a. Analisis proses pemesanan makanan di Kedai Ayam Merdeka . 
+b. Identifikasi permasalahan sistem pemesanan manual (antrean, 
+salah catat  dan k eterlambatan) . 
+c. Penentuan kebutuhan fungsional chatbot  (pemesanan, cek 
+ketersediaan, ubah pesanan, batalkan pesanan, cek status  dan  
+info promo) . 
+d. Penentuan kebutuhan non-fungsional  (kecepatan respon , 
+ketersediaan 24/7, akurasi pemahaman) . 
+e. Analisis data menu dan inventori kedai . 
+f. Identifikasi intent  (maksud pengguna) dan entity  (entitas 
+penting) yang diperlukan dalam pemesanan . 
+3.5.2  Tahap Persiapan Data  Natural L anguage Understanding  
+Tahap persiapan data  untuk pelatihan model NLU berbasis spaCy . 
+ 
+ 
+--- HALAMAN 34 ---
+26 
+ a. Identifikasi Intent  
+Menentukan kategori intent  yang akan dikenali sistem, seperti  
+yang ada pada tabel 3.2 : 
+Table  3.2 Identifikasi Intent  
+Intent  Deskripsi  Contoh Kalimat  
+pesan_menu  Memesan makanan  "Pesan ayam geprek 
+2 porsi level 3"  
+cek_ketersediaan  Mengecek menu 
+tersedia  "Nasi ayam geprek  
+masih ada tidak?"  
+ubah_pesanan  Mengubah pesanan  "Ubah pesanan saya 
+menjadi 2  saja"  
+batalkan_pesanan  Membatalkan 
+pesanan  "Batalkan pesanan 
+saya"  
+cek_status  Mengecek status 
+pesanan  "Sudah sampai mana 
+pesanan saya?"  
+info_promo  Menanyakan promo  "Ada promo apa hari 
+ini?" 
+Salam  Sapaan pembuka  "Halo", "Selamat 
+pagi"  
+terima_kasih  Ucapan terima kasih  "Terima kasih", 
+"Makasih ya"  
+Tabel 3.2 menjabarkan intent  yang harus dikenali chatbot 
+pemesanan. pesan_menu menangkap permintaan memesan 
+(misalnya “Pesan ayam geprek 2 porsi level 3”). cek_ketersediaan 
+menanyakan stok menu, ubah_pesanan meminta perubahan, 
+batalkan_pesanan untuk pembatalan, cek_status menelusuri 
+progres pesanan, dan info_promo menanyakan promo yang berlaku. 
+Dua intent  percakapan umum  salam dan terimakasih , menjaga 
+interaksi tetap alami. Pemilahan ini memastikan sistem merespon 
+cepat, relevan, dan akurat.  
+ 
+ 
+--- HALAMAN 35 ---
+27 
+ b. Indentifikasi Entity  
+Menentukan entitas penting yang perlu diekstrak dari kalimat 
+pengguna, seperti  yang ada pada tabel 3.3  : 
+Table 3. 3 Identifikasi Entity  
+Entity  Deskripsi  Contoh  
+Nama menu  Nama makanan yang 
+dipesan  ayam geprek, ayam 
+cryspy  es teh  
+Jumlah  pesanan  Kuantitas pesanan  1 porsi, 2 porsi ,  
+3 porsi  
+Jenis sambal  jenis sambal yang 
+diinginkan  sambal ijo, sambal 
+merah  dan sambal 
+bawang  
+Waktu pengambilan  Waktu pengambilan  jam 12 siang, 
+sekarang, 30 menit 
+lagi 
+Tabel 3.3 merangkum entitas kunci yang harus dikenali chatbot 
+pemesanan. Nama menu mencatat makanan/minuman yang diminta 
+(mis. ayam geprek, es teh). Jumlah pesanan merekam kuantitas (1 -
+3 porsi). Jenis sambal menandai preferensi rasa (ijo, merah, 
+bawang). Waktu pengambilan menangkap jadwal pengambilan (jam 
+12 siang, sekarang, 30 menit lagi). Keempat entitas ini memastikan 
+detail pesanan tercatat lengkap dan akurat.  
+c. Augmentasi Data  
+Memperbanyak data latih dengan teknik augmentasi untuk 
+meningkatkan variasi dataset . Teknik augmentasi yang 
+digunakan dijelaskan pada tabel 3.4  : 
+Table 3. 4 Augmentasi Data  
+Penggantian 
+sinonim  Mengganti kata 
+dengan sinonim  "pesan" → "order", 
+"beli", "mau"  
+Variasi urutan 
+kata Mengubah urutan 
+tanpa mengubah 
+makna  "Pesan ayam geprek 2" 
+→ "2 ayam geprek 
+pesan"  
+--- HALAMAN 36 ---
+28 
+ Tabel 3.4 Lanjutan  
+Variasi sapaan  Menambahkan 
+sapaan berbeda  "Mau pesan..." → "Kak, 
+mau pesan..."  
+Variasi penulisan 
+angka  Mengubah format 
+angka  "2" → "dua", "2 porsi", 
+"dua potong"  
+Berdasarkan t abel 3.4 , merangkum empat teknik 
+augmentasi untuk memperkaya data pelatihan chatbot 
+pemesanan. (1) Penggantian sinonim  mis. “pesan” → 
+“order/beli/mau” , menambah variasi leksikal tanpa mengubah 
+makna. (2) Variasi urutan kata menjaga maksud tetap sama, 
+mis. “Pesan ayam geprek 2” ↔ “2 ayam geprek pesan”. (3) 
+Variasi sapaan  “Kak,” “Mas,” d an lain -lain. Mendekatkan data 
+pada percakapan alami. (4) Variasi penulisan angka  “2”, “dua”, 
+“2 porsi”, “dua potong”  memperkuat deteksi kuantitas. 
+Keempatnya meningkatkan ketahanan mo del dalam mengenali 
+intent  dan entitas.  
+3.5.3  Tahap Perancangan Sistem  
+Tahap perancangan mencakup perancangan arsitektur sistem 
+chatbot  secara keseluruhan. Perancangan sistem meliputi :  
+1. Arsitektur Sistem  : Merancang arsitektur sistem yang terdiri dari 
+beberapa komponen utama:  
+a. Antarmuka pengguna ( WhatsApp Business  API). 
+b. Modul NLU berbasis spaCy  untuk intent classification  dan 
+entity. 
+c. Modul Dialog Management untuk mengelola alur 
+percakapan . 
+--- HALAMAN 37 ---
+29 
+ d. Modul integrasi  database  menu dan inventori . 
+e. Modul NLG untuk menghasilkan respon . 
+2. Perancangan Database  : Merancang struktur database  yang 
+mencakup:  
+a. Tabel menu (id_menu, nama_menu, harga, kategori, 
+ketersediaan) . 
+b. Tabel pesanan (id_pesanan, id_pelanggan, 
+detail_pesanan, total_harga, status, waktu_pesan) . 
+c. Tabel inventori (id_item, nama_item, stok, satuan)  
+d. Tabel pelanggan (id_pelanggan, nama, nomor _WhatsApp , 
+riwayat_pesanan) . 
+3. Perancangan Alur Dialog  : Merancang state  diagram yang 
+menggambarkan alur percakapan pemesanan, mulai dari salam 
+pembuka, pemilihan menu, konfirmasi pesanan, hingga 
+penyelesaian transaksi. Setiap state  memiliki kondisi transisi 
+yang jelas berdasarkan intent  dan entity  yang terdeteksi.  
+4. Perancangan Template  Respon  : Merancang template  respon  
+untuk setiap intent  agar sistem dapat memberikan jawaban yang 
+natural dan bervariasi. Template  respon  dibuat dalam bahasa 
+Indonesia yang sesuai dengan konteks percakapan di kedai 
+makanan.  
+3.5.4  Tahap Implementasi  
+Tahap implementasi adalah tahap pengembangan sistem 
+berdasarkan rancangan yang telah dibuat. Implementasi dilakukan 
+dengan tahapan sebagai berikut : 
+--- HALAMAN 38 ---
+30 
+ 1. Persiapan Environment  : Menyiapkan lingkungan 
+pengembangan dengan menginstal Python , Flask , spaCy , dan 
+library  pendukung lainnya. Instalasi  spaCy  untuk bahasa 
+Indonesia dilakukan dengan model id_core_news _sm atau 
+id_core_news _md.  
+2. Pengembangan Modul NLU  : 
+a. Melatih model text categorizer spaCy  untuk intent 
+classification  menggunakan data latih yang telah disiapkan  
+b. Melatih model Named  Entity  Recognition  (NER) spaCy  
+untuk entity extraction  
+c. Melakukan hyperparameter  tuning  untuk mendapatkan 
+performa model yang optimal  
+d. Menyimpan model yang telah dilatih untuk digunakan dalam 
+sistem  
+3. Pengembangan Dialog Management  : Mengimplementasikan 
+logika pengelolaan dialog menggunakan state machine  atau 
+rule-based system . Dialog manager bertugas menentukan 
+respon  sistem berdasarkan intent , entity , dan konteks 
+percakapan sebelumnya.  
+4. Integrasi Database  : Mengimplementasikan koneksi antara 
+chatbot  dengan database  menu dan inventori. Sistem akan 
+melakukan query  ke database  untuk validasi ketersediaan menu 
+dan pencatatan pesanan.  
+5. Pengembangan  Natural  Language  Generation  (NLG) : 
+implementasikan modul NLG untuk menghasilkan respon  yang 
+--- HALAMAN 39 ---
+31 
+ natural berdasarkan template yang telah dirancang. NLG akan 
+mengisi placeholder  dalam template dengan informasi spesifik 
+dari database  atau hasil ekstraksi entity . 
+6. Integrasi WhatsApp Business  API : Mengintegrasikan sistem 
+chatbot  dengan WhatsApp Business  API agar chatbot  dapat 
+menerima pesan dari pelanggan dan mengirimkan respon  
+melalui WhatsApp .  
+7. Testing dan Debugging  : Melakukan pengujian terhadap setiap 
+modul sistem untuk memastikan sistem berjalan sesuai dengan 
+yang diharapkan. Bug yang ditemukan akan diperbaiki pada 
+tahap ini.  
+3.5.5  Tahap Evaluasi  
+Evaluasi dilakukan dengan dua pendekatan untuk mengukur 
+performa teknis dan kepuasan pengguna.  Seperti yang dijelaskan  pada 
+tabel 3.5  : 
+Table 3. 5 Tahap Evaluasi  
+Metrik  Rumus  Keterangan  
+Precision  TP / (TP + FP)  Ketepatan 
+prediksi positif  
+Recall  TP / (TP + FN)  Kelengkapan 
+pengenalan 
+instance  positif  
+F1-score  2 × (Precision  × 
+Recall ) / (Precision  + 
+Recall ) Rata -rata 
+harmonik 
+keseimbangan 
+presisi  cakupan  
+SUS Prosedur skor standar  Kegunaan sistem 
+oleh pengguna 
+akhir  
+ 
+Untuk menilai tingkat kegunaan sistem oleh pengguna akhir, 
+penelitian ini menggunakan instrumen SUS  
+--- HALAMAN 40 ---
+32 
+ Tabel 3.6 merangkum rentang skor, grade, dan interpretasi yang 
+menjadi acuan evaluasi, dengan target minimal pada kategori “Baik” 
+(68–80,3).  Seperti yang dijelaskan dalam tabel 3.6  
+Table 3. 6 Skor System Usability Scale 
+Rentang 
+Skor Grade  Interpretasi  Kategori  
+> 80,3  A Excellent  Sangat baik  
+68 - 80,3 B Good Baik (Target 
+minimal)  
+51 - 68 C Okey Cukup   
+38 - 51 D Poor  Kurang  
+Perhitungan Skor SUS:  
+a. Untuk pertanyaan ganjil (1, 3, 5, 7, 9): skor kontribusi = skala 
+posisi 1  
+b. Untuk pertanyaan genap (2, 4, 6, 8, 10): skor kontribusi = 5 skala 
+posisi  
+c. Skor SUS = (jumlah skor kontribusi) × 2,5  Responden minimal: 
+20 pelanggan yang telah menggunakan chatbot  
+3.6. Instrumen Penelitian  
+Instrumen penelitian yang digunakan dalam penelitian ini meliputi:  
+3.6.1  Instrumen Pengumpulan Data  
+a. Pedoman Observasi  : Berisi daftar aspek yang diamati terkait 
+proses pemesanan manual di kedai  
+b. Pedoman Wawancara  : Berisi daftar pertanyaan untuk pemilik 
+kedai, karyawan, dan pelanggan  
+c. Lembar Dokumentasi  : Untuk mencatat data menu, harga, 
+inventori, dan contoh pesanan  
+--- HALAMAN 41 ---
+33 
+ 3.6.2  Instrumen Pengembangan Sistem  
+1. Perangkat Keras  : 
+a) Laptop dengan spesifikasi minimal  : Processor Intel Core  i3, 
+RAM 8GB, Storage 256GB SSD  
+b) Smartphone  untuk pengujian integrasi WhatsApp  
+2. Perangkat Lunak :  
+a) Sistem Operasi: Windows 11  
+b) Bahasa Pemrograman  : Python  3.10  
+c) Library  NLP : spaCy   
+d) Database  : MySQL  
+e) Tools  : Visual Studio Code  
+f) WhatsApp Business  API untuk integrasi messaging  
+3.6.3  Instrumen Evaluasi  
+a. Confusion Matrix   : Untuk menghitung precision , recall , dan F1- 
+b.  score   
+c. Kuesioner SUS : Versi bahasa Indonesia dengan 10 pertanyaan 
+standar  
+d. Form Feedback  : Untuk mencatat komentar dan saran dari 
+responden  
+3.7. Teknik Analisis Data  
+Analisis data dalam penelitian ini dibagi menjadi dua jenis sesuai dengan 
+metode evaluasi yang digunakan  : 
+3.7.1  Analisis Data Kuantitatif (Evaluasi Teknis)  
+Analisis dilakukan terhadap hasil evaluasi NLU dengan langkah -
+langkah  : 
+--- HALAMAN 42 ---
+34 
+ a. Mengumpulkan hasil prediksi intent  dan entity  dari test set   
+b. Membuat confusion  matrix  untuk setiap intent   
+c. Menghitung nilai precision , recall , dan F1-score  untuk setiap 
+intent   
+d. Menghitung rata -rata metrik untuk keseluruhan sistem  
+e. Membandingkan hasil dengan threshold  yang ditetapkan 
+(minimal F1-score  0,85)  
+f. Melakukan analisis kesalahan ( error  analysis ) untuk 
+mengidentifikasi pola kesalahan yang sering terjadi  
+3.7.2  Analisis Data Kuantitatif -Kualitatif (Evaluasi Usability ) 
+Analisis dilakukan terhadap hasil kuesioner System Usability Scale 
+dengan langkah -langkah  : 
+1. Menghitung skor SUS untuk setiap responden  
+2. Menghitung rata -rata skor SUS dari seluruh responden  
+3. Menentukan grade  berdasarkan interpretasi skor SUS  
+4. Menganalisis setiap item pertanyaan untuk mengidentifikasi 
+aspek yang perlu diperbaiki  
+5. Menganalisis feedback  kualitatif dari responden  
+6. Mekomendasi perbaikan sistem berdasarkan hasil evaluasi  . 
+Hasil analisis dari kedua jenis evaluasi akan digunakan untuk menilai 
+kelayakan sistem chatbot  dan menyusun rekomendasi untuk 
+pengembangan lebih lanjut.  
+--- HALAMAN 43 ---
+35 
+ 3.8. Analisis dan Perancangan Sistem  
+3.8.1  Analisis Sistem yang Berjalan  
+Analisis sistem yang berjalan merupakan uraian terstruktur 
+mengenai tata kelola saat ini berlangsung sebelum solusi chatbot  
+diterapkan. Melalui analisis ini, setiap tahapan kerja, peran pelaku proses, 
+aliran informasi, serta mekanisme pencatatan dan verifikasi diidentifikasi 
+untuk menggambarkan kondisi eksisting secara menyeluruh. Pada konteks 
+Kedai Ayam Merdeka, pemetaan difo kuskan pada rangkaian kegiatan sejak 
+pelanggan mengajukan permintaan hingga pesanan diproses, dikonfirmasi, 
+dibayar, dan ditutup, ter masuk skenario perubahan maupun pembatalan 
+pesanan. Hasil pemetaan tersebut berfungsi sebagai dasar untuk 
+menemukan kebutuhan, hambatan, dan peluang perbaikan yang relevan 
+ketika intervensi teknologi direncanakan.  yang saat ini berlangsung 
+sebelum intervensi chatbot  diterapkan. Sistem yang berjalan  pada 
+pemesanan kedai ayam merdeka saat ini dapat dilihat pada gambar 3.1 :  
+pelanggan kasir/adminkirim pesan 
+pesanan
+konfirmasi 
+pesanan
+krim instruksi 
+pembayaran
+melakukan 
+pembayaranlihat menu/
+promo
+krim status 
+pesanan
+ 
+Gambar 3. 1 Analisis sistem yang be rjalan  
+--- HALAMAN 44 ---
+36 
+            Use case analisis sistem berjalan  melalui WhatsApp 
+melibatkan dua aktor, yaitu pelanggan dan kasir/admin, yang 
+berinteraksi dalam sa tu sistem . Proses dimulai ketika pelanggan 
+meminta informasi menu, kemudian mengirimkan detail pesanan 
+melalui chat. Kemudian , kasir/admin melakukan konfirmasi untuk 
+memastikan pesanan sesuai, lalu memberikan instruksi pembayaran 
+kepada pelanggan. Setelah pelanggan melakukan pembayaran dan 
+mengirimkan bukti pembayaran, kasir/admin memverifikasi transaksi 
+tersebut. Te rakhir, kasir/admin menyampaikan status pesanan 
+dinyatakan selesai atau siap diterima pelanggan.  
+3.8.2  Rancangan Arsitektur Sistem . 
+Rancanga arsitektur sistem adalah  spesifikasi tingkat tinggi yang 
+memetakan struktur, komponen, hubungan, dan mekanisme interaksi 
+sebuah sistem  beserta keputusan desain dan batasannya  agar kebutuhan 
+fungsional dan nonfungsional (kinerja, keamanan, keandalan, skalabilitas) 
+dapat dipenuhi secara konsisten . Seperti yang dilihat pada gambar 3. 2 : 
+Pembeli
+Whatssapp
+Gateway 
+Webhook
+Chatbot Service : NLU + 
+Dialog + Template BalasanDatabase : 
+menu, stok, 
+order, 
+pelangganAdmin Panel
+Kirim balasanMulai 
+Selesai 
+ 
+Gambar 3. 2 Racangan Arsitektur Sistem       
+--- HALAMAN 45 ---
+37 
+ Alur dimulai saat pembeli mengirim pesan melalui WhatsApp , lalu 
+diteruskan ke gateway webhook  dan layanan chatbot . Modul NLU 
+menafsirkan maksud serta entitas, modul dialog menentukan 
+langkah, dan templat balasan menyusun respon sambil berinteraksi 
+dua arah dengan basis data (menu, stok, pesanan, pelanggan); 
+perubahan dari Admin Panel langsung tercermin karena basis d ata 
+menjadi sumber kebenaran. Respon dikirim kembali ke WhatsApp 
+untuk pembeli, dan siklus berulang bila perlu hingga pesanan 
+terkonfirmasi pada titik itu proses dinyatakan seles a. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- HALAMAN 46 ---
+38 
+ DAFTAR PUSTAKA  
+AI, Indonesia. n.d. “Apa Perbedaan antara NLP, NLU dan NLG?” 2022 7th 
+International Conference on Informatics and Computing, ICIC 2022 . 
+https://medium.com/@indonesia.ai%0A.  
+Arif, A., Sudarma, M., & Shandyasa, I. W. 2024. “Analisis Kepuasan Pengguna 
+Dengan Sistem Chatbot Pemesanan Makanan Dan Minuman Via Telegram 
+Di Restoran.” Jurnal SPEKTRUM . 
+Elcholiqi, Abidah, dan Aina Musdholifah. 2020. “Chatbot in Bahasa Indonesia using 
+NLP to Provide Banking Information.” IJCCS (Indonesian Journal of 
+Computing and Cybernetics Systems)  14 (1): 91. 
+https://doi.org/10.22146/ijccs.41289.  
+Fajri, Miftahul Rizki Al, dan Budi Hartono. 2024. “Pengembangan Aplikasi Chatbot 
+Telegram Menggunakan Framework Rasa untuk Pelayanan Administrasi di 
+Perguruan Tinggi Universitas Stikubank.” Jurnal JTIK (Jurnal Teknologi 
+Informasi dan Komunikasi)  8 (1): 133 –36. 
+https://doi.org/10.35870/jtik.v8i1.1370.  
+Haq, Muhammad Saiqul, Bayu Waspodo, dan Nuryasin Nuryasin. 2021. “Chatbot: 
+Reservasi Restoran Online pada Facebook Messenger.” Applied Information 
+System and Management (AISM)  4 (1): 23 –30. 
+https://doi.org/10.15408/aism.v4i1.19765.  
+Hasibuan, D. P., H. B. Santoso, A. Yunita, dan A. Rahmah. 2020. “An Indonesian 
+Adaptation of the E -Learning Usability Scale.” Journal of Physics: Conference 
+Series  1566 (1). https://doi.org/10.1088/1742 -6596/1566/1/012051.  
+Hidayat, Arief, Agung Nugroho, dan Safaah Nurfaizin. 2022. “Usability Evaluation 
+on Educational Chatbot Using the System Usability Scale (SUS).” 2022 7th 
+International Conference on Informatics and Computing, ICIC 2022 , 1–5. 
+https://doi.org/10.1109/ICIC56845.2022.10006991.  
+Huang, Gao, Zhuang Liu, Laurens Van Der Maaten, dan Kilian Q. Weinberger. 
+2017. “Densely connected convolutional networks.” Proceedings - 30th IEEE 
+Conference on Computer Vision and Pattern Recognition, CVPR 2017  2017 -
+Janua (July): 2261 –69. https://doi.org/10.1109/CVPR.2017.243.  
+Joey Ferelestian, Varrel, Budi Susanto, dan I Kadek Dendy Senapartha. 2023. 
+“Pengembangan Telegram Chatbot Informasi Mahasiswa Menggunakan 
+Wit.ai.” Jurnal Terapan Teknologi Informasi  7 (2): 89 –97. 
+https://doi.org/10.21460/jutei.2023.72.257.  
+Jurafsky, D., dan J. H. Martin. 2020. “Speech and Language Processing (3rd ed.).”  
+Kaplow, Louis, dan Steven Shavell. 2022. “Summary of Contents.” Fairness versus 
+Welfare , vii–viii. https://doi.org/10.4159/9780674039315 -001. 
+Khoirunisa, Rifa. 2020. “Penggunaan Natural Language Processing Pada Chatbot 
+Untuk Media Informasi Pertanian.” Indonesian Journal of Applied Informatics . 
+https://doi.org/10.20961/ijai.v4i2.38688.  
+--- HALAMAN 47 ---
+39 
+ Mimin.io. 2025. “Peran AI Chatbot dalam Transformasi Digital Restoran.” 2025. 
+https://mimin.io/id/ai -chatbot -untuk -restoran/%0A.  
+Munif, Abdul, Nurul Fajrin Ariyani, dan Khairunnisa’ Rahma Mardiyani. 2023. 
+“Keyword Identification in Scientific Journal Publication Content for Case 
+Study Its Online Publication (Pomits) Searching. ” JUTI: Jurnal Ilmiah 
+Teknologi Informasi  21:50 –60. 
+https://doi.org/10.12962/j24068535.v21i1.a1187.  
+Naufal, Mohammad Farid, Selvia Ferdiana Kusuma, Universitas Surabaya, 
+Politeknik Elektronika, Negeri Surabaya, dan Penulis Korespondensi. 2022. 
+“Natural Language Processing Untuk Otomatisasi Pengenalan Natural 
+Language Processing for Automation of Pronominal” 9 (5): 1011 –18. 
+https://doi.org/10.25126/jtiik.202296394.  
+Permatasari, Dinda Ayu, dan Devira Anggi Maharani. 2021. “Combination of 
+Natural Language Understanding and Reinforcement Learning for Booking 
+Bot.” Journal of Electrical, Electronic, Information, and Communication 
+Technology  3 (1): 12. https://doi.org/10.20961/jeeict.3.1.49818.  
+Prasetyo, Vincentius Riandaru, Njoto Benarkah, dan Vioni Jannet Chrisintha. 
+2021. “Implementasi Natural Language Processing Dalam Pembuatan 
+Chatbot Pada Program Information Technology Universitas Surabaya.” 
+Teknika  10 (2): 114 –21. https://doi.org/10.34148/teknika.v10i2.370.  
+Rachman, Arif, Iffatul Mardhiyah, dan Miftahul Jannah. 2023. “KLIK: Kajian Ilmiah 
+Informatika dan Komputer Implementasi Chatbot FAQ pada Aplikasi Monev 
+Kinerja Direktorat Jenderal Anggaran Menggunakan Framework Rasa Open 
+Source.” Media Online  4 (1): 62 –72. https://doi.org/10.30865/klik.v4i1.1020.  
+Rahmawati, L., & Hidayat, F. 2020. “Analisis Sistem Pemesanan Makanan Manual 
+dan Berbasis Digital.” Jurnal Sistem Informasi dan Komputerisasi Akuntansi . 
+Salamun, S., Aprialdo, A., & Sukri. 2024. “Optimasi Chatbot dengan Pemanfaatan 
+Natural Language Processing.” Jurnal Komputer Terapan . 
+Statista. 2024. “No Title.”  
+Susesno, Adnan Terry, dan Teguh Edi Prasetyo. 2024. “Kemudahan Akses dan 
+Pemesanan: Sistem Informasi Aplikasi Restoran Berbasis Website.” Go 
+Infotech: Jurnal Ilmiah STMIK AUB  30 (2): 202 –10. 
+https://doi.org/10.36309/goi.v30i2.308.  
+Umam, Salim Nurul, Raden Bagus, Bambang Sumantri, dan Retno Agus. 2023. 
+“Usability Testing Pada PUSADBOT Menggunakan Black -Box dan System 
+Usability Scale (SUS).” prosiding SENAPAS  1 (1): 156 –62. 
+Zahra, Amalia fatima, dan Iwan Setiawan Wibisono. 2023. “Aplikasi Pemesanan 
+Makanan Online Berbasis Chatbot Di Warung Makan Barokah Kab. 
+Semarang.” Jurnal Mahasiswa Teknik Informatika  2 (1): 46 –55. 
+https://doi.org/10.35473/jamastika.v2i1.1870.  
+  

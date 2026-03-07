@@ -125,6 +125,17 @@ class Database:
                 )
             """)
             
+            # Tabel admin untuk autentikasi
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS admin (
+                    id_admin INT AUTO_INCREMENT PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    nama VARCHAR(100),
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
             self.connection.commit()
             print("Tabel database berhasil dibuat")
             
@@ -608,6 +619,76 @@ class Database:
         except Error as e:
             print(f"Error getting rating distribution: {e}")
             return {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        finally:
+            if cursor: cursor.close()
+
+    # ==================== ADMIN AUTHENTICATION ====================
+    
+    def create_default_admin(self):
+        """Create default admin if not exists"""
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return False
+        try:
+            # Check if admin exists
+            cursor.execute("SELECT COUNT(*) as count FROM admin")
+            result = cursor.fetchone()
+            
+            if result['count'] == 0:
+                # Create default admin with password 'admin123'
+                import hashlib
+                password_hash = hashlib.sha256('admin123'.encode()).hexdigest()
+                
+                cursor.execute("""
+                    INSERT INTO admin (username, password_hash, nama) 
+                    VALUES (%s, %s, %s)
+                """, ('admin', password_hash, 'Administrator'))
+                self.connection.commit()
+                print("Default admin created: username='admin', password='admin123'")
+                return True
+            return False
+        except Error as e:
+            print(f"Error creating default admin: {e}")
+            return False
+        finally:
+            if cursor: cursor.close()
+    
+    def verify_admin_login(self, username, password):
+        """Verify admin credentials"""
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor: return None
+        try:
+            import hashlib
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            
+            cursor.execute("""
+                SELECT id_admin, username, nama FROM admin 
+                WHERE username = %s AND password_hash = %s
+            """, (username, password_hash))
+            
+            return cursor.fetchone()
+        except Error as e:
+            print(f"Error verifying admin: {e}")
+            return None
+        finally:
+            if cursor: cursor.close()
+    
+    def change_admin_password(self, admin_id, new_password):
+        """Change admin password"""
+        cursor = self.get_cursor()
+        if not cursor: return False
+        try:
+            import hashlib
+            password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+            
+            cursor.execute("""
+                UPDATE admin SET password_hash = %s WHERE id_admin = %s
+            """, (password_hash, admin_id))
+            
+            self.connection.commit()
+            return cursor.rowcount > 0
+        except Error as e:
+            print(f"Error changing password: {e}")
+            return False
         finally:
             if cursor: cursor.close()
 

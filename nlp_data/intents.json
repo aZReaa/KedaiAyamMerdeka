@@ -237,6 +237,28 @@
         "Alhamdulillah baik kak! Ada yang bisa dibantu hari ini?",
         "Baik kak, siap melayani! Mau pesan apa?"
       ]
+    },
+    {
+      "tag": "rating",
+      "patterns": [
+        "1", "2", "3", "4", "5",
+        "rating 1", "rating 2", "rating 3", "rating 4", "rating 5",
+        "bintang 1", "bintang 2", "bintang 3", "bintang 4", "bintang 5",
+        "satu", "dua", "tiga", "empat", "lima"
+      ],
+      "responses": [
+        "Terima kasih atas ratingnya kak! 🙏",
+        "Makasih kak!"
+      ]
+    },
+    {
+      "tag": "feedback_selesai",
+      "patterns": [
+        "tidak ada", "sudah", "selesai", "cukup", "ok sudah"
+      ],
+      "responses": [
+        "Baik kak! Terima kasih 🙏"
+      ]
     }
   ]
 }

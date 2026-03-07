@@ -10,11 +10,13 @@
     <div class="container">
         <h1>🍗 Admin Panel - Kedai Ayam Merdeka</h1>
         
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('menu')">Menu</button>
-            <button class="tab-btn" onclick="showTab('pesanan')">Pesanan</button>
-            <button class="tab-btn" onclick="showTab('chat')">Test Chat</button>
-            <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
+        <div class="header-bar">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('menu')">Menu</button>
+                <button class="tab-btn" onclick="showTab('pesanan')">Pesanan</button>
+                <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
+            </div>
+            <a href="/logout" class="logout-btn">🚪 Logout</a>
         </div>
         
         <div id="menu" class="tab-content active">
@@ -93,16 +95,7 @@
             </div>
         </div>
         
-        <div id="chat" class="tab-content">
-            <h2>Test Chatbot</h2>
-            <div class="chat-container">
-                <div class="chat-box" id="chatBox"></div>
-                <div class="chat-input">
-                    <input type="text" id="chatMessage" placeholder="Ketik pesan...">
-                    <button onclick="sendMessage()">Kirim</button>
-                </div>
-            </div>
-        </div>
+
         
         <div id="analytics" class="tab-content">
             <h2>📊 Analytics & Evaluasi</h2>

@@ -2,6 +2,7 @@ from config import Config
 from database import db
 from nlu import nlu
 import random
+import re
 from datetime import datetime
 
 class DialogManager:
@@ -21,43 +22,93 @@ class DialogManager:
     def reset_user_state(self, user_id: str):
         db.reset_user_state(user_id)
     
-    def generate_response(self, user_id: str, message: str) -> str:
-        """Main response generator with improved flow handling."""
+    def generate_response(self, user_id: str, message: str, nama_pelanggan: str = "Pelanggan") -> str:
+        """Main response generator with improved flow handling and chat logging."""
         try:
             state = self.get_user_state(user_id)
+            state_before = state['state']
             intent, entities = nlu.process(message)
             
             print(f"[DEBUG] User: {user_id} | State: {state['state']} | Intent: {intent} | Entities: {entities}")
+            
+            response = None
             
             # Global intents — berlaku di semua state kecuali idle (ditangani sendiri)
             if state['state'] != 'idle':
                 if intent == 'salam':
                     self.reset_user_state(user_id)
                     greeting = self._get_time_greeting()
-                    return f"{greeting}\n\nAda yang bisa dibantu? 😊\n\n💡 Ketik *pesan* untuk mulai memesan\n📋 Ketik *menu* untuk lihat daftar menu"
+                    response = f"{greeting}\n\nAda yang bisa dibantu? 😊\n\n💡 Ketik *pesan* untuk mulai memesan\n📋 Ketik *menu* untuk lihat daftar menu"
                 elif intent == 'terima_kasih':
                     self.reset_user_state(user_id)
-                    return self._get_response(intent)
+                    response = self._get_response(intent)
             
-            if state['state'] == 'idle':
-                return self._handle_idle_state(user_id, intent, entities, message)
-            elif state['state'] == 'asking_menu':
-                return self._handle_asking_menu_state(user_id, state, intent, entities, message)
-            elif state['state'] == 'asking_quantity':
-                return self._handle_asking_quantity_state(user_id, state, intent, entities, message)
-            elif state['state'] == 'asking_sambal':
-                return self._handle_asking_sambal_state(user_id, state, intent, entities, message)
-            elif state['state'] == 'confirming':
-                return self._handle_confirming_state(user_id, state, intent, entities, message)
-            elif state['state'] == 'awaiting_payment':
-                return self._handle_awaiting_payment_state(user_id, state, intent, entities, message)
-            elif state['state'] == 'modifying':
-                return self._handle_modifying_state(user_id, state, intent, entities, message)
+            if response is None:
+                if state['state'] == 'idle':
+                    response = self._handle_idle_state(user_id, intent, entities, message)
+                elif state['state'] == 'asking_menu':
+                    response = self._handle_asking_menu_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'asking_quantity':
+                    response = self._handle_asking_quantity_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'asking_sambal':
+                    response = self._handle_asking_sambal_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'asking_time':
+                    response = self._handle_asking_time_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'confirming':
+                    response = self._handle_confirming_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'awaiting_payment':
+                    response = self._handle_awaiting_payment_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'modifying':
+                    response = self._handle_modifying_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'asking_feedback':
+                    response = self._handle_asking_feedback_state(user_id, state, intent, entities, message)
+                else:
+                    response = "Maaf, saya tidak mengerti. Ketik 'menu' untuk melihat daftar menu ya kak!"
             
-            return "Maaf, saya tidak mengerti. Ketik 'menu' untuk melihat daftar menu ya kak!"
+            # Get state after processing
+            state_after = self.get_user_state(user_id)['state']
+            
+            # Calculate confidence score (based on fuzzy matching score from NLU)
+            confidence = self._calculate_confidence(intent, entities)
+            
+            # Log the interaction
+            db.log_chat_interaction(
+                id_pelanggan=user_id,
+                nama_pelanggan=nama_pelanggan,
+                pesan_masuk=message,
+                intent_terdeteksi=intent,
+                confidence_score=confidence,
+                entities_extracted=entities,
+                pesan_keluar=response,
+                state_sebelumnya=state_before,
+                state_setelahnya=state_after
+            )
+            
+            return response
         except Exception as e:
             print(f"[ERROR] generate_response: {e}")
+            import traceback
+            traceback.print_exc()
             return "Maaf kak, ada sedikit gangguan. Coba ulangi pesanan kakak ya!"
+    
+    def _calculate_confidence(self, intent: str, entities: dict) -> float:
+        """Calculate confidence score based on intent and entities."""
+        # Base confidence
+        confidence = 0.7
+        
+        # Boost if entities found
+        if entities.get('NAMA_MENU'):
+            confidence += 0.15
+        if entities.get('JUMLAH'):
+            confidence += 0.05
+        if entities.get('JENIS_SAMBAL'):
+            confidence += 0.05
+        
+        # Unknown intent reduces confidence
+        if intent == 'unknown':
+            confidence = 0.3
+        
+        return min(confidence, 1.0)
     
     def _handle_idle_state(self, user_id: str, intent: str, entities: dict, message: str) -> str:
         """Handle user input when in idle state."""
@@ -201,10 +252,16 @@ class DialogManager:
             menu_name = cart_item['menu_detail']['nama_menu'].lower()
             needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
             if needs_sambal and not cart_item.get('JENIS_SAMBAL'):
-                self.update_user_state(user_id, 'asking_sambal', {'cart_index': idx}, cart=cart)
+                self.update_user_state(user_id, 'asking_sambal', {'cart_index': idx, 'cart': cart, 'waktu': entities.get('WAKTU_PENGAMBILAN')}, cart=cart)
                 return msg_prefix + self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
+        
+        # Check if time is provided, if not ask for it
+        waktu = entities.get('WAKTU_PENGAMBILAN')
+        if not waktu:
+            self.update_user_state(user_id, 'asking_time', {'cart': cart}, cart=cart)
+            return msg_prefix + self._ask_pickup_time()
                 
-        return msg_prefix + self._go_to_confirmation(user_id, cart)
+        return msg_prefix + self._go_to_confirmation(user_id, cart, waktu)
     
     def _handle_asking_menu_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle when bot is asking for menu choice."""
@@ -291,11 +348,17 @@ class DialogManager:
             menu_name = cart_item['menu_detail']['nama_menu'].lower()
             needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
             if needs_sambal and not cart_item.get('JENIS_SAMBAL'):
-                self.update_user_state(user_id, 'asking_sambal', {'cart_index': next_idx}, cart=cart)
+                self.update_user_state(user_id, 'asking_sambal', {'cart_index': next_idx, 'cart': cart, 'waktu': state_data.get('waktu')}, cart=cart)
                 return self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
+        
+        # Check if time was provided earlier or ask now
+        waktu = state_data.get('waktu')
+        if not waktu:
+            self.update_user_state(user_id, 'asking_time', {'cart': cart}, cart=cart)
+            return self._ask_pickup_time()
                 
         # All complete
-        return self._go_to_confirmation(user_id, cart)
+        return self._go_to_confirmation(user_id, cart, waktu)
     
     def _ask_sambal_preference(self, menu_name: str, jumlah: str) -> str:
         """Generate sambal preference question."""
@@ -311,7 +374,56 @@ class DialogManager:
 {options}
 Balas dengan angka (1-5) atau nama sambalnya"""
     
-    def _go_to_confirmation(self, user_id: str, cart: list) -> str:
+    def _ask_pickup_time(self) -> str:
+        """Generate pickup time question."""
+        return f"""⏰ *KAPAN PESANAN DIAMBIL?*
+
+Pilih salah satu:
+• *Sekarang* — Pesanan langsung disiapkan
+• *Jam 12:00* — Spesifik waktu (contoh)
+• *30 menit lagi* — Waktu relatif
+• *Pagi/Siang/Sore/Malam* — Perkiraan waktu
+
+💡 Contoh: "jam 12 siang" atau "1 jam lagi""""
+    
+    def _handle_asking_time_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
+        """Handle when bot is asking for pickup time."""
+        state_data = state['data']
+        cart = state.get('cart', [])
+        
+        if intent == 'pembatalan' or intent == 'batalkan_pesanan':
+            self.reset_user_state(user_id)
+            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' 😊"
+        
+        # Try to extract time from message
+        waktu = entities.get('WAKTU_PENGAMBILAN')
+        
+        # If not extracted by NLU, try manual parsing
+        if not waktu:
+            msg_lower = message.lower().strip()
+            # Direct keyword matching
+            if any(word in msg_lower for word in ['sekarang', 'langsung', 'segera']):
+                waktu = {"type": "immediate", "value": "immediate", "formatted": "Sekarang"}
+            elif 'pagi' in msg_lower:
+                waktu = {"type": "specific", "value": "09:00", "formatted": "09:00"}
+            elif 'siang' in msg_lower:
+                waktu = {"type": "specific", "value": "12:00", "formatted": "12:00"}
+            elif 'sore' in msg_lower:
+                waktu = {"type": "specific", "value": "15:00", "formatted": "15:00"}
+            elif 'malam' in msg_lower:
+                waktu = {"type": "specific", "value": "19:00", "formatted": "19:00"}
+        
+        if not waktu:
+            return f"""Maaf kak, waktu tidak dikenali 😅
+
+{self._ask_pickup_time()}
+
+💡 *Tip:* Balas dengan "sekarang", "jam 12", atau "1 jam lagi""""
+        
+        # Save time and go to confirmation
+        return self._go_to_confirmation(user_id, cart, waktu)
+    
+    def _go_to_confirmation(self, user_id: str, cart: list, waktu: dict = None) -> str:
         """Generate confirmation message and update state."""
         if not cart:
             self.reset_user_state(user_id)
@@ -334,17 +446,25 @@ Balas dengan angka (1-5) atau nama sambalnya"""
             
         detail_text = "\n".join([f"• {d}" for d in details])
         
-        # Save to state
-        self.update_user_state(user_id, 'confirming', {
+        # Format time display
+        waktu_text = "Sekarang"
+        if waktu:
+            waktu_text = waktu.get('formatted', 'Sekarang')
+        
+        # Save to state with time
+        state_data = {
             'total_harga': total_harga,
             'details_list': details,
-            'detail_text': detail_text
-        }, cart=cart)
+            'detail_text': detail_text,
+            'waktu_pengambilan': waktu
+        }
+        self.update_user_state(user_id, 'confirming', state_data, cart=cart)
         
         return f"""📝 *KONFIRMASI PESANAN*
 
 {detail_text}
 💰 Total: Rp {total_harga:,}
+⏰ Waktu Ambil: {waktu_text}
 
 ━━━━━━━━━━━━━━━━
 ✅ Balas *YA* untuk konfirmasi
@@ -368,16 +488,31 @@ Balas dengan angka (1-5) atau nama sambalnya"""
             total = state_data.get('total_harga', 0)
             detail_text = state_data.get('detail_text', '')
             details_list = state_data.get('details_list', [])
+            waktu = state_data.get('waktu_pengambilan')
             
             full_detail = ", ".join(details_list)
             
-            pesanan_id = db.create_pesanan(user_id, full_detail, total)
+            # Create order with pickup time
+            waktu_formatted = waktu.get('formatted') if waktu else 'Sekarang'
+            tipe_pengambilan = waktu.get('type') if waktu else 'immediate'
+            
+            pesanan_id = db.create_pesanan(
+                user_id, 
+                full_detail, 
+                total, 
+                waktu_pengambilan=waktu_formatted,
+                tipe_pengambilan=tipe_pengambilan
+            )
             
             self.update_user_state(user_id, 'awaiting_payment', {'id_pesanan': pesanan_id, 'total': total, 'detail': detail_text})
+            
+            # Format time for display
+            waktu_display = waktu_formatted if waktu_formatted else 'Sekarang'
             
             return f"""✅ *PESANAN BERHASIL DIBUAT!*
 
 📋 ID Pesanan: #{pesanan_id}
+⏰ Waktu Ambil: {waktu_display}
 
 {detail_text}
 💰 Total: Rp {total:,}
@@ -495,6 +630,112 @@ Ditunggu orderan berikutnya ya kak!"""
         
         self.reset_user_state(user_id)
         return f"✅ Pesanan diubah!\n\nDetail: {detail}\nTotal: Rp {total:,}\n\nSilakan lanjutkan pembayaran."
+    
+    def _handle_asking_feedback_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
+        """Handle feedback collection after order completion."""
+        state_data = state['data']
+        pesanan_id = state_data.get('id_pesanan')
+        
+        # Check if user provided rating
+        rating = None
+        msg_lower = message.lower().strip()
+        
+        # Try to extract rating from intent or message
+        if intent == 'rating':
+            # Extract number from message
+            numbers = re.findall(r'\d', message)
+            if numbers:
+                rating = int(numbers[0])
+        
+        # Direct number check
+        if rating is None:
+            if msg_lower in ['1', 'satu']:
+                rating = 1
+            elif msg_lower in ['2', 'dua']:
+                rating = 2
+            elif msg_lower in ['3', 'tiga']:
+                rating = 3
+            elif msg_lower in ['4', 'empat']:
+                rating = 4
+            elif msg_lower in ['5', 'lima']:
+                rating = 5
+        
+        # If this is the first feedback message (asking for rating)
+        if state_data.get('feedback_stage') == 'asking_rating':
+            if rating and 1 <= rating <= 5:
+                # Save rating and ask for additional feedback
+                state_data['rating'] = rating
+                state_data['feedback_stage'] = 'asking_comment'
+                self.update_user_state(user_id, 'asking_feedback', state_data)
+                
+                # Thank user based on rating
+                if rating >= 4:
+                    thanks = "Makasih banyak kak! 😊"
+                elif rating >= 3:
+                    thanks = "Terima kasih kak! 🙏"
+                else:
+                    thanks = "Terima kasih kak, kami akan berusaha lebih baik 🙏"
+                
+                return f"""{thanks}
+
+Ada saran atau komentar untuk kami?
+💬 Ketik pesan kakak atau balas "tidak ada" kalau sudah cukup"""
+            else:
+                return """Maaf kak, format rating tidak valid 😅
+
+⭐ *BERI RATING* (1-5)
+• 1 = Sangat Kurang Puas
+• 2 = Kurang Puas  
+• 3 = Cukup Puas
+• 4 = Puas
+• 5 = Sangat Puas
+
+Balas dengan angka 1-5 ya kak!"""
+        
+        # If asking for comment
+        elif state_data.get('feedback_stage') == 'asking_comment':
+            saran = message if message.lower() not in ['tidak ada', 'sudah', 'cukup', 'selesai', 'ga ada', 'gak ada'] else None
+            rating = state_data.get('rating')
+            
+            # Save feedback to database
+            if rating:
+                db.save_feedback(user_id, pesanan_id, rating, saran)
+            
+            self.reset_user_state(user_id)
+            
+            return """🙏 *TERIMA KASIH ATAS FEEDBACKNYA!*
+
+Komentar kakak sangat berarti untuk perbaikan layanan kami.
+
+Mau pesan lagi? Ketik *menu* kapan saja ya kak! 🍗"""
+        
+        # Default fallback
+        self.reset_user_state(user_id)
+        return "Terima kasih kak! Ditunggu orderan berikutnya ya 🍗"
+    
+    def request_feedback(self, user_id: str, pesanan_id: int) -> str:
+        """
+        Called by admin/API when order status is updated to 'selesai'
+        Returns message to send to user asking for feedback
+        """
+        # Set state to asking feedback
+        self.update_user_state(user_id, 'asking_feedback', {
+            'id_pesanan': pesanan_id,
+            'feedback_stage': 'asking_rating'
+        })
+        
+        return """🎉 *PESANAN SELESAI!*
+
+Terima kasih sudah memesan di Kedai Ayam Merdeka!
+
+⭐ *MOHON BERI RATING* (1-5)
+• 1 = Sangat Kurang Puas
+• 2 = Kurang Puas
+• 3 = Cukup Puas
+• 4 = Puas
+• 5 = Sangat Puas
+
+Balas dengan angka 1-5 ya kak! 🙏"""
     
     def _get_response(self, intent: str) -> str:
         """Get random response for intent from JSON."""

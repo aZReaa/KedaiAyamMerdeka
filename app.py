@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from functools import wraps
 from config import Config
 import os
 import json
@@ -17,6 +18,15 @@ print(f"[BOOT] All modules imported successfully!")
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'admin_id' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -159,8 +169,31 @@ def chat():
     return jsonify({'response': response})
 
 @app.route('/admin')
+@login_required
 def admin():
     return render_template('admin.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        admin = db.verify_admin_login(username, password)
+        if admin:
+            session['admin_id'] = admin['id_admin']
+            session['admin_username'] = admin['username']
+            session['admin_nama'] = admin['nama']
+            return redirect(url_for('admin'))
+        else:
+            return render_template('login.html', error='Username atau password salah!')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/api/menu', methods=['GET', 'POST'])
 def api_menu():
@@ -274,7 +307,10 @@ def init_db():
         for menu in sample_menus:
             db.insert_menu(*menu)
         
-        return jsonify({'success': True, 'message': 'Database initialized with sample data'})
+        # Create default admin
+        db.create_default_admin()
+        
+        return jsonify({'success': True, 'message': 'Database initialized with sample data and admin (admin/admin123)'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

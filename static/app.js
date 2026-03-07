@@ -158,13 +158,23 @@ function displayPesanan(data) {
 }
 
 function updateOrderStatus(orderId, newStatus) {
-    if (!confirm(`Ubah status pesanan #${orderId} menjadi "${newStatus}"?`)) {
+    let confirmMessage = `Ubah status pesanan #${orderId} menjadi "${newStatus}"?`;
+    
+    if (newStatus === 'selesai') {
+        confirmMessage += '\n\n✉️ Notifikasi feedback akan dikirim ke pelanggan.';
+    }
+    
+    if (!confirm(confirmMessage)) {
         return;
     }
     
-    axios.put(`/api/pesanan/${orderId}/status`, { status: newStatus })
+    axios.put(`/api/pesanan/${orderId}/status`, { status: newStatus, send_notification: true })
         .then(response => {
-            alert('Status pesanan berhasil diubah!');
+            let message = 'Status pesanan berhasil diubah!';
+            if (response.data.feedback_requested) {
+                message += '\n\n✉️ Permintaan feedback telah dikirim ke pelanggan.';
+            }
+            alert(message);
             loadAllPesanan(); // Refresh the list
         })
         .catch(error => {
@@ -178,43 +188,6 @@ function loadPesanan() {
     loadPesananByCustomer();
 }
 
-
-function addChatMessage(message, isUser = false) {
-    const chatBox = document.getElementById('chatBox');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${isUser ? 'user' : 'bot'}`;
-    messageDiv.textContent = message;
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function sendMessage() {
-    const input = document.getElementById('chatMessage');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    addChatMessage(message, true);
-    input.value = '';
-    
-    axios.post('/chat', {
-        user_id: 'test_user',
-        message: message
-    })
-    .then(response => {
-        addChatMessage(response.data.response, false);
-    })
-    .catch(error => {
-        console.error('Error sending message:', error);
-        addChatMessage('Maaf, terjadi kesalahan. Silakan coba lagi.', false);
-    });
-}
-
-document.getElementById('chatMessage').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
-});
 
 function initDatabase() {
     if (confirm('Initialize database with sample data? This will create tables and add sample menus.')) {
@@ -233,5 +206,207 @@ function initDatabase() {
 document.addEventListener('DOMContentLoaded', function() {
     loadMenu();
     loadAllPesanan(); // Auto-load all orders on page load
-    addChatMessage('Halo! Selamat datang di Chatbot Kedai Ayam Merdeka. Ketik pesan untuk memulai percakapan!', false);
+    loadAnalytics(); // Load analytics on page load
 });
+
+// ==================== ANALYTICS FUNCTIONS ====================
+
+function loadAnalytics() {
+    loadChatStats();
+    loadFeedbackStats();
+    loadFeedbackDetails();
+}
+
+function loadChatStats() {
+    axios.get('/api/analytics/chat')
+        .then(response => {
+            const data = response.data;
+            
+            // Update summary cards
+            document.getElementById('totalInteractions').textContent = data.total_interactions || 0;
+            document.getElementById('avgConfidence').textContent = data.average_confidence ? 
+                (data.average_confidence * 100).toFixed(1) + '%' : '0%';
+            
+            // Update intent distribution table
+            const intentTbody = document.querySelector('#intentDistributionTable tbody');
+            intentTbody.innerHTML = '';
+            if (data.intent_distribution) {
+                const total = data.total_interactions || 1;
+                data.intent_distribution.forEach(item => {
+                    const percentage = ((item.count / total) * 100).toFixed(1);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.intent_terdeteksi}</td>
+                        <td>${item.count}</td>
+                        <td>${percentage}%</td>
+                    `;
+                    intentTbody.appendChild(row);
+                });
+            }
+            
+            // Update confidence distribution table
+            const confTbody = document.querySelector('#confidenceDistributionTable tbody');
+            confTbody.innerHTML = '';
+            if (data.confidence_distribution) {
+                data.confidence_distribution.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.confidence_level}</td>
+                        <td>${item.count}</td>
+                    `;
+                    confTbody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading analytics:', error);
+        });
+}
+
+function loadFeedbackStats() {
+    axios.get('/api/feedback')
+        .then(response => {
+            const data = response.data;
+            document.getElementById('totalFeedback').textContent = data.total_feedback || 0;
+            document.getElementById('avgRating').textContent = data.average_rating ? 
+                data.average_rating + ' / 5.0 ⭐' : '-';
+        })
+        .catch(error => {
+            console.error('Error loading feedback stats:', error);
+        });
+}
+
+function loadFeedbackDetails() {
+    axios.get('/api/feedback?details=true')
+        .then(response => {
+            const data = response.data;
+            // Display rating distribution in table
+            const tbody = document.querySelector('#ratingDistributionTable tbody');
+            if (tbody && data.rating_distribution) {
+                tbody.innerHTML = '';
+                const total = data.total_feedback || 1;
+                for (let i = 5; i >= 1; i--) {
+                    const count = data.rating_distribution[i] || 0;
+                    const percentage = ((count / total) * 100).toFixed(1);
+                    const stars = '⭐'.repeat(i);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${stars}</td>
+                        <td>${count}</td>
+                        <td>${percentage}%</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading feedback details:', error);
+        });
+}
+
+function exportFeedback() {
+    axios.get('/api/feedback?details=true')
+        .then(response => {
+            const data = response.data;
+            
+            // Create CSV content
+            let csv = 'Rating,Jumlah,Pleasantage\\n';
+            const total = data.total_feedback || 1;
+            for (let i = 5; i >= 1; i--) {
+                const count = data.rating_distribution[i] || 0;
+                const percentage = ((count / total) * 100).toFixed(1);
+                csv += `${i},${count},${percentage}%\\n`;
+            }
+            csv += `\\nTotal Feedback,${data.total_feedback}\\n`;
+            csv += `Average Rating,${data.average_rating}\\n`;
+            csv += `Positive (4-5),${data.positive}\\n`;
+            csv += `Neutral (3),${data.neutral}\\n`;
+            csv += `Negative (1-2),${data.negative}\\n`;
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'feedback_evaluasi.csv';
+            a.click();
+        })
+        .catch(error => {
+            console.error('Error exporting feedback:', error);
+        });
+}
+
+function loadChatLogs() {
+    axios.get('/api/analytics/chat-logs?limit=50')
+        .then(response => {
+            const logs = response.data;
+            const tbody = document.querySelector('#chatLogsTable tbody');
+            tbody.innerHTML = '';
+            
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+                const waktu = new Date(log.waktu_interaksi).toLocaleString('id-ID');
+                const confidence = log.confidence_score ? (log.confidence_score * 100).toFixed(1) + '%' : '-';
+                
+                row.innerHTML = `
+                    <td>${waktu}</td>
+                    <td>${log.nama_pelanggan}</td>
+                    <td title="${log.pesan_masuk}">${log.pesan_masuk}</td>
+                    <td>${log.intent_terdeteksi}</td>
+                    <td>${confidence}</td>
+                    <td title="${log.pesan_keluar}">${log.pesan_keluar}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading chat logs:', error);
+        });
+}
+
+function exportChatLogs() {
+    axios.get('/api/analytics/chat-logs?limit=10000')
+        .then(response => {
+            const logs = response.data;
+            
+            // Convert to CSV
+            let csv = 'Waktu,ID Pelanggan,Nama,Pesan Masuk,Intent,Confidence,Entities,Pesan Keluar\\n';
+            logs.forEach(log => {
+                csv += `"${log.waktu_interaksi}","${log.id_pelanggan}","${log.nama_pelanggan}","${log.pesan_masuk}","${log.intent_terdeteksi}","${log.confidence_score}","${log.entities_extracted}","${log.pesan_keluar}"\\n`;
+            });
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chat_logs_evaluasi.csv';
+            a.click();
+        })
+        .catch(error => {
+            console.error('Error exporting chat logs:', error);
+        });
+}
+
+function exportConfusionMatrix() {
+    axios.get('/api/analytics/confusion-matrix')
+        .then(response => {
+            const data = response.data;
+            
+            // Convert to CSV format for confusion matrix
+            let csv = 'ID Log,Pesan Masuk,Intent Terdeteksi (Predicted),Confidence,Intent Actual (Untuk Evaluasi Manual)\\n';
+            data.forEach(item => {
+                csv += `"${item.id_log}","${item.pesan_masuk}","${item.intent_terdeteksi}","${item.confidence_score}",""\\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'confusion_matrix_data.csv';
+            a.click();
+        })
+        .catch(error => {
+            console.error('Error exporting confusion matrix:', error);
+        });
+}
