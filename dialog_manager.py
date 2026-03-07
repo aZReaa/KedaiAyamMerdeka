@@ -772,8 +772,8 @@ Balas dengan angka 1-5 ya kak! """
         """Return payment information."""
         return """ *METODE PEMBAYARAN*
 
- Bank BCA: 1234567890
- OVO/GoPay: 081234567890
+ Bank BCA: '1234567890'
+ OVO/GoPay: '081234567890'
 a.n. Kedai Ayam Merdeka"""
     
     def _get_time_greeting(self) -> str:
