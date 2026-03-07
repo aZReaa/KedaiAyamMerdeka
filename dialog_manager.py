@@ -384,7 +384,7 @@ Pilih salah satu:
 • *30 menit lagi* — Waktu relatif
 • *Pagi/Siang/Sore/Malam* — Perkiraan waktu
 
-💡 Contoh: "jam 12 siang" atau "1 jam lagi""""
+💡 Contoh: 'jam 12 siang' atau '1 jam lagi'"
     
     def _handle_asking_time_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         """Handle when bot is asking for pickup time."""
