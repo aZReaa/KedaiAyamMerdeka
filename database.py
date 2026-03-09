@@ -28,7 +28,7 @@ class Database:
             self.connect()
         
         if self.connection and self.connection.is_connected():
-            return self.connection.cursor(dictionary=dictionary)
+            return self.connection.cursor(dictionary=dictionary, buffered=True)
         else:
             print("Gagal menghubungkan ke database.")
             return None
