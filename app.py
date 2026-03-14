@@ -19,6 +19,10 @@ print(f"[BOOT] All modules imported successfully!")
 app = Flask(__name__)
 app.config.from_object(Config)
 
+@app.teardown_appcontext
+def close_database_connection(_error=None):
+    db.close()
+
 # Login required decorator
 def login_required(f):
     @wraps(f)
@@ -225,7 +229,7 @@ def delete_menu(menu_id):
     try:
         query = "DELETE FROM menu WHERE id_menu = %s"
         cursor.execute(query, (menu_id,))
-        db.connection.commit()
+        db.commit()
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

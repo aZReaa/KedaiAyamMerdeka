@@ -1,40 +1,90 @@
 import mysql.connector
 from mysql.connector import Error
+import threading
 from config import Config
 
 class Database:
     def __init__(self):
-        self.connection = None
-        # Do not connect automatically on init to prevent Gunicorn worker crash
-        # Connection will be established when needed
+        self._local = threading.local()
+        self._db_config = {
+            'host': Config.DB_HOST,
+            'user': Config.DB_USER,
+            'password': Config.DB_PASSWORD,
+            'database': Config.DB_NAME,
+            'use_pure': True
+        }
+        # Connection is established lazily per thread/request.
+
+    @property
+    def connection(self):
+        return getattr(self._local, 'connection', None)
+
+    @connection.setter
+    def connection(self, value):
+        self._local.connection = value
     
     def connect(self):
+        existing_connection = self.connection
+        if existing_connection is not None:
+            try:
+                if existing_connection.is_connected():
+                    return existing_connection
+            except Error:
+                pass
+            self.close()
+
         try:
-            self.connection = mysql.connector.connect(
-                host=Config.DB_HOST,
-                user=Config.DB_USER,
-                password=Config.DB_PASSWORD,
-                database=Config.DB_NAME
-            )
+            self.connection = mysql.connector.connect(**self._db_config)
             if self.connection.is_connected():
                 print("Berhasil terkoneksi ke database MySQL")
+            return self.connection
         except Error as e:
             print(f"Error koneksi database: {e}")
             self.connection = None
+            return None
+
+    def get_connection(self):
+        connection = self.connection
+        if connection is None:
+            print("Koneksi database terputus. Mencoba menghubungkan ulang...")
+            return self.connect()
+
+        try:
+            if not connection.is_connected():
+                print("Koneksi database terputus. Mencoba menghubungkan ulang...")
+                return self.connect()
+        except Error:
+            print("Status koneksi database gagal diperiksa. Mencoba menghubungkan ulang...")
+            return self.connect()
+
+        return connection
 
     def get_cursor(self, dictionary=False):
-        if self.connection is None or not self.connection.is_connected():
-            print("Koneksi database terputus. Mencoba menghubungkan ulang...")
-            self.connect()
-        
-        if self.connection and self.connection.is_connected():
-            return self.connection.cursor(dictionary=dictionary, buffered=True)
+        connection = self.get_connection()
+        if connection:
+            return connection.cursor(dictionary=dictionary, buffered=True)
         else:
             print("Gagal menghubungkan ke database.")
             return None
+
+    def commit(self):
+        connection = self.get_connection()
+        if not connection:
+            return False
+
+        try:
+            connection.commit()
+            return True
+        except Error as e:
+            print(f"Error commit database: {e}")
+            return False
     
     def create_database_and_tables(self):
-        cursor = self.connection.cursor()
+        connection = self.get_connection()
+        if not connection:
+            return
+
+        cursor = connection.cursor()
         
         try:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {Config.DB_NAME}")
@@ -136,7 +186,7 @@ class Database:
                 )
             """)
             
-            self.connection.commit()
+            self.commit()
             print("Tabel database berhasil dibuat")
             
         except Error as e:
@@ -150,7 +200,7 @@ class Database:
         try:
             query = "INSERT INTO menu (nama_menu, harga, kategori, ketersediaan) VALUES (%s, %s, %s, %s)"
             cursor.execute(query, (nama_menu, harga, kategori, ketersediaan))
-            self.connection.commit()
+            self.commit()
             return cursor.lastrowid
         except Error as e:
             print(f"Error insert menu: {e}")
@@ -198,7 +248,7 @@ class Database:
             """
             waktu_str = waktu_pengambilan['formatted'] if isinstance(waktu_pengambilan, dict) else waktu_pengambilan
             cursor.execute(query, (id_pelanggan, detail_pesanan, total_harga, waktu_str, tipe_pengambilan))
-            self.connection.commit()
+            self.commit()
             return cursor.lastrowid
         except Error as e:
             print(f"Error create pesanan: {e}")
@@ -212,7 +262,7 @@ class Database:
         try:
             query = "UPDATE pesanan SET status = %s WHERE id_pesanan = %s"
             cursor.execute(query, (status, id_pesanan))
-            self.connection.commit()
+            self.commit()
             return True
         except Error as e:
             print(f"Error update pesanan: {e}")
@@ -315,7 +365,7 @@ class Database:
                 ON DUPLICATE KEY UPDATE nama = %s
             """
             cursor.execute(query, (id_pelanggan, nama, nama))
-            self.connection.commit()
+            self.commit()
             return True
         except Error as e:
             print(f"Error insert pelanggan: {e}")
@@ -324,12 +374,13 @@ class Database:
             cursor.close()
     
     def get_user_state(self, id_pelanggan):
-        cursor = self.get_cursor(dictionary=True)
-        if not cursor: return {'state': 'idle', 'data': {}, 'cart': []}
         try:
-            # Pastikan pelanggan ada
+            # Pastikan pelanggan ada sebelum membuka cursor lain di koneksi yang sama
             self.insert_or_update_pelanggan(id_pelanggan, "Pelanggan")
-            
+
+            cursor = self.get_cursor(dictionary=True)
+            if not cursor: return {'state': 'idle', 'data': {}, 'cart': []}
+
             query = "SELECT state, data, cart FROM conversation_states WHERE id_pelanggan = %s"
             cursor.execute(query, (id_pelanggan,))
             result = cursor.fetchone()
@@ -345,13 +396,12 @@ class Database:
             print(f"Error get user state: {e}")
             return {'state': 'idle', 'data': {}, 'cart': []}
         finally:
-            if cursor: cursor.close()
+            if 'cursor' in locals() and cursor:
+                cursor.close()
 
     def update_user_state(self, id_pelanggan, state, data=None, cart=None):
-        cursor = self.get_cursor()
-        if not cursor: return False
         try:
-            # Pastikan pelanggan ada
+            # Pastikan pelanggan ada sebelum operasi state lain
             self.insert_or_update_pelanggan(id_pelanggan, "Pelanggan")
             
             import json
@@ -364,7 +414,9 @@ class Database:
                     return super().default(obj)
             
             current = self.get_user_state(id_pelanggan)
-            
+            cursor = self.get_cursor()
+            if not cursor: return False
+
             new_data = current['data']
             if data is not None:
                 new_data.update(data)
@@ -384,13 +436,14 @@ class Database:
                 id_pelanggan, state, data_json, cart_json,
                 state, data_json, cart_json
             ))
-            self.connection.commit()
+            self.commit()
             return True
         except Error as e:
             print(f"Error update user state: {e}")
             return False
         finally:
-            if cursor: cursor.close()
+            if 'cursor' in locals() and cursor:
+                cursor.close()
 
     def reset_user_state(self, id_pelanggan):
         return self.update_user_state(id_pelanggan, 'idle', {}, [])
@@ -420,7 +473,7 @@ class Database:
                 confidence_score, entities_json, pesan_keluar,
                 state_sebelumnya, state_setelahnya
             ))
-            self.connection.commit()
+            self.commit()
             return True
         except Error as e:
             print(f"Error logging chat: {e}")
@@ -559,7 +612,7 @@ class Database:
                 VALUES (%s, %s, %s, %s)
             """
             cursor.execute(query, (id_pelanggan, id_pesanan, rating, saran))
-            self.connection.commit()
+            self.commit()
             return True
         except Error as e:
             print(f"Error saving feedback: {e}")
@@ -642,7 +695,7 @@ class Database:
                     INSERT INTO admin (username, password_hash, nama) 
                     VALUES (%s, %s, %s)
                 """, ('admin', password_hash, 'Administrator'))
-                self.connection.commit()
+                self.commit()
                 print("Default admin created: username='admin', password='admin123'")
                 return True
             return False
@@ -684,7 +737,7 @@ class Database:
                 UPDATE admin SET password_hash = %s WHERE id_admin = %s
             """, (password_hash, admin_id))
             
-            self.connection.commit()
+            self.commit()
             return cursor.rowcount > 0
         except Error as e:
             print(f"Error changing password: {e}")
@@ -693,7 +746,16 @@ class Database:
             if cursor: cursor.close()
 
     def close(self):
-        if self.connection and self.connection.is_connected():
-            self.connection.close()
+        connection = self.connection
+        if not connection:
+            return
+
+        try:
+            if connection.is_connected():
+                connection.close()
+        except Error:
+            pass
+        finally:
+            self.connection = None
 
 db = Database()
