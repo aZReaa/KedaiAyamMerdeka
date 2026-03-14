@@ -3,105 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Kedai Ayam Merdeka</title>
+    <title>Admin Dashboard | Kedai Ayam Merdeka</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🍗 Admin Panel - Kedai Ayam Merdeka</h1>
-        
-        <div class="header-bar">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('menu')">Menu</button>
-                <button class="tab-btn" onclick="showTab('pesanan')">Pesanan</button>
-                <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <p class="eyebrow">Kedai Ayam Merdeka</p>
+                <h1>Admin Dashboard</h1>
+                <p class="brand-copy">Pantau menu, pesanan, dan performa chatbot dari satu panel operasional.</p>
             </div>
-            <a href="/logout" class="logout-btn">🚪 Logout</a>
-        </div>
-        
-        <div id="menu" class="tab-content active">
-            <h2>Kelola Menu</h2>
-            
-            <div class="form-container">
-                <h3>Tambah Menu Baru</h3>
-                <form id="menuForm">
-                    <input type="text" id="nama_menu" placeholder="Nama Menu" required>
-                    <input type="number" id="harga" placeholder="Harga (Rp)" required>
-                    <input type="text" id="kategori" placeholder="Kategori">
-                    <label>
-                        <input type="checkbox" id="ketersediaan" checked> Tersedia
-                    </label>
-                    <button type="submit">Tambah Menu</button>
-                </form>
-            </div>
-            
-            <div class="table-container">
-                <h3>Daftar Menu</h3>
-                <button onclick="loadMenu()" class="refresh-btn">🔄 Refresh</button>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama Menu</th>
-                            <th>Harga</th>
-                            <th>Kategori</th>
-                            <th>Tersedia</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="menuTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div id="pesanan" class="tab-content">
-            <h2>Daftar Pesanan</h2>
-            
-            <div class="form-container">
-                <div class="filter-controls">
-                    <select id="statusFilter">
-                        <option value="">Semua Status</option>
-                        <option value="dipesan">Dipesan</option>
-                        <option value="diproses">Diproses</option>
-                        <option value="selesai">Selesai</option>
-                        <option value="batal">Batal</option>
-                    </select>
-                    <button onclick="loadAllPesanan()" class="primary-btn">📋 Load All Orders</button>
-                </div>
-                
-                <div class="search-customer">
-                    <input type="text" id="pelanggan_id" placeholder="Cari berdasarkan No. WA Pelanggan (opsional)">
-                    <button onclick="loadPesananByCustomer()">🔍 Cari Pesanan</button>
-                </div>
-            </div>
-            
-            <div class="table-container">
-                <button onclick="loadAllPesanan()" class="refresh-btn">🔄 Refresh</button>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Pelanggan</th>
-                            <th>No. WA</th>
-                            <th>Detail Pesanan</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Waktu</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pesananTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-        
 
-        
-        <div id="analytics" class="tab-content">
-            <h2>📊 Analytics & Evaluasi</h2>
-            
-            <div class="analytics-summary">
-                <h3>Ringkasan Statistik</h3>
+            <nav class="side-nav tabs" aria-label="Navigasi admin">
+                <button class="tab-btn active" type="button" data-tab="menu">Menu</button>
+                <button class="tab-btn" type="button" data-tab="pesanan">Pesanan</button>
+                <button class="tab-btn" type="button" data-tab="analytics">Analytics</button>
+            </nav>
+
+            <div class="sidebar-card">
+                <p class="sidebar-label">Sinkronisasi</p>
+                <strong id="globalLastUpdated">Belum ada data</strong>
+                <p class="sidebar-copy">Panel akan memperbarui ringkasan saat data berhasil dimuat.</p>
+            </div>
+
+            <div class="sidebar-card accent-card">
+                <p class="sidebar-label">Operasional</p>
+                <div class="mini-metrics">
+                    <div>
+                        <span class="mini-label">Menu aktif</span>
+                        <strong id="availableMenuCount">0</strong>
+                    </div>
+                    <div>
+                        <span class="mini-label">Pesanan berjalan</span>
+                        <strong id="activeOrdersCount">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-actions">
+                <a href="/logout" class="logout-btn">Logout</a>
+                <button onclick="initDatabase()" class="danger-btn wide-btn" type="button">Initialize Database</button>
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <section class="hero-panel">
+                <div>
+                    <p class="eyebrow">Control Center</p>
+                    <h2>Dashboard operasional untuk menu, pesanan, dan evaluasi chatbot</h2>
+                    <p class="hero-copy">Gunakan panel ini untuk menjaga data menu tetap rapi, memproses pesanan cepat, dan membaca sinyal kualitas interaksi pelanggan.</p>
+                </div>
+                <div class="hero-meta">
+                    <div class="hero-pill">
+                        <span>Status</span>
+                        <strong>Online</strong>
+                    </div>
+                    <div class="hero-pill">
+                        <span>Environment</span>
+                        <strong>Admin Panel</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="overview-grid">
+                <article class="overview-card">
+                    <span class="card-label">Total menu</span>
+                    <strong id="menuCount">0</strong>
+                    <p>Jumlah item yang tampil di katalog admin.</p>
+                </article>
+                <article class="overview-card">
+                    <span class="card-label">Total pesanan</span>
+                    <strong id="orderCount">0</strong>
+                    <p>Semua pesanan yang dimuat berdasarkan filter aktif.</p>
+                </article>
+                <article class="overview-card">
+                    <span class="card-label">Pesanan selesai</span>
+                    <strong id="completedOrderCount">0</strong>
+                    <p>Pesanan yang sudah ditandai selesai.</p>
+                </article>
+                <article class="overview-card">
+                    <span class="card-label">Rata-rata rating</span>
+                    <strong id="heroAvgRating">-</strong>
+                    <p>Feedback pelanggan dari modul evaluasi.</p>
+                </article>
+            </section>
+
+            <section id="menu" class="tab-content active">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Menu Management</p>
+                        <h3>Kelola katalog menu</h3>
+                    </div>
+                    <button onclick="loadMenu()" class="secondary-btn" type="button">Refresh Menu</button>
+                </div>
+
+                <div class="content-grid two-column">
+                    <article class="panel-card form-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Tambah data</p>
+                                <h4>Menu baru</h4>
+                            </div>
+                            <span class="panel-badge">Input</span>
+                        </div>
+
+                        <form id="menuForm" class="stack-form">
+                            <div class="input-grid">
+                                <label class="field">
+                                    <span>Nama menu</span>
+                                    <input type="text" id="nama_menu" placeholder="Contoh: Ayam Geprek Sambal Ijo" required>
+                                </label>
+                                <label class="field">
+                                    <span>Kategori</span>
+                                    <input type="text" id="kategori" placeholder="Ayam, Minuman, Lauk">
+                                </label>
+                            </div>
+
+                            <div class="input-grid compact">
+                                <label class="field">
+                                    <span>Harga</span>
+                                    <input type="number" id="harga" placeholder="15000" required>
+                                </label>
+                                <label class="toggle-field">
+                                    <input type="checkbox" id="ketersediaan" checked>
+                                    <span>Tersedia untuk dijual</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="primary-btn">Simpan Menu</button>
+                        </form>
+                    </article>
+
+                    <article class="panel-card metric-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Ringkasan</p>
+                                <h4>Status katalog</h4>
+                            </div>
+                            <span class="panel-badge neutral">Live</span>
+                        </div>
+
+                        <div class="metric-list">
+                            <div class="metric-item">
+                                <span>Total item</span>
+                                <strong id="summaryMenuTotal">0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Tersedia</span>
+                                <strong id="summaryMenuAvailable">0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Tidak tersedia</span>
+                                <strong id="summaryMenuUnavailable">0</strong>
+                            </div>
+                        </div>
+
+                        <p class="panel-note">Gunakan ringkasan ini untuk memastikan item yang ditampilkan ke chatbot tetap sinkron dengan stok lapangan.</p>
+                    </article>
+                </div>
+
+                <article class="panel-card table-card">
+                    <div class="panel-head">
+                        <div>
+                            <p class="panel-kicker">Daftar menu</p>
+                            <h4>Katalog aktif</h4>
+                        </div>
+                        <span id="menuStatusText" class="muted-meta">Memuat data menu...</span>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Menu</th>
+                                    <th>Harga</th>
+                                    <th>Kategori</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="menuTableBody"></tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+            <section id="pesanan" class="tab-content">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Order Stream</p>
+                        <h3>Proses pesanan pelanggan</h3>
+                    </div>
+                    <button onclick="loadAllPesanan()" class="secondary-btn" type="button">Refresh Pesanan</button>
+                </div>
+
+                <div class="content-grid two-column">
+                    <article class="panel-card form-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Filter</p>
+                                <h4>Ambil data pesanan</h4>
+                            </div>
+                            <span class="panel-badge">Filter</span>
+                        </div>
+
+                        <div class="stack-form">
+                            <div class="input-grid compact">
+                                <label class="field">
+                                    <span>Status</span>
+                                    <select id="statusFilter">
+                                        <option value="">Semua Status</option>
+                                        <option value="dipesan">Dipesan</option>
+                                        <option value="diproses">Diproses</option>
+                                        <option value="selesai">Selesai</option>
+                                        <option value="batal">Batal</option>
+                                    </select>
+                                </label>
+                                <button onclick="loadAllPesanan()" class="primary-btn" type="button">Load Pesanan</button>
+                            </div>
+
+                            <div class="search-customer">
+                                <label class="field">
+                                    <span>ID pelanggan</span>
+                                    <input type="text" id="pelanggan_id" placeholder="Cari berdasarkan no. WA atau chat ID">
+                                </label>
+                                <button onclick="loadPesananByCustomer()" class="secondary-btn" type="button">Cari</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel-card metric-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Ringkasan</p>
+                                <h4>Status order</h4>
+                            </div>
+                            <span class="panel-badge warm">Realtime</span>
+                        </div>
+
+                        <div class="metric-list order-metrics">
+                            <div class="metric-item">
+                                <span>Dipesan</span>
+                                <strong id="orderPendingCount">0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Diproses</span>
+                                <strong id="orderProcessingCount">0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Selesai</span>
+                                <strong id="orderDoneCount">0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Batal</span>
+                                <strong id="orderCancelledCount">0</strong>
+                            </div>
+                        </div>
+
+                        <p class="panel-note">Aksi proses dan selesai tetap tersedia langsung dari tabel untuk menjaga throughput dapur tetap cepat.</p>
+                    </article>
+                </div>
+
+                <article class="panel-card table-card">
+                    <div class="panel-head">
+                        <div>
+                            <p class="panel-kicker">Daftar pesanan</p>
+                            <h4>Antrian terbaru</h4>
+                        </div>
+                        <span id="orderStatusText" class="muted-meta">Memuat data pesanan...</span>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pelanggan</th>
+                                    <th>ID Chat</th>
+                                    <th>Detail</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Waktu</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pesananTableBody"></tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+            <section id="analytics" class="tab-content">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Evaluation Desk</p>
+                        <h3>Analytics dan evaluasi chatbot</h3>
+                    </div>
+                    <button onclick="loadAnalytics()" class="secondary-btn" type="button">Refresh Analytics</button>
+                </div>
+
                 <div class="stats-grid" id="statsGrid">
                     <div class="stat-card">
                         <h4>Total Interaksi</h4>
@@ -120,84 +322,115 @@
                         <p id="avgRating">-</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="analytics-section">
-                <h3>Distribusi Intent</h3>
-                <table id="intentDistributionTable">
-                    <thead>
-                        <tr>
-                            <th>Intent</th>
-                            <th>Jumlah</th>
-                            <th>Persentase</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            
-            <div class="analytics-section">
-                <h3>Distribusi Confidence Score</h3>
-                <table id="confidenceDistributionTable">
-                    <thead>
-                        <tr>
-                            <th>Level</th>
-                            <th>Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            
-            <div class="analytics-section">
-                <h3>Chat Logs Terbaru</h3>
-                <button onclick="loadChatLogs()" class="refresh-btn">🔄 Refresh</button>
-                <div class="table-container">
-                    <table id="chatLogsTable">
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Pelanggan</th>
-                                <th>Input</th>
-                                <th>Intent</th>
-                                <th>Confidence</th>
-                                <th>Response</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+
+                <div class="content-grid analytics-grid">
+                    <article class="panel-card table-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Intent</p>
+                                <h4>Distribusi intent</h4>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="intentDistributionTable">
+                                <thead>
+                                    <tr>
+                                        <th>Intent</th>
+                                        <th>Jumlah</th>
+                                        <th>Persentase</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </article>
+
+                    <article class="panel-card table-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Confidence</p>
+                                <h4>Distribusi confidence score</h4>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="confidenceDistributionTable">
+                                <thead>
+                                    <tr>
+                                        <th>Level</th>
+                                        <th>Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </article>
                 </div>
-            </div>
-            
-            <div class="analytics-section">
-                <h3>Distribusi Rating (Feedback)</h3>
-                <div id="feedbackDetails">
-                    <table id="ratingDistributionTable">
-                        <thead>
-                            <tr>
-                                <th>Rating</th>
-                                <th>Jumlah</th>
-                                <th>Persentase</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="analytics-section">
-                <h3>Export Data (Untuk Evaluasi Bab 4)</h3>
-                <button onclick="exportChatLogs()" class="primary-btn">📥 Export Chat Logs (CSV)</button>
-                <button onclick="exportConfusionMatrix()" class="primary-btn">📥 Export Confusion Matrix Data</button>
-                <button onclick="exportFeedback()" class="primary-btn">📥 Export Feedback (CSV)</button>
-            </div>
-        </div>
-        
-        <div class="actions">
-            <button onclick="initDatabase()" class="danger-btn">🗄️ Initialize Database</button>
-        </div>
+
+                <article class="panel-card table-card">
+                    <div class="panel-head">
+                        <div>
+                            <p class="panel-kicker">Feedback</p>
+                            <h4>Distribusi rating pelanggan</h4>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="ratingDistributionTable">
+                            <thead>
+                                <tr>
+                                    <th>Rating</th>
+                                    <th>Jumlah</th>
+                                    <th>Persentase</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel-card table-card">
+                    <div class="panel-head">
+                        <div>
+                            <p class="panel-kicker">Logs</p>
+                            <h4>Chat logs terbaru</h4>
+                        </div>
+                        <button onclick="loadChatLogs()" class="secondary-btn" type="button">Refresh Logs</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="chatLogsTable">
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>Pelanggan</th>
+                                    <th>Input</th>
+                                    <th>Intent</th>
+                                    <th>Confidence</th>
+                                    <th>Response</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel-card export-card">
+                    <div class="panel-head">
+                        <div>
+                            <p class="panel-kicker">Export</p>
+                            <h4>Unduh data evaluasi</h4>
+                        </div>
+                    </div>
+                    <div class="export-actions">
+                        <button onclick="exportChatLogs()" class="primary-btn" type="button">Export Chat Logs</button>
+                        <button onclick="exportConfusionMatrix()" class="secondary-btn" type="button">Export Confusion Matrix</button>
+                        <button onclick="exportFeedback()" class="secondary-btn" type="button">Export Feedback</button>
+                    </div>
+                </article>
+            </section>
+        </main>
     </div>
-    
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/static/app.js"></script>
 </body>
