@@ -18,7 +18,7 @@
             <nav class="side-nav tabs" aria-label="Navigasi admin">
                 <button class="tab-btn active" type="button" data-tab="menu">Menu</button>
                 <button class="tab-btn" type="button" data-tab="pesanan">Pesanan</button>
-                <button class="tab-btn" type="button" data-tab="analytics">Analytics</button>
+                <button class="tab-btn" type="button" data-tab="analytics">Analitik</button>
             </nav>
 
             <div class="sidebar-card">
@@ -43,15 +43,15 @@
 
             <div class="sidebar-actions">
                 <a href="/logout" class="logout-btn">Logout</a>
-                <button onclick="initDatabase()" class="danger-btn wide-btn" type="button">Initialize Database</button>
+                <button onclick="initDatabase()" class="danger-btn wide-btn" type="button">Inisialisasi Database</button>
             </div>
         </aside>
 
         <main class="main-panel">
             <section class="hero-panel">
                 <div>
-                    <p class="eyebrow">Control Center</p>
-                    <h2>Dashboard operasional untuk menu, pesanan, dan evaluasi chatbot</h2>
+                    <p class="eyebrow">Panel Utama</p>
+                    <h2>Kelola menu, pesanan, dan evaluasi chatbot dari satu dashboard yang lebih rapi</h2>
                     <p class="hero-copy">Gunakan panel ini untuk menjaga data menu tetap rapi, memproses pesanan cepat, dan membaca sinyal kualitas interaksi pelanggan.</p>
                 </div>
                 <div class="hero-meta">
@@ -60,8 +60,8 @@
                         <strong>Online</strong>
                     </div>
                     <div class="hero-pill">
-                        <span>Environment</span>
-                        <strong>Admin Panel</strong>
+                        <span>Panel</span>
+                        <strong>Admin Kedai</strong>
                     </div>
                 </div>
             </section>
@@ -92,10 +92,10 @@
             <section id="menu" class="tab-content active">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Menu Management</p>
+                        <p class="eyebrow">Manajemen Menu</p>
                         <h3>Kelola katalog menu</h3>
                     </div>
-                    <button onclick="loadMenu()" class="secondary-btn" type="button">Refresh Menu</button>
+                    <button onclick="loadMenu()" class="secondary-btn" type="button">Muat Ulang Menu</button>
                 </div>
 
                 <div class="content-grid two-column">
@@ -193,10 +193,10 @@
             <section id="pesanan" class="tab-content">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Order Stream</p>
+                        <p class="eyebrow">Manajemen Pesanan</p>
                         <h3>Proses pesanan pelanggan</h3>
                     </div>
-                    <button onclick="loadAllPesanan()" class="secondary-btn" type="button">Refresh Pesanan</button>
+                    <button onclick="loadAllPesanan()" class="secondary-btn" type="button">Muat Ulang Pesanan</button>
                 </div>
 
                 <div class="content-grid two-column">
@@ -221,7 +221,7 @@
                                         <option value="batal">Batal</option>
                                     </select>
                                 </label>
-                                <button onclick="loadAllPesanan()" class="primary-btn" type="button">Load Pesanan</button>
+                                <button onclick="loadAllPesanan()" class="primary-btn" type="button">Tampilkan Pesanan</button>
                             </div>
 
                             <div class="search-customer">
@@ -238,7 +238,7 @@
                         <div class="panel-head">
                             <div>
                                 <p class="panel-kicker">Ringkasan</p>
-                                <h4>Status order</h4>
+                                <h4>Status pesanan</h4>
                             </div>
                             <span class="panel-badge warm">Realtime</span>
                         </div>
@@ -298,10 +298,10 @@
             <section id="analytics" class="tab-content">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Evaluation Desk</p>
-                        <h3>Analytics dan evaluasi chatbot</h3>
+                        <p class="eyebrow">Evaluasi Sistem</p>
+                        <h3>Analitik dan evaluasi chatbot</h3>
                     </div>
-                    <button onclick="loadAnalytics()" class="secondary-btn" type="button">Refresh Analytics</button>
+                    <button onclick="loadAnalytics()" class="secondary-btn" type="button">Muat Ulang Analitik</button>
                 </div>
 
                 <div class="stats-grid" id="statsGrid">
@@ -310,7 +310,7 @@
                         <p id="totalInteractions">-</p>
                     </div>
                     <div class="stat-card">
-                        <h4>Avg Confidence</h4>
+                        <h4>Rata-rata Confidence</h4>
                         <p id="avgConfidence">-</p>
                     </div>
                     <div class="stat-card">
@@ -318,7 +318,7 @@
                         <p id="totalFeedback">-</p>
                     </div>
                     <div class="stat-card">
-                        <h4>Avg Rating</h4>
+                        <h4>Rata-rata Rating</h4>
                         <p id="avgRating">-</p>
                     </div>
                 </div>
@@ -393,7 +393,7 @@
                             <p class="panel-kicker">Logs</p>
                             <h4>Chat logs terbaru</h4>
                         </div>
-                        <button onclick="loadChatLogs()" class="secondary-btn" type="button">Refresh Logs</button>
+                        <button onclick="loadChatLogs()" class="secondary-btn" type="button">Muat Ulang Log</button>
                     </div>
                     <div class="table-container">
                         <table id="chatLogsTable">
@@ -420,7 +420,7 @@
                         </div>
                     </div>
                     <div class="export-actions">
-                        <button onclick="exportChatLogs()" class="primary-btn" type="button">Export Chat Logs</button>
+                        <button onclick="exportChatLogs()" class="primary-btn" type="button">Export Chat Log</button>
                         <button onclick="exportConfusionMatrix()" class="secondary-btn" type="button">Export Confusion Matrix</button>
                         <button onclick="exportFeedback()" class="secondary-btn" type="button">Export Feedback</button>
                     </div>
