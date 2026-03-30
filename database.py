@@ -247,9 +247,9 @@ class Database:
         try:
             cursor.execute("""
                 SELECT
-                    DATABASE() AS current_database,
-                    CURRENT_USER() AS current_user,
-                    @@hostname AS server_hostname
+                    DATABASE() AS active_database,
+                    CURRENT_USER() AS active_user,
+                    @@hostname AS active_hostname
             """)
             connection_info = cursor.fetchone() or {}
 
