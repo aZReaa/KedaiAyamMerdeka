@@ -139,10 +139,10 @@ function loadMenu() {
                 return;
             }
 
-            menuItems.forEach((menu) => {
+            menuItems.forEach((menu, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>#${menu.id_menu}</td>
+                    <td>${index + 1}</td>
                     <td>${menu.nama_menu}</td>
                     <td>${formatCurrency(menu.harga)}</td>
                     <td>${menu.kategori || '-'}</td>
