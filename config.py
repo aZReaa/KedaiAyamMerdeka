@@ -5,6 +5,12 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+    APP_VERSION = (
+        os.getenv('RAILWAY_GIT_COMMIT_SHA')
+        or os.getenv('RAILWAY_DEPLOYMENT_ID')
+        or os.getenv('APP_VERSION')
+        or 'dev'
+    )
     
     # Database Configuration
     DB_HOST = os.getenv('DB_HOST') or os.getenv('MYSQLHOST') or 'localhost'

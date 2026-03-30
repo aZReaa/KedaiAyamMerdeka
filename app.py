@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session, make_response
 from functools import wraps
 from config import Config
 import os
@@ -18,6 +18,15 @@ print(f"[BOOT] All modules imported successfully!")
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+
+@app.after_request
+def apply_no_cache_headers(response):
+    if request.path == '/admin' or request.path.startswith('/api/'):
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 @app.teardown_appcontext
 def close_database_connection(_error=None):
@@ -175,7 +184,11 @@ def chat():
 @app.route('/admin')
 @login_required
 def admin():
-    return render_template('admin.html')
+    response = make_response(render_template('admin.html', asset_version=Config.APP_VERSION))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
