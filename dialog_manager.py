@@ -112,6 +112,21 @@ class DialogManager:
     
     def _handle_idle_state(self, user_id: str, intent: str, entities: dict, message: str) -> str:
         'Handle user input when in idle state.'
+
+        direct_menu = db.get_menu_by_name(message.strip())
+        if direct_menu and intent in ['pesan_menu', 'unknown', 'konfirmasi']:
+            direct_entities = {
+                'NAMA_MENU': message.strip(),
+                'JUMLAH': entities.get('JUMLAH'),
+                'JENIS_SAMBAL': entities.get('JENIS_SAMBAL'),
+                'ITEMS': [{
+                    'NAMA_MENU': message.strip(),
+                    'JUMLAH': entities.get('JUMLAH'),
+                    'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
+                }],
+                'WAKTU_PENGAMBILAN': entities.get('WAKTU_PENGAMBILAN')
+            }
+            return self._start_ordering_flow(user_id, direct_entities)
         
         # If menu entity detected, start ordering flow
         if entities.get('NAMA_MENU'):
@@ -251,7 +266,7 @@ class DialogManager:
         for idx, cart_item in enumerate(cart):
             menu_name = cart_item['menu_detail']['nama_menu'].lower()
             needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
-            if needs_sambal and not cart_item.get('JENIS_SAMBAL'):
+            if needs_sambal and not self._menu_has_embedded_sambal(menu_name) and not cart_item.get('JENIS_SAMBAL'):
                 self.update_user_state(user_id, 'asking_sambal', {'cart_index': idx, 'cart': cart, 'waktu': entities.get('WAKTU_PENGAMBILAN')}, cart=cart)
                 return msg_prefix + self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
         
@@ -268,14 +283,23 @@ class DialogManager:
         if intent == 'pembatalan' or intent == 'batalkan_pesanan':
             self.reset_user_state(user_id)
             return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
-        
-        if entities.get('NAMA_MENU'):
-            return self._start_ordering_flow(user_id, entities)
-        
-        # User might type just the menu name
+
         menu = db.get_menu_by_name(message.strip())
         if menu:
-            entities['NAMA_MENU'] = message.strip().lower()
+            direct_entities = {
+                'NAMA_MENU': message.strip(),
+                'JUMLAH': entities.get('JUMLAH'),
+                'JENIS_SAMBAL': entities.get('JENIS_SAMBAL'),
+                'ITEMS': [{
+                    'NAMA_MENU': message.strip(),
+                    'JUMLAH': entities.get('JUMLAH'),
+                    'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
+                }],
+                'WAKTU_PENGAMBILAN': entities.get('WAKTU_PENGAMBILAN')
+            }
+            return self._start_ordering_flow(user_id, direct_entities)
+        
+        if entities.get('NAMA_MENU'):
             return self._start_ordering_flow(user_id, entities)
         
         return f"Maaf kak, menu tidak ditemukan \n\nSilakan pilih dari:\n{self._format_menu_list()}"
@@ -283,6 +307,27 @@ class DialogManager:
     def _handle_asking_quantity_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         # Kept for backward compatibility but bypassed by _start_ordering_flow defaulting JUMLAH to 1
         return self._start_ordering_flow(user_id, entities)
+
+    def _menu_has_embedded_sambal(self, menu_name: str) -> bool:
+        'Return True when the menu name already contains a specific sambal variant.'
+        if not menu_name:
+            return False
+
+        menu_lower = menu_name.lower()
+        embedded_keywords = [
+            'sambal bawang',
+            'sambal ijo',
+            'sambal hijau',
+            'sambal merah',
+            'sambal terasi',
+            'sambal matah',
+            'tanpa sambal'
+        ]
+        if any(keyword in menu_lower for keyword in embedded_keywords):
+            return True
+
+        bare_variant_pattern = r'(?:\+|\s)(bawang|ijo|hijau|merah|terasi|matah)\s*$'
+        return re.search(bare_variant_pattern, menu_lower) is not None
 
     def _extract_sambal_choice(self, message: str) -> str | None:
         'Resolve user sambal choice from raw message with strict validation.'
@@ -359,7 +404,7 @@ class DialogManager:
             cart_item = cart[next_idx]
             menu_name = cart_item['menu_detail']['nama_menu'].lower()
             needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
-            if needs_sambal and not cart_item.get('JENIS_SAMBAL'):
+            if needs_sambal and not self._menu_has_embedded_sambal(menu_name) and not cart_item.get('JENIS_SAMBAL'):
                 self.update_user_state(user_id, 'asking_sambal', {'cart_index': next_idx, 'cart': cart, 'waktu': state_data.get('waktu')}, cart=cart)
                 return self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
         

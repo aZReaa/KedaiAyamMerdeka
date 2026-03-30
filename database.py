@@ -194,7 +194,7 @@ class Database:
             print(f"Error membuat tabel: {e}")
         finally:
             cursor.close()
-    
+
     def insert_menu(self, nama_menu, harga, kategori, ketersediaan=True):
         cursor = self.get_cursor()
         if not cursor: return None
@@ -232,7 +232,11 @@ class Database:
         try:
             query = "SELECT * FROM menu WHERE nama_menu LIKE %s AND ketersediaan = TRUE"
             cursor.execute(query, (f"%{nama_menu}%",))
-            return cursor.fetchone()
+            row = cursor.fetchone()
+            if row:
+                if row.get('harga') is not None:
+                    row['harga'] = float(row['harga'])
+            return row
         except Error as e:
             print(f"Error get menu by name: {e}")
             return None
