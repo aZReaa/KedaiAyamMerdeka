@@ -115,6 +115,71 @@ class NLU:
             # Format: setengah (12:30)
             r'\bsetengah\s*(\d{1,2})\s*(pagi|siang|sore|malam)?\b'
         ]
+
+        self.menu_aliases = [
+            ("ayam geprek", ["ayam geprek"]),
+            ("ayam bakar", ["ayam bakar"]),
+            ("ayam goreng", ["ayam goreng"]),
+            ("ayam crispy", ["ayam crispy"]),
+            ("ayam penyet", ["ayam penyet"]),
+            ("nasi", ["nasi putih", "nasi"]),
+            ("es teh manis", ["es teh manis", "es teh"]),
+            ("es jeruk", ["es jeruk"]),
+            ("es campur", ["es campur"]),
+            ("es teler", ["es teler"]),
+            ("es kelapa", ["es kelapa"]),
+            ("tahu crispy", ["tahu crispy", "tahu goreng", "tahu"]),
+            ("tempe crispy", ["tempe crispy", "tempe goreng", "tempe"]),
+            ("sate ayam", ["sate ayam", "sate"])
+        ]
+
+        self.sambal_aliases = {
+            "sambal bawang": ["sambal bawang", "bawang"],
+            "sambal ijo": ["sambal ijo", "sambal hijau", "ijo", "hijau"],
+            "sambal terasi": ["sambal terasi", "terasi"],
+            "sambal matah": ["sambal matah", "matah"],
+            "tanpa sambal": [
+                "tanpa sambal",
+                "tanpa",
+                "tidak pakai sambal",
+                "ga pakai sambal",
+                "gak pakai sambal",
+                "nggak pakai sambal",
+                "no sambal"
+            ]
+        }
+
+    def _normalize_text(self, text: str) -> str:
+        normalized = re.sub(r'[^a-z0-9\s]', ' ', text.lower())
+        return re.sub(r'\s+', ' ', normalized).strip()
+
+    def _contains_phrase(self, text: str, phrase: str) -> bool:
+        pattern = r'(?<!\w)' + re.escape(phrase).replace(r'\ ', r'\s+') + r'(?!\w)'
+        return re.search(pattern, text) is not None
+
+    def _extract_menu_from_part(self, part: str) -> str | None:
+        normalized_part = self._normalize_text(part)
+        if not normalized_part:
+            return None
+
+        for canonical_menu, aliases in self.menu_aliases:
+            for alias in sorted(aliases, key=len, reverse=True):
+                if self._contains_phrase(normalized_part, alias):
+                    return canonical_menu
+
+        return None
+
+    def _extract_sambal_from_part(self, part: str) -> str | None:
+        normalized_part = self._normalize_text(part)
+        if not normalized_part or normalized_part == "sambal":
+            return None
+
+        for canonical_sambal, aliases in self.sambal_aliases.items():
+            for alias in sorted(aliases, key=len, reverse=True):
+                if self._contains_phrase(normalized_part, alias):
+                    return canonical_sambal
+
+        return None
     
     def extract_time(self, text: str) -> Dict:
         """
@@ -251,16 +316,12 @@ class NLU:
         # Menu keywords - more comprehensive
         menu_keywords = [
             "ayam geprek", "ayam bakar", "ayam goreng", "ayam crispy", "ayam penyet",
-            "nasi putih", "nasi", 
+            "nasi",
             "es teh manis", "es teh", "es jeruk", "es campur", "es teler", "es kelapa",
             "tahu crispy", "tahu goreng", "tahu",
             "tempe crispy", "tempe goreng", "tempe",
             "sate ayam", "sate"
         ]
-        
-        # Sambal keywords
-        sambal_keywords = ["sambal ijo", "sambal hijau", "sambal bawang", "sambal terasi", 
-                          "sambal kecap", "sambal matah", "tanpa sambal", "tidak pakai sambal"]
                           
         # Number extraction - ordinal words
         angka_ordinal = {
@@ -278,44 +339,39 @@ class NLU:
                 "JUMLAH": None,
                 "JENIS_SAMBAL": None
             }
+
+            item_entity["NAMA_MENU"] = self._extract_menu_from_part(part)
+            item_entity["JENIS_SAMBAL"] = self._extract_sambal_from_part(part)
             
             # Use fuzzy matching for menu items, but strictly validate short matches
-            best_menu_match = process.extractOne(part, menu_keywords, scorer=fuzz.token_set_ratio)
-            
-            # Jika part terlalu pendek atau sekadar "ayam", token_set_ratio bisa memberikan false positive tinggi
-            # Contoh: "pesan ayam" -> "ayam penyet" = 100
-            # Oleh karena itu, kita verifikasi menggunakan token_sort_ratio atau substring
-            
-            is_valid_menu = False
-            if best_menu_match and best_menu_match[1] >= 75:
-                matched_menu = best_menu_match[0]
+            if not item_entity["NAMA_MENU"]:
+                best_menu_match = process.extractOne(part, menu_keywords, scorer=fuzz.token_set_ratio)
                 
-                # Filter strict untuk mencegah false positive
-                # Misalnya "ayam" saja di input, cocok 100 ngawur ke "ayam geprek"
-                # Kita cek berapa persen kata dari matched_menu ada di input part
-                matched_words = matched_menu.split()
-                part_words = part.split()
+                # Jika part terlalu pendek atau sekadar "ayam", token_set_ratio bisa memberikan false positive tinggi
+                # Contoh: "pesan ayam" -> "ayam penyet" = 100
+                # Oleh karena itu, kita verifikasi menggunakan token_sort_ratio atau substring
                 
-                # Check if at least the main defining word is present (e.g., 'geprek' in 'ayam geprek')
-                direct_match_score = fuzz.ratio(part, matched_menu)
-                token_sort_score = fuzz.token_sort_ratio(part, matched_menu)
-                
-                # If exact word is in string, or token sort is high enough
-                if any(mw in part for mw in matched_words) and (token_sort_score >= 60 or best_menu_match[1] >= 90):
-                     # Prevent simple "ayam" from becoming specific "ayam geprek" unless "geprek" is present
-                     if "ayam" in matched_menu and matched_menu != "ayam" and "ayam" in part and not any(w in part for w in matched_menu.split() if w != "ayam"):
-                         pass # It's just generic 'ayam', not 'ayam geprek'
-                     elif "es" in matched_menu and matched_menu != "es" and "es" in part and not any(w in part for w in matched_menu.split() if w != "es"):
-                         pass
-                     else:
-                        is_valid_menu = True
-                        
-                if is_valid_menu:
-                    item_entity["NAMA_MENU"] = matched_menu
-                
-            best_sambal_match = process.extractOne(part, sambal_keywords, scorer=fuzz.token_set_ratio)
-            if best_sambal_match and best_sambal_match[1] >= 80:
-                item_entity["JENIS_SAMBAL"] = best_sambal_match[0].replace("sambal hijau", "sambal ijo")
+                is_valid_menu = False
+                if best_menu_match and best_menu_match[1] >= 75:
+                    matched_menu = best_menu_match[0]
+                    
+                    # Filter strict untuk mencegah false positive
+                    # Misalnya "ayam" saja di input, cocok 100 ngawur ke "ayam geprek"
+                    matched_words = matched_menu.split()
+                    token_sort_score = fuzz.token_sort_ratio(part, matched_menu)
+                    
+                    # If exact word is in string, or token sort is high enough
+                    if any(mw in part for mw in matched_words) and (token_sort_score >= 60 or best_menu_match[1] >= 90):
+                         # Prevent simple "ayam" from becoming specific "ayam geprek" unless "geprek" is present
+                         if "ayam" in matched_menu and matched_menu != "ayam" and "ayam" in part and not any(w in part for w in matched_menu.split() if w != "ayam"):
+                             pass # It's just generic 'ayam', not 'ayam geprek'
+                         elif "es" in matched_menu and matched_menu != "es" and "es" in part and not any(w in part for w in matched_menu.split() if w != "es"):
+                             pass
+                         else:
+                            is_valid_menu = True
+                            
+                    if is_valid_menu:
+                        item_entity["NAMA_MENU"] = matched_menu
             
             for word, value in angka_ordinal.items():
                 if word in part:

@@ -65,6 +65,26 @@ function setTableEmptyState(tbodyId, colspan, message) {
     tbody.innerHTML = `<tr class="empty-state"><td colspan="${colspan}">${message}</td></tr>`;
 }
 
+function loadDatabaseInfo() {
+    axios.get('/api/system/db-info')
+        .then((response) => {
+            const info = response.data || {};
+            const target = `${info.host || '-'}:${info.port || '-'} / ${info.database || '-'}`;
+            const node = document.getElementById('activeDatabaseTarget');
+
+            if (node) {
+                node.textContent = target;
+            }
+        })
+        .catch((error) => {
+            console.error('Error loading database info:', error);
+            const node = document.getElementById('activeDatabaseTarget');
+            if (node) {
+                node.textContent = 'tidak diketahui';
+            }
+        });
+}
+
 function updateMenuSummary(menuItems) {
     const total = menuItems.length;
     const available = menuItems.filter((item) => item.ketersediaan).length;
@@ -530,6 +550,7 @@ function downloadBlob(content, filename) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadDatabaseInfo();
     bindTabButtons();
     loadMenu();
     loadAllPesanan();

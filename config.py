@@ -7,10 +7,11 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     
     # Database Configuration
-    DB_HOST = os.getenv('DB_HOST', 'localhost')
-    DB_USER = os.getenv('DB_USER', 'root')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', '')
-    DB_NAME = os.getenv('DB_NAME', 'kedai_ayam_merdeka')
+    DB_HOST = os.getenv('DB_HOST') or os.getenv('MYSQLHOST') or 'localhost'
+    DB_PORT = int(os.getenv('DB_PORT') or os.getenv('MYSQLPORT') or 3306)
+    DB_USER = os.getenv('DB_USER') or os.getenv('MYSQLUSER') or 'root'
+    DB_PASSWORD = os.getenv('DB_PASSWORD') or os.getenv('MYSQLPASSWORD') or ''
+    DB_NAME = os.getenv('DB_NAME') or os.getenv('MYSQLDATABASE') or 'kedai_ayam_merdeka'
     
     # Telegram Configuration
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')

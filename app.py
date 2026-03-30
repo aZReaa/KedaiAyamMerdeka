@@ -290,6 +290,15 @@ def api_pelanggan():
     return jsonify(pelanggan)
 
 
+@app.route('/api/system/db-info', methods=['GET'])
+def api_db_info():
+    return jsonify({
+        'host': Config.DB_HOST,
+        'port': Config.DB_PORT,
+        'database': Config.DB_NAME
+    })
+
+
 @app.route('/api/init_db', methods=['POST'])
 def init_db():
     try:

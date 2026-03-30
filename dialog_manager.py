@@ -283,6 +283,42 @@ class DialogManager:
     def _handle_asking_quantity_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         # Kept for backward compatibility but bypassed by _start_ordering_flow defaulting JUMLAH to 1
         return self._start_ordering_flow(user_id, entities)
+
+    def _extract_sambal_choice(self, message: str) -> str | None:
+        'Resolve user sambal choice from raw message with strict validation.'
+        msg_lower = re.sub(r'[^a-z0-9\s]', ' ', message.lower())
+        msg_lower = re.sub(r'\s+', ' ', msg_lower).strip()
+
+        if not msg_lower or msg_lower == 'sambal':
+            return None
+
+        number_match = re.search(r'\b([1-5])\b', msg_lower)
+        if number_match:
+            return self.SAMBAL_OPTIONS[int(number_match.group(1)) - 1]
+
+        alias_map = {
+            'sambal bawang': ['sambal bawang', 'bawang'],
+            'sambal ijo': ['sambal ijo', 'sambal hijau', 'ijo', 'hijau'],
+            'sambal terasi': ['sambal terasi', 'terasi'],
+            'sambal matah': ['sambal matah', 'matah'],
+            'tanpa sambal': [
+                'tanpa sambal',
+                'tanpa',
+                'tidak pakai sambal',
+                'ga pakai sambal',
+                'gak pakai sambal',
+                'nggak pakai sambal',
+                'no sambal'
+            ]
+        }
+
+        for canonical, aliases in alias_map.items():
+            for alias in sorted(aliases, key=len, reverse=True):
+                pattern = r'(?<!\w)' + re.escape(alias).replace(r'\ ', r'\s+') + r'(?!\w)'
+                if re.search(pattern, msg_lower):
+                    return canonical
+
+        return None
     
     def _handle_asking_sambal_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         'Handle when bot is asking for sambal preference.'
@@ -290,40 +326,13 @@ class DialogManager:
         cart = state.get('cart', [])
         idx = state_data.get('cart_index', 0)
         
-        msg_lower = message.lower().strip()
-        
         print(f"[DEBUG] Asking Sambal - Message: '{message}'")
         
         if intent == 'pembatalan' or intent == 'batalkan_pesanan':
             self.reset_user_state(user_id)
             return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
         
-        # Check for sambal entity from NLU
-        sambal = entities.get('JENIS_SAMBAL')
-        
-        # Parse from message if not detected by NLU
-        if not sambal:
-            # Check for exact or partial match with sambal options
-            for opt in self.SAMBAL_OPTIONS:
-                # Full match: "sambal bawang"
-                if opt in msg_lower:
-                    sambal = opt
-                    break
-                # Partial match: "bawang", "ijo", "terasi"
-                sambal_type = opt.replace('sambal ', '').replace('tanpa ', '')
-                if sambal_type in msg_lower and len(sambal_type) > 2:
-                    sambal = opt
-                    break
-            
-            # Check for number selection (1-5)
-            if not sambal:
-                import re
-                nums = re.findall(r'\d', message)
-                if nums:
-                    val = int(nums[0]) - 1
-                    if 0 <= val < len(self.SAMBAL_OPTIONS):
-                        sambal = self.SAMBAL_OPTIONS[val]
-                        print(f"[DEBUG] Sambal selected by number: {val+1} -> {sambal}")
+        sambal = self._extract_sambal_choice(message)
         
         if not sambal:
             if idx < len(cart):
