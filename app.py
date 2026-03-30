@@ -299,6 +299,17 @@ def api_db_info():
     })
 
 
+@app.route('/api/system/menu-debug', methods=['GET'])
+def api_menu_debug():
+    snapshot = db.get_menu_debug_snapshot()
+    snapshot['config'] = {
+        'host': Config.DB_HOST,
+        'port': Config.DB_PORT,
+        'database': Config.DB_NAME
+    }
+    return jsonify(snapshot)
+
+
 @app.route('/api/init_db', methods=['POST'])
 def init_db():
     try:

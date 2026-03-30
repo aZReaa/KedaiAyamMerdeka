@@ -238,6 +238,52 @@ class Database:
             return None
         finally:
             cursor.close()
+
+    def get_menu_debug_snapshot(self):
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor:
+            return {'error': 'Database connection failed'}
+
+        try:
+            cursor.execute("""
+                SELECT
+                    DATABASE() AS current_database,
+                    CURRENT_USER() AS current_user,
+                    @@hostname AS server_hostname
+            """)
+            connection_info = cursor.fetchone() or {}
+
+            cursor.execute("""
+                SELECT
+                    COUNT(*) AS total_menu,
+                    MIN(id_menu) AS min_id_menu,
+                    MAX(id_menu) AS max_id_menu
+                FROM menu
+            """)
+            summary = cursor.fetchone() or {}
+
+            cursor.execute("""
+                SELECT id_menu, nama_menu, harga, kategori, ketersediaan
+                FROM menu
+                ORDER BY id_menu ASC
+                LIMIT 20
+            """)
+            rows = cursor.fetchall() or []
+
+            for row in rows:
+                if row.get('harga') is not None:
+                    row['harga'] = float(row['harga'])
+
+            return {
+                'connection': connection_info,
+                'summary': summary,
+                'rows': rows
+            }
+        except Error as e:
+            print(f"Error get menu debug snapshot: {e}")
+            return {'error': str(e)}
+        finally:
+            cursor.close()
     
     def create_pesanan(self, id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan=None, tipe_pengambilan='immediate'):
         cursor = self.get_cursor()
