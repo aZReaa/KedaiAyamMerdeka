@@ -480,6 +480,27 @@
         </main>
     </div>
 
+    <div id="paymentProofModal" class="payment-proof-modal" hidden>
+        <div class="payment-proof-backdrop" onclick="closePaymentProofModal()"></div>
+        <div class="payment-proof-dialog" role="dialog" aria-modal="true" aria-labelledby="paymentProofTitle">
+            <div class="payment-proof-header">
+                <div>
+                    <p class="eyebrow">Bukti pembayaran</p>
+                    <h3 id="paymentProofTitle">Preview bukti transfer</h3>
+                </div>
+                <button type="button" class="ghost-btn" onclick="closePaymentProofModal()">Tutup</button>
+            </div>
+            <div class="payment-proof-body">
+                <iframe
+                    id="paymentProofFrame"
+                    class="payment-proof-frame"
+                    title="Preview bukti pembayaran"
+                    loading="lazy"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

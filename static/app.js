@@ -679,12 +679,43 @@ function verifyPayment(orderId) {
 }
 
 function openPaymentProof(orderId) {
-    window.open(`/api/pesanan/${orderId}/payment-proof`, "_blank", "noopener,noreferrer");
+    const modal = document.getElementById("paymentProofModal");
+    const frame = document.getElementById("paymentProofFrame");
+
+    if (!modal || !frame) {
+        window.open(`/api/pesanan/${orderId}/payment-proof`, "_blank", "noopener,noreferrer");
+        return;
+    }
+
+    frame.src = `/api/pesanan/${orderId}/payment-proof`;
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+}
+
+function closePaymentProofModal() {
+    const modal = document.getElementById("paymentProofModal");
+    const frame = document.getElementById("paymentProofFrame");
+
+    if (frame) {
+        frame.src = "about:blank";
+    }
+
+    if (modal) {
+        modal.hidden = true;
+    }
+
+    document.body.classList.remove("modal-open");
 }
 
 function loadPesanan() {
     return loadPesananByCustomer();
 }
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        closePaymentProofModal();
+    }
+});
 
 function initDatabase() {
     if (!confirm("Isi ulang database dengan data contoh?")) {
