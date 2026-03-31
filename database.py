@@ -224,37 +224,49 @@ class Database:
                 self._schema_checked = True
                 return True
 
-            alter_statements = [
-                """
-                ALTER TABLE pesanan
-                ADD COLUMN IF NOT EXISTS payment_status
-                ENUM('pending', 'proof_submitted', 'verified', 'rejected')
-                DEFAULT 'pending'
-                """,
-                """
-                ALTER TABLE pesanan
-                ADD COLUMN IF NOT EXISTS payment_proof_file_id VARCHAR(255) NULL
-                """,
-                """
-                ALTER TABLE pesanan
-                ADD COLUMN IF NOT EXISTS payment_proof_kind VARCHAR(20) NULL
-                """,
-                """
-                ALTER TABLE pesanan
-                ADD COLUMN IF NOT EXISTS payment_note TEXT NULL
-                """,
-                """
-                ALTER TABLE pesanan
-                ADD COLUMN IF NOT EXISTS payment_submitted_at DATETIME NULL
-                """,
-                """
-                ALTER TABLE pesanan
-                ADD COLUMN IF NOT EXISTS payment_verified_at DATETIME NULL
-                """
-            ]
+            def column_exists(column_name):
+                cursor.execute("""
+                    SELECT 1
+                    FROM information_schema.COLUMNS
+                    WHERE TABLE_SCHEMA = %s
+                      AND TABLE_NAME = 'pesanan'
+                      AND COLUMN_NAME = %s
+                    LIMIT 1
+                """, (Config.DB_NAME, column_name))
+                return cursor.fetchone() is not None
 
-            for statement in alter_statements:
-                cursor.execute(statement)
+            column_definitions = {
+                'payment_status': """
+                    ALTER TABLE pesanan
+                    ADD COLUMN payment_status
+                    ENUM('pending', 'proof_submitted', 'verified', 'rejected')
+                    DEFAULT 'pending'
+                """,
+                'payment_proof_file_id': """
+                    ALTER TABLE pesanan
+                    ADD COLUMN payment_proof_file_id VARCHAR(255) NULL
+                """,
+                'payment_proof_kind': """
+                    ALTER TABLE pesanan
+                    ADD COLUMN payment_proof_kind VARCHAR(20) NULL
+                """,
+                'payment_note': """
+                    ALTER TABLE pesanan
+                    ADD COLUMN payment_note TEXT NULL
+                """,
+                'payment_submitted_at': """
+                    ALTER TABLE pesanan
+                    ADD COLUMN payment_submitted_at DATETIME NULL
+                """,
+                'payment_verified_at': """
+                    ALTER TABLE pesanan
+                    ADD COLUMN payment_verified_at DATETIME NULL
+                """
+            }
+
+            for column_name, statement in column_definitions.items():
+                if not column_exists(column_name):
+                    cursor.execute(statement)
 
             # Broaden the status enum first so legacy values and the new admin-first
             # states can coexist during migration on existing Railway databases.
@@ -269,6 +281,12 @@ class Database:
                     'batal',
                     'ditolak_admin'
                 ) DEFAULT 'menunggu_konfirmasi_admin'
+            """)
+
+            cursor.execute("""
+                UPDATE pesanan
+                SET payment_status = 'pending'
+                WHERE payment_status IS NULL
             """)
 
             # Migrate legacy statuses after payment columns exist.
