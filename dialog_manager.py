@@ -541,7 +541,8 @@ class DialogManager:
             total_harga += subtotal
             
             detail_str = f"{jumlah} {menu['nama_menu']}"
-            if sambal: detail_str += f" ({sambal.title()})"
+            if sambal and not self._menu_has_embedded_sambal(menu['nama_menu']):
+                detail_str += f" ({sambal.title()})"
             details.append(detail_str)
             
         detail_text = "\n".join([f"- {d}" for d in details])
@@ -607,6 +608,13 @@ class DialogManager:
                 tipe_pengambilan=tipe_pengambilan,
                 status='menunggu_konfirmasi_admin'
             )
+
+            if not pesanan_id:
+                return (
+                    "Maaf kak, pesanan belum berhasil kami simpan karena sistem sedang sinkronisasi.\n\n"
+                    "Coba balas *YA* sekali lagi dalam beberapa detik ya."
+                )
+
             self.reset_user_state(user_id)
             
             # Format time for display

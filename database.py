@@ -224,34 +224,7 @@ class Database:
                 self._schema_checked = True
                 return True
 
-            # Migrate legacy statuses before tightening ENUM values.
-            # Old flow used status 'dipesan' for every new order.
-            # We map it to the new admin-first flow:
-            # - no proof yet -> waiting admin confirmation
-            # - proof already submitted/rejected -> waiting payment verification
-            # - already verified -> processing
-            cursor.execute("""
-                UPDATE pesanan
-                SET status = CASE
-                    WHEN COALESCE(payment_status, 'pending') = 'verified' THEN 'diproses'
-                    WHEN COALESCE(payment_status, 'pending') IN ('proof_submitted', 'rejected') THEN 'menunggu_pembayaran'
-                    ELSE 'menunggu_konfirmasi_admin'
-                END
-                WHERE status = 'dipesan'
-            """)
-
             alter_statements = [
-                """
-                ALTER TABLE pesanan
-                MODIFY COLUMN status ENUM(
-                    'menunggu_konfirmasi_admin',
-                    'menunggu_pembayaran',
-                    'diproses',
-                    'selesai',
-                    'batal',
-                    'ditolak_admin'
-                ) DEFAULT 'menunggu_konfirmasi_admin'
-                """,
                 """
                 ALTER TABLE pesanan
                 ADD COLUMN IF NOT EXISTS payment_status
@@ -282,6 +255,44 @@ class Database:
 
             for statement in alter_statements:
                 cursor.execute(statement)
+
+            # Broaden the status enum first so legacy values and the new admin-first
+            # states can coexist during migration on existing Railway databases.
+            cursor.execute("""
+                ALTER TABLE pesanan
+                MODIFY COLUMN status ENUM(
+                    'dipesan',
+                    'menunggu_konfirmasi_admin',
+                    'menunggu_pembayaran',
+                    'diproses',
+                    'selesai',
+                    'batal',
+                    'ditolak_admin'
+                ) DEFAULT 'menunggu_konfirmasi_admin'
+            """)
+
+            # Migrate legacy statuses after payment columns exist.
+            cursor.execute("""
+                UPDATE pesanan
+                SET status = CASE
+                    WHEN COALESCE(payment_status, 'pending') = 'verified' THEN 'diproses'
+                    WHEN COALESCE(payment_status, 'pending') IN ('proof_submitted', 'rejected') THEN 'menunggu_pembayaran'
+                    ELSE 'menunggu_konfirmasi_admin'
+                END
+                WHERE status = 'dipesan'
+            """)
+
+            cursor.execute("""
+                ALTER TABLE pesanan
+                MODIFY COLUMN status ENUM(
+                    'menunggu_konfirmasi_admin',
+                    'menunggu_pembayaran',
+                    'diproses',
+                    'selesai',
+                    'batal',
+                    'ditolak_admin'
+                ) DEFAULT 'menunggu_konfirmasi_admin'
+            """)
 
             self.commit()
             self._schema_checked = True
@@ -387,6 +398,10 @@ class Database:
             cursor.close()
     
     def create_pesanan(self, id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan=None, tipe_pengambilan='immediate', status='menunggu_konfirmasi_admin'):
+        if not self.ensure_payment_schema():
+            print("Payment schema belum siap saat membuat pesanan.")
+            return None
+
         cursor = self.get_cursor()
         if not cursor: return None
         try:
@@ -405,13 +420,17 @@ class Database:
             cursor.close()
     
     def update_status_pesanan(self, id_pesanan, status):
+        if not self.ensure_payment_schema():
+            print("Payment schema belum siap saat mengubah status pesanan.")
+            return False
+
         cursor = self.get_cursor()
         if not cursor: return False
         try:
             query = "UPDATE pesanan SET status = %s WHERE id_pesanan = %s"
             cursor.execute(query, (status, id_pesanan))
             self.commit()
-            return True
+            return cursor.rowcount > 0
         except Error as e:
             print(f"Error update pesanan: {e}")
             return False
