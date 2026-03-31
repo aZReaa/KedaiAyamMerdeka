@@ -3,6 +3,7 @@ from functools import wraps
 from config import Config
 import os
 import json
+import mimetypes
 from decimal import Decimal
 from datetime import datetime, date
 
@@ -194,16 +195,20 @@ def get_telegram_file_path(file_id):
 def download_telegram_file(file_id):
     file_path = get_telegram_file_path(file_id)
     if not file_path:
-        return None, None
+        return None, None, None
 
     try:
         file_url = f"https://api.telegram.org/file/bot{Config.TELEGRAM_BOT_TOKEN}/{file_path}"
         response = requests.get(file_url, timeout=30)
         if response.status_code == 200:
-            return response.content, response.headers.get("Content-Type", "application/octet-stream")
+            return (
+                response.content,
+                response.headers.get("Content-Type", "application/octet-stream"),
+                os.path.basename(file_path)
+            )
     except Exception as e:
         print(f"Error download telegram file: {e}")
-    return None, None
+    return None, None, None
 
 
 @app.route('/chat', methods=['POST'])
@@ -391,12 +396,19 @@ def get_payment_proof(pesanan_id):
     if not pesanan or not pesanan.get('payment_proof_file_id'):
         return jsonify({'error': 'Payment proof not found'}), 404
 
-    file_content, content_type = download_telegram_file(pesanan['payment_proof_file_id'])
+    file_content, content_type, original_filename = download_telegram_file(pesanan['payment_proof_file_id'])
     if not file_content:
         return jsonify({'error': 'Failed to fetch payment proof'}), 502
 
+    filename = original_filename or f"payment-proof-{pesanan_id}"
+    if "." not in filename:
+        guessed_extension = mimetypes.guess_extension(content_type or "") or ""
+        filename = f"{filename}{guessed_extension}"
+
     response = make_response(file_content)
-    response.headers['Content-Type'] = content_type
+    response.headers['Content-Type'] = content_type or 'application/octet-stream'
+    response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 
