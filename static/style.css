@@ -760,12 +760,20 @@ body.modal-open {
     background: #fff;
 }
 
+.payment-proof-frame[hidden] {
+    display: none !important;
+}
+
 .payment-proof-image {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
     display: block;
     background: #fff;
+}
+
+.payment-proof-image[hidden] {
+    display: none !important;
 }
 
 .payment-proof-fallback {
@@ -775,6 +783,10 @@ body.modal-open {
     text-align: center;
     color: var(--text-soft);
     padding: 24px;
+}
+
+.payment-proof-fallback[hidden] {
+    display: none !important;
 }
 
 .toast {
