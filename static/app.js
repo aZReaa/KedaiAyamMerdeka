@@ -681,23 +681,92 @@ function verifyPayment(orderId) {
 function openPaymentProof(orderId) {
     const modal = document.getElementById("paymentProofModal");
     const frame = document.getElementById("paymentProofFrame");
+    const image = document.getElementById("paymentProofImage");
+    const fallback = document.getElementById("paymentProofFallback");
+    const link = document.getElementById("paymentProofLink");
+    const proofUrl = `/api/pesanan/${orderId}/payment-proof`;
 
-    if (!modal || !frame) {
-        window.open(`/api/pesanan/${orderId}/payment-proof`, "_blank", "noopener,noreferrer");
+    if (!modal || !frame || !image || !fallback || !link) {
+        window.open(proofUrl, "_blank", "noopener,noreferrer");
         return;
     }
 
-    frame.src = `/api/pesanan/${orderId}/payment-proof`;
+    closePaymentProofModal();
     modal.hidden = false;
     document.body.classList.add("modal-open");
+
+    axios.get(proofUrl, { responseType: "blob" })
+        .then((response) => {
+            const blob = response.data;
+            const objectUrl = URL.createObjectURL(blob);
+            const contentType = (blob.type || response.headers["content-type"] || "").toLowerCase();
+            const disposition = response.headers["content-disposition"] || "";
+            const filenameMatch = disposition.match(/filename=\"?([^"]+)\"?/i);
+            const filename = filenameMatch ? filenameMatch[1].toLowerCase() : "";
+
+            modal.dataset.objectUrl = objectUrl;
+            link.href = objectUrl;
+            link.download = filename || `payment-proof-${orderId}`;
+
+            image.hidden = true;
+            image.removeAttribute("src");
+            frame.hidden = true;
+            frame.src = "about:blank";
+            fallback.hidden = true;
+
+            const isImage = contentType.startsWith("image/") || /\.(png|jpg|jpeg|webp|gif)$/i.test(filename);
+            const isPdf = contentType.includes("pdf") || /\.pdf$/i.test(filename);
+
+            if (isImage) {
+                image.src = objectUrl;
+                image.hidden = false;
+                return;
+            }
+
+            if (isPdf) {
+                frame.src = objectUrl;
+                frame.hidden = false;
+                return;
+            }
+
+            fallback.hidden = false;
+        })
+        .catch((error) => {
+            console.error("Error opening payment proof:", error);
+            showToast("Bukti pembayaran gagal dimuat.", "error");
+            closePaymentProofModal();
+        });
 }
 
 function closePaymentProofModal() {
     const modal = document.getElementById("paymentProofModal");
     const frame = document.getElementById("paymentProofFrame");
+    const image = document.getElementById("paymentProofImage");
+    const fallback = document.getElementById("paymentProofFallback");
+    const link = document.getElementById("paymentProofLink");
+
+    const objectUrl = modal?.dataset?.objectUrl;
+    if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        delete modal.dataset.objectUrl;
+    }
 
     if (frame) {
         frame.src = "about:blank";
+        frame.hidden = true;
+    }
+
+    if (image) {
+        image.removeAttribute("src");
+        image.hidden = true;
+    }
+
+    if (fallback) {
+        fallback.hidden = true;
+    }
+
+    if (link) {
+        link.removeAttribute("href");
     }
 
     if (modal) {

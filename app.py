@@ -405,6 +405,10 @@ def get_payment_proof(pesanan_id):
         guessed_extension = mimetypes.guess_extension(content_type or "") or ""
         filename = f"{filename}{guessed_extension}"
 
+    if not content_type or content_type == 'application/octet-stream':
+        guessed_type, _ = mimetypes.guess_type(filename)
+        content_type = guessed_type or 'application/octet-stream'
+
     response = make_response(file_content)
     response.headers['Content-Type'] = content_type or 'application/octet-stream'
     response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
