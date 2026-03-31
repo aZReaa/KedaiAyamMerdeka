@@ -63,6 +63,8 @@ class DialogManager:
                     response = self._handle_asking_quantity_state(user_id, state, intent, entities, message)
                 elif state['state'] == 'asking_sambal':
                     response = self._handle_asking_sambal_state(user_id, state, intent, entities, message)
+                elif state['state'] == 'asking_variant':
+                    response = self._handle_asking_variant_state(user_id, state, intent, entities, message)
                 elif state['state'] == 'asking_time':
                     response = self._handle_asking_time_state(user_id, state, intent, entities, message)
                 elif state['state'] == 'confirming':
@@ -124,14 +126,36 @@ class DialogManager:
     def _handle_idle_state(self, user_id: str, intent: str, entities: dict, message: str) -> str:
         'Handle user input when in idle state.'
 
-        direct_menu = db.get_menu_by_name(message.strip())
+        direct_resolution = db.resolve_menu_choice(message.strip(), entities.get('JENIS_SAMBAL'))
+        direct_menu = direct_resolution.get('match')
+        if direct_resolution.get('ambiguous') and intent in ['pesan_menu', 'unknown', 'konfirmasi']:
+            candidates = direct_resolution.get('candidates', [])
+            self.update_user_state(
+                user_id,
+                'asking_variant',
+                {
+                    'pending_items': [{
+                        'NAMA_MENU': message.strip(),
+                        'JUMLAH': entities.get('JUMLAH'),
+                        'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
+                    }],
+                    'item_index': 0,
+                    'candidate_ids': [candidate['id_menu'] for candidate in candidates],
+                    'cart': [],
+                    'waktu': entities.get('WAKTU_PENGAMBILAN'),
+                    'not_found': []
+                },
+                cart=[]
+            )
+            return self._ask_menu_variant(message.strip(), candidates)
+
         if direct_menu and intent in ['pesan_menu', 'unknown', 'konfirmasi']:
             direct_entities = {
-                'NAMA_MENU': message.strip(),
+                'NAMA_MENU': direct_menu['nama_menu'],
                 'JUMLAH': entities.get('JUMLAH'),
                 'JENIS_SAMBAL': entities.get('JENIS_SAMBAL'),
                 'ITEMS': [{
-                    'NAMA_MENU': message.strip(),
+                    'NAMA_MENU': direct_menu['nama_menu'],
                     'JUMLAH': entities.get('JUMLAH'),
                     'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
                 }],
@@ -157,7 +181,10 @@ class DialogManager:
         
         elif intent == 'cek_ketersediaan':
             if entities.get('NAMA_MENU'):
-                menu = db.get_menu_by_name(entities['NAMA_MENU'])
+                resolution = db.resolve_menu_choice(entities['NAMA_MENU'], entities.get('JENIS_SAMBAL'))
+                if resolution.get('ambiguous'):
+                    return self._ask_menu_variant(entities['NAMA_MENU'], resolution.get('candidates', []))
+                menu = resolution.get('match')
                 if menu:
                     return f"[OK] *{menu['nama_menu']}* tersedia kak!\nHarga: Rp {menu['harga']:,}\n\nMau pesan? Ketik 'pesan {menu['nama_menu']}'"
                 else:
@@ -272,23 +299,56 @@ class DialogManager:
         cart = state.get('cart', [])
         if state['state'] not in ['asking_menu', 'confirming']:
             cart = []
-            
-        not_found = []
-        
-        for item in items:
+
+        return self._continue_ordering_flow(
+            user_id=user_id,
+            items=items,
+            cart=cart,
+            waktu=entities.get('WAKTU_PENGAMBILAN'),
+            start_index=0,
+            not_found=[]
+        )
+
+    def _continue_ordering_flow(self, user_id: str, items: list, cart: list, waktu=None, start_index: int = 0, not_found: list | None = None) -> str:
+        if not_found is None:
+            not_found = []
+
+        for idx in range(start_index, len(items)):
+            item = items[idx]
             menu_name = item.get('NAMA_MENU')
-            if not menu_name: continue
-            
-            menu = db.get_menu_by_name(menu_name)
+            if not menu_name:
+                continue
+
+            resolution = db.resolve_menu_choice(menu_name, item.get('JENIS_SAMBAL'))
+            menu = resolution.get('match')
+
+            if resolution.get('ambiguous'):
+                candidates = resolution.get('candidates', [])
+                self.update_user_state(
+                    user_id,
+                    'asking_variant',
+                    {
+                        'pending_items': items,
+                        'item_index': idx,
+                        'candidate_ids': [candidate['id_menu'] for candidate in candidates],
+                        'cart': cart,
+                        'waktu': waktu,
+                        'not_found': not_found
+                    },
+                    cart=cart
+                )
+                return self._ask_menu_variant(menu_name, candidates)
+
             if not menu:
                 not_found.append(menu_name)
-            else:
-                cart.append({
-                    'menu_detail': menu,
-                    'JUMLAH': item.get('JUMLAH') or '1',
-                    'JENIS_SAMBAL': item.get('JENIS_SAMBAL')
-                })
-                
+                continue
+
+            cart.append({
+                'menu_detail': menu,
+                'JUMLAH': item.get('JUMLAH') or '1',
+                'JENIS_SAMBAL': item.get('JENIS_SAMBAL')
+            })
+
         if not cart:
             nf_msg = ", ".join(not_found)
             return f"Maaf kak, menu *{nf_msg}* tidak tersedia \n\n{self._format_menu_list()}"
@@ -302,11 +362,10 @@ class DialogManager:
             menu_name = cart_item['menu_detail']['nama_menu'].lower()
             needs_sambal = any(m in menu_name for m in self.MENU_NEED_SAMBAL)
             if needs_sambal and not self._menu_has_embedded_sambal(menu_name) and not cart_item.get('JENIS_SAMBAL'):
-                self.update_user_state(user_id, 'asking_sambal', {'cart_index': idx, 'cart': cart, 'waktu': entities.get('WAKTU_PENGAMBILAN')}, cart=cart)
+                self.update_user_state(user_id, 'asking_sambal', {'cart_index': idx, 'cart': cart, 'waktu': waktu}, cart=cart)
                 return msg_prefix + self._ask_sambal_preference(cart_item['menu_detail']['nama_menu'], cart_item['JUMLAH'])
         
         # Check if time is provided, if not ask for it
-        waktu = entities.get('WAKTU_PENGAMBILAN')
         if not waktu:
             self.update_user_state(user_id, 'asking_time', {'cart': cart}, cart=cart)
             return msg_prefix + self._ask_pickup_time()
@@ -319,14 +378,36 @@ class DialogManager:
             self.reset_user_state(user_id)
             return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
 
-        menu = db.get_menu_by_name(message.strip())
+        resolution = db.resolve_menu_choice(message.strip(), entities.get('JENIS_SAMBAL'))
+        if resolution.get('ambiguous'):
+            candidates = resolution.get('candidates', [])
+            self.update_user_state(
+                user_id,
+                'asking_variant',
+                {
+                    'pending_items': [{
+                        'NAMA_MENU': message.strip(),
+                        'JUMLAH': entities.get('JUMLAH'),
+                        'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
+                    }],
+                    'item_index': 0,
+                    'candidate_ids': [candidate['id_menu'] for candidate in candidates],
+                    'cart': state.get('cart', []),
+                    'waktu': entities.get('WAKTU_PENGAMBILAN'),
+                    'not_found': []
+                },
+                cart=state.get('cart', [])
+            )
+            return self._ask_menu_variant(message.strip(), candidates)
+
+        menu = resolution.get('match')
         if menu:
             direct_entities = {
-                'NAMA_MENU': message.strip(),
+                'NAMA_MENU': menu['nama_menu'],
                 'JUMLAH': entities.get('JUMLAH'),
                 'JENIS_SAMBAL': entities.get('JENIS_SAMBAL'),
                 'ITEMS': [{
-                    'NAMA_MENU': message.strip(),
+                    'NAMA_MENU': menu['nama_menu'],
                     'JUMLAH': entities.get('JUMLAH'),
                     'JENIS_SAMBAL': entities.get('JENIS_SAMBAL')
                 }],
@@ -363,6 +444,92 @@ class DialogManager:
 
         bare_variant_pattern = r'(?:\+|\s)(bawang|ijo|hijau|merah|terasi|matah)\s*$'
         return re.search(bare_variant_pattern, menu_lower) is not None
+
+    def _ask_menu_variant(self, menu_name: str, candidates: list) -> str:
+        options = []
+        for index, candidate in enumerate(candidates, 1):
+            options.append(f"{index}. {candidate['nama_menu']} - Rp {int(float(candidate['harga'])):,}")
+
+        lines = [
+            f"Menu *{menu_name}* ada beberapa varian kak.",
+            "",
+            "Pilih yang mana ya?",
+            "",
+            "\n".join(options),
+            "",
+            "Balas dengan angka atau nama variannya, misalnya *1* atau *sambal ijo*."
+        ]
+        return "\n".join(lines)
+
+    def _extract_variant_choice(self, message: str, candidates: list) -> dict | None:
+        msg_lower = re.sub(r'[^a-z0-9\s]', ' ', message.lower())
+        msg_lower = re.sub(r'\s+', ' ', msg_lower).strip()
+
+        number_match = re.search(r'\b(\d+)\b', msg_lower)
+        if number_match:
+            choice_index = int(number_match.group(1)) - 1
+            if 0 <= choice_index < len(candidates):
+                return candidates[choice_index]
+
+        message_tokens = set(msg_lower.split())
+        if not message_tokens:
+            return None
+
+        best_candidate = None
+        best_score = 0
+        for candidate in candidates:
+            candidate_name = re.sub(r'[^a-z0-9\s]', ' ', candidate['nama_menu'].lower())
+            candidate_tokens = set(re.sub(r'\s+', ' ', candidate_name).strip().split())
+            score = len(message_tokens & candidate_tokens)
+            if score > best_score:
+                best_score = score
+                best_candidate = candidate
+
+        return best_candidate if best_score > 0 else None
+
+    def _handle_asking_variant_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
+        state_data = state['data']
+        if intent == 'pembatalan' or intent == 'batalkan_pesanan':
+            self.reset_user_state(user_id)
+            return "Oke kak, batal dulu ya. Kalau mau pesan lagi tinggal ketik 'pesan' "
+
+        candidate_ids = state_data.get('candidate_ids', [])
+        candidates = []
+        for candidate_id in candidate_ids:
+            candidate = db.get_menu_by_id(candidate_id)
+            if candidate:
+                candidates.append(candidate)
+
+        if not candidates:
+            self.reset_user_state(user_id)
+            return "Maaf kak, pilihan variannya tidak tersedia lagi. Coba pesan ulang ya."
+
+        selected_candidate = self._extract_variant_choice(message, candidates)
+        if not selected_candidate:
+            return self._ask_menu_variant(state_data.get('pending_items', [{}])[state_data.get('item_index', 0)].get('NAMA_MENU', 'menu'), candidates)
+
+        pending_items = state_data.get('pending_items', [])
+        item_index = state_data.get('item_index', 0)
+        cart = state.get('cart', [])
+        not_found = state_data.get('not_found', [])
+        waktu = state_data.get('waktu')
+
+        if item_index < len(pending_items):
+            current_item = pending_items[item_index]
+            cart.append({
+                'menu_detail': selected_candidate,
+                'JUMLAH': current_item.get('JUMLAH') or '1',
+                'JENIS_SAMBAL': current_item.get('JENIS_SAMBAL')
+            })
+
+        return self._continue_ordering_flow(
+            user_id=user_id,
+            items=pending_items,
+            cart=cart,
+            waktu=waktu,
+            start_index=item_index + 1,
+            not_found=not_found
+        )
 
     def _extract_sambal_choice(self, message: str) -> str | None:
         'Resolve user sambal choice from raw message with strict validation.'
@@ -755,7 +922,11 @@ class DialogManager:
         jumlah = state_data.get('JUMLAH', '1')
         
         if menu_name:
-            menu = db.get_menu_by_name(menu_name)
+            resolution = db.resolve_menu_choice(menu_name, state_data.get('JENIS_SAMBAL'))
+            if resolution.get('ambiguous'):
+                return self._ask_menu_variant(menu_name, resolution.get('candidates', []))
+
+            menu = resolution.get('match')
             if not menu:
                 return f"Menu '{menu_name}' tidak tersedia."
             jumlah_int = int(jumlah) if str(jumlah).isdigit() else 1

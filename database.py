@@ -1,6 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 import threading
+import re
 from config import Config
 
 class Database:
@@ -352,19 +353,145 @@ class Database:
         finally:
             cursor.close()
     
-    def get_menu_by_name(self, nama_menu):
+    def _normalize_lookup_text(self, text):
+        if not text:
+            return ""
+        normalized = re.sub(r'[^a-z0-9\s]', ' ', str(text).lower())
+        return re.sub(r'\s+', ' ', normalized).strip()
+
+    def _score_menu_candidates(self, rows, nama_menu, sambal=None):
+        normalized_query = self._normalize_lookup_text(nama_menu)
+        normalized_sambal = self._normalize_lookup_text(sambal)
+
+        if not normalized_query and not normalized_sambal:
+            return []
+
+        query_tokens = [token for token in normalized_query.split() if token]
+        sambal_tokens = [token for token in normalized_sambal.split() if token]
+        scored_rows = []
+
+        for row in rows:
+            normalized_menu = self._normalize_lookup_text(row.get('nama_menu'))
+            if not normalized_menu:
+                continue
+
+            menu_tokens = set(normalized_menu.split())
+            score = 0
+
+            if normalized_query:
+                if normalized_menu == normalized_query:
+                    score += 1000
+                if normalized_query in normalized_menu:
+                    score += 250
+
+                matched_query_tokens = sum(1 for token in query_tokens if token in menu_tokens)
+                if matched_query_tokens == 0:
+                    continue
+
+                score += matched_query_tokens * 40
+                if matched_query_tokens == len(query_tokens):
+                    score += 120
+
+            if sambal_tokens:
+                matched_sambal_tokens = sum(1 for token in sambal_tokens if token in menu_tokens)
+                if matched_sambal_tokens == len(sambal_tokens):
+                    score += 400
+                elif matched_sambal_tokens > 0:
+                    score += matched_sambal_tokens * 50
+                else:
+                    continue
+
+            candidate_row = dict(row)
+            if candidate_row.get('harga') is not None:
+                candidate_row['harga'] = float(candidate_row['harga'])
+
+            scored_rows.append({
+                'score': score,
+                'menu_length': len(normalized_menu),
+                'row': candidate_row
+            })
+
+        scored_rows.sort(key=lambda item: (item['score'], -item['menu_length']), reverse=True)
+        return scored_rows
+
+    def _extract_embedded_sambal_variant(self, text):
+        normalized_text = self._normalize_lookup_text(text)
+        if not normalized_text:
+            return None
+
+        alias_map = {
+            'sambal bawang': ['sambal bawang', 'bawang'],
+            'sambal ijo': ['sambal ijo', 'sambal hijau', 'ijo', 'hijau'],
+            'sambal terasi': ['sambal terasi', 'terasi'],
+            'sambal matah': ['sambal matah', 'matah'],
+            'sambal merah': ['sambal merah', 'merah'],
+            'tanpa sambal': [
+                'tanpa sambal',
+                'tanpa',
+                'tidak pakai sambal',
+                'ga pakai sambal',
+                'gak pakai sambal',
+                'nggak pakai sambal',
+                'no sambal'
+            ]
+        }
+
+        for canonical, aliases in alias_map.items():
+            for alias in sorted(aliases, key=len, reverse=True):
+                alias_normalized = self._normalize_lookup_text(alias)
+                pattern = r'(?<!\w)' + re.escape(alias_normalized).replace(r'\ ', r'\s+') + r'(?!\w)'
+                if re.search(pattern, normalized_text):
+                    return canonical
+        return None
+
+    def resolve_menu_choice(self, nama_menu, sambal=None):
         cursor = self.get_cursor(dictionary=True)
-        if not cursor: return None
+        if not cursor:
+            return {'match': None, 'ambiguous': False, 'candidates': []}
         try:
-            query = "SELECT * FROM menu WHERE nama_menu LIKE %s AND ketersediaan = TRUE"
-            cursor.execute(query, (f"%{nama_menu}%",))
+            cursor.execute("SELECT * FROM menu WHERE ketersediaan = TRUE ORDER BY id_menu ASC")
+            rows = cursor.fetchall() or []
+            scored_rows = self._score_menu_candidates(rows, nama_menu, sambal)
+
+            if not scored_rows:
+                return {'match': None, 'ambiguous': False, 'candidates': []}
+
+            normalized_sambal = self._normalize_lookup_text(sambal or self._extract_embedded_sambal_variant(nama_menu))
+            best_score = scored_rows[0]['score']
+            best_length = scored_rows[0]['menu_length']
+            best_candidates = [
+                item['row']
+                for item in scored_rows
+                if item['score'] == best_score and item['menu_length'] == best_length
+            ]
+            is_ambiguous = not normalized_sambal and len(best_candidates) > 1
+
+            return {
+                'match': None if is_ambiguous else scored_rows[0]['row'],
+                'ambiguous': is_ambiguous,
+                'candidates': best_candidates[:5] if is_ambiguous else [scored_rows[0]['row']]
+            }
+        except Error as e:
+            print(f"Error resolve menu choice: {e}")
+            return {'match': None, 'ambiguous': False, 'candidates': []}
+        finally:
+            cursor.close()
+
+    def get_menu_by_name(self, nama_menu, sambal=None):
+        return self.resolve_menu_choice(nama_menu, sambal).get('match')
+
+    def get_menu_by_id(self, id_menu):
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor:
+            return None
+        try:
+            cursor.execute("SELECT * FROM menu WHERE id_menu = %s LIMIT 1", (id_menu,))
             row = cursor.fetchone()
-            if row:
-                if row.get('harga') is not None:
-                    row['harga'] = float(row['harga'])
+            if row and row.get('harga') is not None:
+                row['harga'] = float(row['harga'])
             return row
         except Error as e:
-            print(f"Error get menu by name: {e}")
+            print(f"Error get menu by id: {e}")
             return None
         finally:
             cursor.close()
