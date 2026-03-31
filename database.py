@@ -225,9 +225,18 @@ class Database:
                 return True
 
             # Migrate legacy statuses before tightening ENUM values.
+            # Old flow used status 'dipesan' for every new order.
+            # We map it to the new admin-first flow:
+            # - no proof yet -> waiting admin confirmation
+            # - proof already submitted/rejected -> waiting payment verification
+            # - already verified -> processing
             cursor.execute("""
                 UPDATE pesanan
-                SET status = 'menunggu_pembayaran'
+                SET status = CASE
+                    WHEN COALESCE(payment_status, 'pending') = 'verified' THEN 'diproses'
+                    WHEN COALESCE(payment_status, 'pending') IN ('proof_submitted', 'rejected') THEN 'menunggu_pembayaran'
+                    ELSE 'menunggu_konfirmasi_admin'
+                END
                 WHERE status = 'dipesan'
             """)
 

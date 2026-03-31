@@ -320,7 +320,7 @@ def update_pesanan_status(pesanan_id):
     if not pesanan:
         return jsonify({'error': 'Order not found'}), 404
 
-    if new_status == 'menunggu_pembayaran' and pesanan.get('status') != 'menunggu_konfirmasi_admin':
+    if new_status == 'menunggu_pembayaran' and pesanan.get('status') not in ['menunggu_konfirmasi_admin', 'dipesan']:
         return jsonify({'error': 'Order is not waiting for admin confirmation'}), 400
     if new_status == 'diproses' and pesanan and pesanan.get('payment_status') not in [None, 'verified']:
         return jsonify({'error': 'Payment must be verified before order can be processed'}), 400

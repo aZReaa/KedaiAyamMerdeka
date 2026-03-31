@@ -202,6 +202,7 @@ function loadMenuSummary() {
 
 function updateOrderSummary(orderItems) {
     const counts = {
+        dipesan: 0,
         menunggu_konfirmasi_admin: 0,
         menunggu_pembayaran: 0,
         diproses: 0,
@@ -217,12 +218,12 @@ function updateOrderSummary(orderItems) {
     });
 
     const total = orderItems.length;
-    const active = counts.menunggu_konfirmasi_admin + counts.menunggu_pembayaran + counts.diproses;
+    const active = counts.dipesan + counts.menunggu_konfirmasi_admin + counts.menunggu_pembayaran + counts.diproses;
 
     setText(["dashboardActiveOrders", "activeOrdersCount"], active);
     setText(["completedOrderCount", "orderDoneCount"], counts.selesai);
     setText(["orderCount"], total);
-    setText(["orderPendingCount"], counts.menunggu_konfirmasi_admin);
+    setText(["orderPendingCount"], counts.dipesan + counts.menunggu_konfirmasi_admin);
     setText(["orderAwaitingPaymentCount"], counts.menunggu_pembayaran);
     setText(["orderProcessingCount"], counts.diproses);
     setText(["orderCancelledCount"], counts.batal + counts.ditolak_admin);
@@ -249,6 +250,7 @@ function renderPesananTable(data) {
         const paymentStatus = pesanan.payment_status || "pending";
         const paymentClass = `payment-${paymentStatus.replace(/_/g, "-")}`;
         const statusLabelMap = {
+            dipesan: "Menunggu admin",
             menunggu_konfirmasi_admin: "Menunggu admin",
             menunggu_pembayaran: "Menunggu pembayaran",
             diproses: "Diproses",
@@ -263,7 +265,7 @@ function renderPesananTable(data) {
             verified: "Terverifikasi",
             rejected: "Ditolak"
         };
-        const effectivePaymentStatus = pesanan.status === "menunggu_konfirmasi_admin" || pesanan.status === "ditolak_admin"
+        const effectivePaymentStatus = ["dipesan", "menunggu_konfirmasi_admin", "ditolak_admin"].includes(pesanan.status)
             ? "not_requested"
             : paymentStatus;
         const effectivePaymentClass = effectivePaymentStatus === "not_requested"
@@ -273,7 +275,7 @@ function renderPesananTable(data) {
         const statusLabel = statusLabelMap[pesanan.status] || pesanan.status;
 
         let actionButtons = '<span class="muted-meta">Tidak ada aksi</span>';
-        if (pesanan.status === "menunggu_konfirmasi_admin") {
+        if (pesanan.status === "dipesan" || pesanan.status === "menunggu_konfirmasi_admin") {
             actionButtons = `
                 <div class="action-stack">
                     <button class="action-btn success" type="button" onclick="updateOrderStatus(${pesanan.id_pesanan}, 'menunggu_pembayaran')">Setujui</button>
