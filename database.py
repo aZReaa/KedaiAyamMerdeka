@@ -6,6 +6,7 @@ from config import Config
 class Database:
     def __init__(self):
         self._local = threading.local()
+        self._schema_checked = False
         self._db_config = {
             'host': Config.DB_HOST,
             'port': Config.DB_PORT,
@@ -37,6 +38,7 @@ class Database:
         try:
             self.connection = mysql.connector.connect(**self._db_config)
             if self.connection.is_connected():
+                self.ensure_payment_schema()
                 print("Berhasil terkoneksi ke database MySQL")
             return self.connection
         except Error as e:
@@ -124,7 +126,20 @@ class Database:
                     id_pelanggan VARCHAR(20),
                     detail_pesanan TEXT,
                     total_harga DECIMAL(10,2),
-                    status ENUM('dipesan', 'diproses', 'selesai', 'batal') DEFAULT 'dipesan',
+                    status ENUM(
+                        'menunggu_konfirmasi_admin',
+                        'menunggu_pembayaran',
+                        'diproses',
+                        'selesai',
+                        'batal',
+                        'ditolak_admin'
+                    ) DEFAULT 'menunggu_konfirmasi_admin',
+                    payment_status ENUM('pending', 'proof_submitted', 'verified', 'rejected') DEFAULT 'pending',
+                    payment_proof_file_id VARCHAR(255),
+                    payment_proof_kind VARCHAR(20),
+                    payment_note TEXT,
+                    payment_submitted_at DATETIME NULL,
+                    payment_verified_at DATETIME NULL,
                     waktu_pesan DATETIME DEFAULT CURRENT_TIMESTAMP,
                     waktu_pengambilan VARCHAR(50),
                     tipe_pengambilan ENUM('immediate', 'specific', 'relative', 'later') DEFAULT 'immediate',
@@ -192,6 +207,79 @@ class Database:
             
         except Error as e:
             print(f"Error membuat tabel: {e}")
+        finally:
+            cursor.close()
+
+    def ensure_payment_schema(self):
+        if self._schema_checked:
+            return True
+
+        cursor = self.get_cursor()
+        if not cursor:
+            return False
+
+        try:
+            cursor.execute("SHOW TABLES LIKE 'pesanan'")
+            if not cursor.fetchone():
+                self._schema_checked = True
+                return True
+
+            # Migrate legacy statuses before tightening ENUM values.
+            cursor.execute("""
+                UPDATE pesanan
+                SET status = 'menunggu_pembayaran'
+                WHERE status = 'dipesan'
+            """)
+
+            alter_statements = [
+                """
+                ALTER TABLE pesanan
+                MODIFY COLUMN status ENUM(
+                    'menunggu_konfirmasi_admin',
+                    'menunggu_pembayaran',
+                    'diproses',
+                    'selesai',
+                    'batal',
+                    'ditolak_admin'
+                ) DEFAULT 'menunggu_konfirmasi_admin'
+                """,
+                """
+                ALTER TABLE pesanan
+                ADD COLUMN IF NOT EXISTS payment_status
+                ENUM('pending', 'proof_submitted', 'verified', 'rejected')
+                DEFAULT 'pending'
+                """,
+                """
+                ALTER TABLE pesanan
+                ADD COLUMN IF NOT EXISTS payment_proof_file_id VARCHAR(255) NULL
+                """,
+                """
+                ALTER TABLE pesanan
+                ADD COLUMN IF NOT EXISTS payment_proof_kind VARCHAR(20) NULL
+                """,
+                """
+                ALTER TABLE pesanan
+                ADD COLUMN IF NOT EXISTS payment_note TEXT NULL
+                """,
+                """
+                ALTER TABLE pesanan
+                ADD COLUMN IF NOT EXISTS payment_submitted_at DATETIME NULL
+                """,
+                """
+                ALTER TABLE pesanan
+                ADD COLUMN IF NOT EXISTS payment_verified_at DATETIME NULL
+                """
+            ]
+
+            for statement in alter_statements:
+                cursor.execute(statement)
+
+            self.commit()
+            self._schema_checked = True
+            return True
+        except Error as e:
+            print(f"Error ensure payment schema: {e}")
+            return False
         finally:
             cursor.close()
 
@@ -289,16 +377,16 @@ class Database:
         finally:
             cursor.close()
     
-    def create_pesanan(self, id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan=None, tipe_pengambilan='immediate'):
+    def create_pesanan(self, id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan=None, tipe_pengambilan='immediate', status='menunggu_konfirmasi_admin'):
         cursor = self.get_cursor()
         if not cursor: return None
         try:
             query = """
-                INSERT INTO pesanan (id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan, tipe_pengambilan) 
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO pesanan (id_pelanggan, detail_pesanan, total_harga, waktu_pengambilan, tipe_pengambilan, status) 
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
             waktu_str = waktu_pengambilan['formatted'] if isinstance(waktu_pengambilan, dict) else waktu_pengambilan
-            cursor.execute(query, (id_pelanggan, detail_pesanan, total_harga, waktu_str, tipe_pengambilan))
+            cursor.execute(query, (id_pelanggan, detail_pesanan, total_harga, waktu_str, tipe_pengambilan, status))
             self.commit()
             return cursor.lastrowid
         except Error as e:
@@ -317,6 +405,95 @@ class Database:
             return True
         except Error as e:
             print(f"Error update pesanan: {e}")
+            return False
+        finally:
+            cursor.close()
+
+    def update_payment_status(self, id_pesanan, payment_status, note=None):
+        cursor = self.get_cursor()
+        if not cursor:
+            return False
+
+        try:
+            query = """
+                UPDATE pesanan
+                SET payment_status = %s,
+                    payment_note = COALESCE(%s, payment_note),
+                    payment_verified_at = CASE WHEN %s = 'verified' THEN NOW() ELSE payment_verified_at END
+                WHERE id_pesanan = %s
+            """
+            cursor.execute(query, (payment_status, note, payment_status, id_pesanan))
+            self.commit()
+            return True
+        except Error as e:
+            print(f"Error update payment status: {e}")
+            return False
+        finally:
+            cursor.close()
+
+    def submit_payment_proof(self, id_pesanan, file_id, proof_kind='photo', note=None):
+        cursor = self.get_cursor()
+        if not cursor:
+            return False
+
+        try:
+            query = """
+                UPDATE pesanan
+                SET payment_status = 'proof_submitted',
+                    payment_proof_file_id = %s,
+                    payment_proof_kind = %s,
+                    payment_note = %s,
+                    payment_submitted_at = NOW()
+                WHERE id_pesanan = %s
+            """
+            cursor.execute(query, (file_id, proof_kind, note, id_pesanan))
+            self.commit()
+            return True
+        except Error as e:
+            print(f"Error submit payment proof: {e}")
+            return False
+        finally:
+            cursor.close()
+
+    def verify_payment_and_process_order(self, id_pesanan):
+        cursor = self.get_cursor()
+        if not cursor:
+            return False
+
+        try:
+            query = """
+                UPDATE pesanan
+                SET payment_status = 'verified',
+                    payment_verified_at = NOW(),
+                    status = 'diproses'
+                WHERE id_pesanan = %s
+            """
+            cursor.execute(query, (id_pesanan,))
+            self.commit()
+            return True
+        except Error as e:
+            print(f"Error verify payment: {e}")
+            return False
+        finally:
+            cursor.close()
+
+    def reject_payment_proof(self, id_pesanan, note=None):
+        cursor = self.get_cursor()
+        if not cursor:
+            return False
+
+        try:
+            query = """
+                UPDATE pesanan
+                SET payment_status = 'rejected',
+                    payment_note = %s
+                WHERE id_pesanan = %s
+            """
+            cursor.execute(query, (note, id_pesanan))
+            self.commit()
+            return True
+        except Error as e:
+            print(f"Error reject payment: {e}")
             return False
         finally:
             cursor.close()
@@ -402,6 +579,28 @@ class Database:
             return cursor.fetchone()
         except Error as e:
             print(f"Error get last pesanan: {e}")
+            return None
+        finally:
+            cursor.close()
+
+    def get_latest_unpaid_order(self, id_pelanggan):
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor:
+            return None
+        try:
+            query = """
+                SELECT *
+                FROM pesanan
+                WHERE id_pelanggan = %s
+                  AND status = 'menunggu_pembayaran'
+                  AND payment_status IN ('pending', 'proof_submitted', 'rejected')
+                ORDER BY id_pesanan DESC
+                LIMIT 1
+            """
+            cursor.execute(query, (id_pelanggan,))
+            return cursor.fetchone()
+        except Error as e:
+            print(f"Error get latest unpaid order: {e}")
             return None
         finally:
             cursor.close()

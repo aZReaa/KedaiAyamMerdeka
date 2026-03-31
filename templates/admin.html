@@ -3,103 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Kedai Ayam Merdeka</title>
+    <title>Panel Admin | Kedai Ayam Merdeka</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version) }}">
 </head>
-<body>
+<body class="admin-page">
     <div class="page-shell">
         <aside class="sidebar">
             <div class="brand-block">
                 <p class="eyebrow">Kedai Ayam Merdeka</p>
-                <h1>Admin Dashboard</h1>
-                <p class="brand-copy">Pantau menu, pesanan, dan performa chatbot dari satu panel operasional.</p>
+                <h1>Panel Admin</h1>
+                <p class="brand-copy">Kelola menu, pantau pesanan, dan cek hasil chatbot dari satu tempat.</p>
             </div>
 
             <nav class="side-nav tabs" aria-label="Navigasi admin">
-                <button class="tab-btn active" type="button" data-tab="menu">Menu</button>
+                <button class="tab-btn active" type="button" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" type="button" data-tab="menu">Menu</button>
                 <button class="tab-btn" type="button" data-tab="pesanan">Pesanan</button>
                 <button class="tab-btn" type="button" data-tab="analytics">Analitik</button>
             </nav>
 
             <div class="sidebar-card">
-                <p class="sidebar-label">Sinkronisasi</p>
+                <p class="sidebar-label">Pembaruan terakhir</p>
                 <strong id="globalLastUpdated">Belum ada data</strong>
-                <p class="sidebar-copy">Panel akan memperbarui ringkasan saat data berhasil dimuat.</p>
-                <p class="sidebar-copy">Database aktif: <strong id="activeDatabaseTarget">memuat...</strong></p>
+                <p class="sidebar-copy">Waktu sinkronisasi terakhir tampil di sini.</p>
             </div>
 
             <div class="sidebar-card accent-card">
-                <p class="sidebar-label">Operasional</p>
+                <p class="sidebar-label">Database aktif</p>
+                <strong id="activeDatabaseTarget">Memuat...</strong>
+                <p class="sidebar-copy">Periksa koneksi ini sebelum mengubah data.</p>
+            </div>
+
+            <div class="sidebar-card">
+                <p class="sidebar-label">Ringkasan cepat</p>
                 <div class="mini-metrics">
                     <div>
                         <span class="mini-label">Menu aktif</span>
                         <strong id="availableMenuCount">0</strong>
                     </div>
                     <div>
-                        <span class="mini-label">Pesanan berjalan</span>
+                        <span class="mini-label">Pesanan aktif</span>
                         <strong id="activeOrdersCount">0</strong>
                     </div>
                 </div>
             </div>
 
             <div class="sidebar-actions">
-                <a href="/logout" class="logout-btn">Logout</a>
-                <button onclick="initDatabase()" class="danger-btn wide-btn" type="button">Inisialisasi Database</button>
+                <a href="/logout" class="logout-btn">Keluar</a>
+                <button onclick="initDatabase()" class="danger-btn wide-btn" type="button">Isi ulang data contoh</button>
             </div>
         </aside>
 
         <main class="main-panel">
-            <section class="overview-grid">
-                <article class="overview-card">
-                    <span class="card-label">Total menu</span>
-                    <strong id="menuCount">0</strong>
-                    <p>Jumlah item yang tampil di katalog admin.</p>
-                </article>
-                <article class="overview-card">
-                    <span class="card-label">Total pesanan</span>
-                    <strong id="orderCount">0</strong>
-                    <p>Semua pesanan yang dimuat berdasarkan filter aktif.</p>
-                </article>
-                <article class="overview-card">
-                    <span class="card-label">Pesanan selesai</span>
-                    <strong id="completedOrderCount">0</strong>
-                    <p>Pesanan yang sudah ditandai selesai.</p>
-                </article>
-                <article class="overview-card">
-                    <span class="card-label">Rata-rata rating</span>
-                    <strong id="heroAvgRating">-</strong>
-                    <p>Feedback pelanggan dari modul evaluasi.</p>
-                </article>
-            </section>
-
-            <section id="menu" class="tab-content active">
+            <section id="dashboard" class="tab-content active">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Manajemen Menu</p>
-                        <h3>Kelola katalog menu</h3>
+                        <p class="eyebrow">Dashboard</p>
+                        <h2>Ringkasan operasional</h2>
+                        <p class="section-copy">Cek kondisi panel sebelum masuk ke detail data.</p>
                     </div>
-                    <button onclick="loadMenu()" class="secondary-btn" type="button">Muat Ulang Menu</button>
+                </div>
+
+                <section class="overview-grid">
+                    <article class="overview-card">
+                        <span class="card-label">Total menu</span>
+                        <strong id="menuCount">0</strong>
+                        <p>Jumlah item yang tersimpan di katalog.</p>
+                    </article>
+                    <article class="overview-card">
+                        <span class="card-label">Pesanan aktif</span>
+                        <strong id="dashboardActiveOrders">0</strong>
+                        <p>Pesanan yang masih menunggu admin, pembayaran, atau sedang diproses.</p>
+                    </article>
+                    <article class="overview-card">
+                        <span class="card-label">Pesanan selesai</span>
+                        <strong id="completedOrderCount">0</strong>
+                        <p>Pesanan yang sudah selesai dikerjakan.</p>
+                    </article>
+                    <article class="overview-card">
+                        <span class="card-label">Rating rata-rata</span>
+                        <strong id="heroAvgRating">-</strong>
+                        <p>Rata-rata nilai feedback pelanggan.</p>
+                    </article>
+                </section>
+
+                <div class="content-grid two-column dashboard-grid">
+                    <article class="panel-card feature-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Aksi cepat</p>
+                                <h3>Masuk ke area kerja</h3>
+                            </div>
+                        </div>
+
+                        <div class="action-group">
+                            <button class="ghost-btn" type="button" data-switch-tab="pesanan">Buka pesanan</button>
+                            <button class="ghost-btn" type="button" data-switch-tab="menu">Buka menu</button>
+                            <button class="ghost-btn" type="button" data-switch-tab="analytics">Buka analitik</button>
+                        </div>
+                    </article>
+
+                    <article class="panel-card">
+                        <div class="panel-head">
+                            <div>
+                                <p class="panel-kicker">Status panel</p>
+                                <h3>Cek cepat</h3>
+                            </div>
+                        </div>
+
+                        <div class="status-list">
+                            <div class="status-row">
+                                <span>Database</span>
+                                <strong id="dashboardDatabaseTarget">Memuat...</strong>
+                            </div>
+                            <div class="status-row">
+                                <span>Total chat</span>
+                                <strong id="totalInteractions">-</strong>
+                            </div>
+                            <div class="status-row">
+                                <span>Tingkat keyakinan</span>
+                                <strong id="avgConfidence">-</strong>
+                            </div>
+                            <div class="status-row">
+                                <span>Total feedback</span>
+                                <strong id="totalFeedback">-</strong>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section id="menu" class="tab-content">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Menu</p>
+                        <h2>Kelola katalog menu</h2>
+                        <p class="section-copy">Tambah item baru dan cek status menu yang sedang dijual.</p>
+                    </div>
+                    <button onclick="loadMenu(true)" class="secondary-btn" type="button">Segarkan menu</button>
                 </div>
 
                 <div class="content-grid two-column">
                     <article class="panel-card form-card">
                         <div class="panel-head">
                             <div>
-                                <p class="panel-kicker">Tambah data</p>
-                                <h4>Menu baru</h4>
+                                <p class="panel-kicker">Tambah menu</p>
+                                <h3>Item baru</h3>
                             </div>
-                            <span class="panel-badge">Input</span>
+                            <span class="panel-badge">Form</span>
                         </div>
 
                         <form id="menuForm" class="stack-form">
                             <div class="input-grid">
                                 <label class="field">
                                     <span>Nama menu</span>
-                                    <input type="text" id="nama_menu" placeholder="Contoh: Ayam Geprek + Nasi + Sambal Ijo" required>
+                                    <input type="text" id="nama_menu" placeholder="Contoh: Ayam geprek + nasi" required>
                                 </label>
                                 <label class="field">
                                     <span>Kategori</span>
-                                    <input type="text" id="kategori" placeholder="Ayam, Minuman, Lauk">
+                                    <input type="text" id="kategori" placeholder="Ayam, minuman, lauk">
                                 </label>
                             </div>
 
@@ -110,11 +172,11 @@
                                 </label>
                                 <label class="toggle-field">
                                     <input type="checkbox" id="ketersediaan" checked>
-                                    <span>Tersedia untuk dijual</span>
+                                    <span>Menu ini tersedia</span>
                                 </label>
                             </div>
 
-                            <button type="submit" class="primary-btn">Simpan Menu</button>
+                            <button type="submit" class="primary-btn">Simpan menu</button>
                         </form>
                     </article>
 
@@ -122,9 +184,9 @@
                         <div class="panel-head">
                             <div>
                                 <p class="panel-kicker">Ringkasan</p>
-                                <h4>Status katalog</h4>
+                                <h3>Status katalog</h3>
                             </div>
-                            <span class="panel-badge neutral">Live</span>
+                            <span class="panel-badge neutral">Aktif</span>
                         </div>
 
                         <div class="metric-list">
@@ -137,12 +199,12 @@
                                 <strong id="summaryMenuAvailable">0</strong>
                             </div>
                             <div class="metric-item">
-                                <span>Tidak tersedia</span>
+                                <span>Nonaktif</span>
                                 <strong id="summaryMenuUnavailable">0</strong>
                             </div>
                         </div>
 
-                        <p class="panel-note">Gunakan ringkasan ini untuk memastikan item yang ditampilkan ke chatbot tetap sinkron dengan stok lapangan.</p>
+                        <p class="panel-note">Pastikan status menu sesuai stok yang benar-benar tersedia.</p>
                     </article>
                 </div>
 
@@ -150,9 +212,9 @@
                     <div class="panel-head">
                         <div>
                             <p class="panel-kicker">Daftar menu</p>
-                            <h4>Katalog aktif</h4>
+                            <h3>Katalog aktif</h3>
                         </div>
-                        <span id="menuStatusText" class="muted-meta">Memuat data menu...</span>
+                        <span id="menuStatusText" class="muted-meta">Belum memuat data.</span>
                     </div>
 
                     <div class="table-container">
@@ -160,7 +222,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Nama Menu</th>
+                                    <th>Nama menu</th>
                                     <th>Harga</th>
                                     <th>Kategori</th>
                                     <th>Status</th>
@@ -176,10 +238,11 @@
             <section id="pesanan" class="tab-content">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Manajemen Pesanan</p>
-                        <h3>Proses pesanan pelanggan</h3>
+                        <p class="eyebrow">Pesanan</p>
+                        <h2>Kelola pesanan pelanggan</h2>
+                        <p class="section-copy">Cek dulu ketersediaan pesanan, lalu lanjutkan ke pembayaran dan proses dapur.</p>
                     </div>
-                    <button onclick="loadAllPesanan()" class="secondary-btn" type="button">Muat Ulang Pesanan</button>
+                    <button onclick="loadAllPesanan(true)" class="secondary-btn" type="button">Segarkan pesanan</button>
                 </div>
 
                 <div class="content-grid two-column">
@@ -187,7 +250,7 @@
                         <div class="panel-head">
                             <div>
                                 <p class="panel-kicker">Filter</p>
-                                <h4>Ambil data pesanan</h4>
+                                <h3>Cari pesanan</h3>
                             </div>
                             <span class="panel-badge">Filter</span>
                         </div>
@@ -197,20 +260,22 @@
                                 <label class="field">
                                     <span>Status</span>
                                     <select id="statusFilter">
-                                        <option value="">Semua Status</option>
-                                        <option value="dipesan">Dipesan</option>
+                                        <option value="">Semua status</option>
+                                        <option value="menunggu_konfirmasi_admin">Menunggu admin</option>
+                                        <option value="menunggu_pembayaran">Menunggu pembayaran</option>
                                         <option value="diproses">Diproses</option>
                                         <option value="selesai">Selesai</option>
                                         <option value="batal">Batal</option>
+                                        <option value="ditolak_admin">Ditolak admin</option>
                                     </select>
                                 </label>
-                                <button onclick="loadAllPesanan()" class="primary-btn" type="button">Tampilkan Pesanan</button>
+                                <button onclick="loadAllPesanan(true)" class="primary-btn" type="button">Tampilkan</button>
                             </div>
 
                             <div class="search-customer">
                                 <label class="field">
                                     <span>ID pelanggan</span>
-                                    <input type="text" id="pelanggan_id" placeholder="Cari berdasarkan no. WA atau chat ID">
+                                    <input type="text" id="pelanggan_id" placeholder="Cari dari nomor WA atau chat ID">
                                 </label>
                                 <button onclick="loadPesananByCustomer()" class="secondary-btn" type="button">Cari</button>
                             </div>
@@ -221,15 +286,19 @@
                         <div class="panel-head">
                             <div>
                                 <p class="panel-kicker">Ringkasan</p>
-                                <h4>Status pesanan</h4>
+                                <h3>Status pesanan</h3>
                             </div>
-                            <span class="panel-badge warm">Realtime</span>
+                            <span class="panel-badge warm">Aktif</span>
                         </div>
 
                         <div class="metric-list order-metrics">
                             <div class="metric-item">
-                                <span>Dipesan</span>
+                                <span>Menunggu admin</span>
                                 <strong id="orderPendingCount">0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Menunggu bayar</span>
+                                <strong id="orderAwaitingPaymentCount">0</strong>
                             </div>
                             <div class="metric-item">
                                 <span>Diproses</span>
@@ -239,13 +308,9 @@
                                 <span>Selesai</span>
                                 <strong id="orderDoneCount">0</strong>
                             </div>
-                            <div class="metric-item">
-                                <span>Batal</span>
-                                <strong id="orderCancelledCount">0</strong>
-                            </div>
                         </div>
 
-                        <p class="panel-note">Aksi proses dan selesai tetap tersedia langsung dari tabel untuk menjaga throughput dapur tetap cepat.</p>
+                        <p class="panel-note">Pembayaran hanya diminta setelah admin menyetujui ketersediaan pesanan.</p>
                     </article>
                 </div>
 
@@ -253,9 +318,9 @@
                     <div class="panel-head">
                         <div>
                             <p class="panel-kicker">Daftar pesanan</p>
-                            <h4>Antrian terbaru</h4>
+                            <h3>Antrian terbaru</h3>
                         </div>
-                        <span id="orderStatusText" class="muted-meta">Memuat data pesanan...</span>
+                        <span id="orderStatusText" class="muted-meta">Belum memuat data.</span>
                     </div>
 
                     <div class="table-container">
@@ -264,10 +329,12 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Pelanggan</th>
-                                    <th>ID Chat</th>
+                                    <th>ID chat</th>
                                     <th>Detail</th>
                                     <th>Total</th>
                                     <th>Status</th>
+                                    <th>Pembayaran</th>
+                                    <th>Bukti</th>
                                     <th>Waktu</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -281,27 +348,28 @@
             <section id="analytics" class="tab-content">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Evaluasi Sistem</p>
-                        <h3>Analitik dan evaluasi chatbot</h3>
+                        <p class="eyebrow">Analitik</p>
+                        <h2>Ringkasan chatbot</h2>
+                        <p class="section-copy">Lihat performa chatbot dan feedback pelanggan tanpa istilah yang berlebihan.</p>
                     </div>
-                    <button onclick="loadAnalytics()" class="secondary-btn" type="button">Muat Ulang Analitik</button>
+                    <button onclick="loadAnalytics(true)" class="secondary-btn" type="button">Segarkan analitik</button>
                 </div>
 
                 <div class="stats-grid" id="statsGrid">
                     <div class="stat-card">
-                        <h4>Total Interaksi</h4>
-                        <p id="totalInteractions">-</p>
+                        <h3>Total chat</h3>
+                        <p id="analyticsTotalInteractions">-</p>
                     </div>
                     <div class="stat-card">
-                        <h4>Rata-rata Confidence</h4>
-                        <p id="avgConfidence">-</p>
+                        <h3>Tingkat keyakinan</h3>
+                        <p id="analyticsAvgConfidence">-</p>
                     </div>
                     <div class="stat-card">
-                        <h4>Total Feedback</h4>
-                        <p id="totalFeedback">-</p>
+                        <h3>Total feedback</h3>
+                        <p id="analyticsTotalFeedback">-</p>
                     </div>
                     <div class="stat-card">
-                        <h4>Rata-rata Rating</h4>
+                        <h3>Rating rata-rata</h3>
                         <p id="avgRating">-</p>
                     </div>
                 </div>
@@ -311,7 +379,7 @@
                         <div class="panel-head">
                             <div>
                                 <p class="panel-kicker">Intent</p>
-                                <h4>Distribusi intent</h4>
+                                <h3>Sebaran intent</h3>
                             </div>
                         </div>
                         <div class="table-container">
@@ -331,8 +399,8 @@
                     <article class="panel-card table-card">
                         <div class="panel-head">
                             <div>
-                                <p class="panel-kicker">Confidence</p>
-                                <h4>Distribusi confidence score</h4>
+                                <p class="panel-kicker">Keyakinan</p>
+                                <h3>Sebaran tingkat keyakinan</h3>
                             </div>
                         </div>
                         <div class="table-container">
@@ -353,7 +421,7 @@
                     <div class="panel-head">
                         <div>
                             <p class="panel-kicker">Feedback</p>
-                            <h4>Distribusi rating pelanggan</h4>
+                            <h3>Sebaran rating pelanggan</h3>
                         </div>
                     </div>
                     <div class="table-container">
@@ -373,10 +441,10 @@
                 <article class="panel-card table-card">
                     <div class="panel-head">
                         <div>
-                            <p class="panel-kicker">Logs</p>
-                            <h4>Chat logs terbaru</h4>
+                            <p class="panel-kicker">Chat log</p>
+                            <h3>Log terbaru</h3>
                         </div>
-                        <button onclick="loadChatLogs()" class="secondary-btn" type="button">Muat Ulang Log</button>
+                        <button onclick="loadChatLogs(true)" class="secondary-btn" type="button">Segarkan log</button>
                     </div>
                     <div class="table-container">
                         <table id="chatLogsTable">
@@ -386,8 +454,8 @@
                                     <th>Pelanggan</th>
                                     <th>Input</th>
                                     <th>Intent</th>
-                                    <th>Confidence</th>
-                                    <th>Response</th>
+                                    <th>Keyakinan</th>
+                                    <th>Respons</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -398,14 +466,14 @@
                 <article class="panel-card export-card">
                     <div class="panel-head">
                         <div>
-                            <p class="panel-kicker">Export</p>
-                            <h4>Unduh data evaluasi</h4>
+                            <p class="panel-kicker">Unduh data</p>
+                            <h3>File evaluasi</h3>
                         </div>
                     </div>
                     <div class="export-actions">
-                        <button onclick="exportChatLogs()" class="primary-btn" type="button">Export Chat Log</button>
-                        <button onclick="exportConfusionMatrix()" class="secondary-btn" type="button">Export Confusion Matrix</button>
-                        <button onclick="exportFeedback()" class="secondary-btn" type="button">Export Feedback</button>
+                        <button onclick="exportChatLogs()" class="primary-btn" type="button">Unduh chat log</button>
+                        <button onclick="exportConfusionMatrix()" class="secondary-btn" type="button">Unduh confusion matrix</button>
+                        <button onclick="exportFeedback()" class="secondary-btn" type="button">Unduh feedback</button>
                     </div>
                 </article>
             </section>

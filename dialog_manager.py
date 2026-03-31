@@ -12,6 +12,17 @@ class DialogManager:
         
         # Pilihan sambal
         self.SAMBAL_OPTIONS = ['sambal bawang', 'sambal ijo', 'sambal terasi', 'sambal matah', 'tanpa sambal']
+
+    def _format_order_status_label(self, status: str) -> str:
+        labels = {
+            'menunggu_konfirmasi_admin': 'MENUNGGU KONFIRMASI ADMIN',
+            'menunggu_pembayaran': 'MENUNGGU PEMBAYARAN',
+            'diproses': 'DIPROSES',
+            'selesai': 'SELESAI',
+            'batal': 'BATAL',
+            'ditolak_admin': 'DITOLAK ADMIN'
+        }
+        return labels.get(status, (status or '-').upper())
     
     def get_user_state(self, user_id: str) -> dict:
         return db.get_user_state(user_id)
@@ -157,9 +168,17 @@ class DialogManager:
         elif intent == 'cek_status':
             pesanan = db.get_last_pesanan(user_id)
             if pesanan:
-                status_emoji = {'dipesan': '', 'diproses': '', 'selesai': '[OK]', 'batal': '[X]'}
+                status_emoji = {
+                    'menunggu_konfirmasi_admin': '',
+                    'menunggu_pembayaran': '',
+                    'diproses': '',
+                    'selesai': '[OK]',
+                    'batal': '[X]',
+                    'ditolak_admin': '[X]'
+                }
                 emoji = status_emoji.get(pesanan['status'], '')
-                return f"{emoji} *Status Pesanan #{pesanan['id_pesanan']}*\n\nDetail: {pesanan['detail_pesanan']}\nTotal: Rp {pesanan['total_harga']:,}\nStatus: *{pesanan['status'].upper()}*"
+                status_label = self._format_order_status_label(pesanan['status'])
+                return f"{emoji} *Status Pesanan #{pesanan['id_pesanan']}*\n\nDetail: {pesanan['detail_pesanan']}\nTotal: Rp {pesanan['total_harga']:,}\nStatus: *{status_label}*"
             else:
                 return "Kakak belum memiliki pesanan aktif. Mau pesan sekarang? Ketik 'pesan'"
         
@@ -170,6 +189,9 @@ class DialogManager:
             return f" *Jam Operasional Kedai Ayam Merdeka*\n\nSetiap Hari: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
         
         elif intent == 'info_pembayaran':
+            pesanan = db.get_last_pesanan(user_id)
+            if pesanan and pesanan.get('status') == 'menunggu_konfirmasi_admin':
+                return "Pesanan kakak masih menunggu konfirmasi admin dulu ya. Instruksi pembayaran akan kami kirim setelah pesanan disetujui."
             return self._get_payment_info()
         
         elif intent == 'rekomendasi_menu':
@@ -181,7 +203,7 @@ class DialogManager:
         
         elif intent == 'ubah_pesanan':
             pesanan = db.get_last_pesanan(user_id)
-            if pesanan and pesanan['status'] == 'dipesan':
+            if pesanan and pesanan['status'] in ['menunggu_konfirmasi_admin', 'menunggu_pembayaran']:
                 self.update_user_state(user_id, 'modifying', {'id_pesanan': pesanan['id_pesanan']})
                 return f"Pesanan #{pesanan['id_pesanan']} akan diubah.\nDetail: {pesanan['detail_pesanan']}\n\nMau ganti jadi apa kak?"
             elif pesanan:
@@ -190,7 +212,7 @@ class DialogManager:
         
         elif intent == 'batalkan_pesanan' or intent == 'pembatalan':
             pesanan = db.get_last_pesanan(user_id)
-            if pesanan and pesanan['status'] == 'dipesan':
+            if pesanan and pesanan['status'] in ['menunggu_konfirmasi_admin', 'menunggu_pembayaran']:
                 db.update_status_pesanan(pesanan['id_pesanan'], 'batal')
                 self.reset_user_state(user_id)
                 return f"[X] Pesanan #{pesanan['id_pesanan']} dibatalkan.\n\nMau pesan lagi? Ketik 'menu'"
@@ -199,10 +221,23 @@ class DialogManager:
             return "Kakak belum punya pesanan aktif."
         
         elif intent == 'konfirmasi_pembayaran':
-            pesanan = db.get_last_pesanan(user_id)
-            if pesanan and pesanan['status'] == 'dipesan':
-                db.update_status_pesanan(pesanan['id_pesanan'], 'diproses')
-                return f"[OK] *Pembayaran Dikonfirmasi!*\n\nPesanan #{pesanan['id_pesanan']} sedang diproses.\nEstimasi 15-30 menit.\n\nTerima kasih! "
+            latest_order = db.get_last_pesanan(user_id)
+            if latest_order and latest_order.get('status') == 'menunggu_konfirmasi_admin':
+                return (
+                    f"Pesanan #{latest_order['id_pesanan']} masih menunggu konfirmasi admin.\n\n"
+                    "Kalau pesanan sudah disetujui, baru kami kirim instruksi pembayarannya ya kak."
+                )
+            pesanan = db.get_latest_unpaid_order(user_id)
+            if pesanan:
+                if pesanan.get('payment_status') == 'proof_submitted':
+                    return (
+                        f"[OK] Bukti pembayaran untuk pesanan #{pesanan['id_pesanan']} sudah kami terima.\n\n"
+                        "Sekarang tinggal menunggu verifikasi admin ya kak."
+                    )
+                return (
+                    f"Pesanan #{pesanan['id_pesanan']} masih menunggu bukti pembayaran.\n\n"
+                    "Silakan kirim *foto bukti transfer* di chat ini ya kak."
+                )
             return "Kakak belum punya pesanan yang menunggu pembayaran."
         
         elif intent == 'tanya_harga':
@@ -569,10 +604,10 @@ class DialogManager:
                 full_detail, 
                 total, 
                 waktu_pengambilan=waktu_formatted,
-                tipe_pengambilan=tipe_pengambilan
+                tipe_pengambilan=tipe_pengambilan,
+                status='menunggu_konfirmasi_admin'
             )
-            
-            self.update_user_state(user_id, 'awaiting_payment', {'id_pesanan': pesanan_id, 'total': total, 'detail': detail_text})
+            self.reset_user_state(user_id)
             
             # Format time for display
             waktu_display = waktu_formatted if waktu_formatted else 'Sekarang'
@@ -587,9 +622,10 @@ class DialogManager:
                 f"Rp Total: Rp {total:,}",
                 "",
                 "----------------",
-                self._get_payment_info(),
+                "Pesanan kakak sudah kami teruskan ke admin untuk dicek ketersediaannya.",
+                "Silakan tunggu konfirmasi admin dulu ya kak.",
                 "",
-                "> Setelah transfer, kirim *'SUDAH BAYAR'* ya kak!"
+                "> Pembayaran baru dilakukan setelah admin menyetujui pesanan."
             ]
             return "\n".join(lines)
         
@@ -605,51 +641,37 @@ class DialogManager:
         'Handle payment confirmation state.'
         state_data = state['data']
         msg_lower = message.lower().strip()
+        pesanan_id = state_data.get('id_pesanan')
+        pesanan = db.get_pesanan_by_id(pesanan_id) if pesanan_id else None
         
         print(f"[DEBUG] Awaiting Payment - Intent: {intent}, Message: '{message}'")
         
         # Priority 1: Check intent first (most reliable)
         if intent == 'konfirmasi_pembayaran':
-            pesanan_id = state_data.get('id_pesanan')
-            print(f"[DEBUG] Payment confirmed via intent for order #{pesanan_id}")
-            
-            if pesanan_id:
-                db.update_status_pesanan(pesanan_id, 'diproses')
-            
-            self.reset_user_state(user_id)
-            
-            lines = [
-                "[OK] *PEMBAYARAN DIKONFIRMASI!*",
-                "",
-                f"Pesanan #{pesanan_id} sedang diproses",
-                "Estimasi: 15-30 menit",
-                "",
-                "Terima kasih sudah memesan di Kedai Ayam Merdeka!",
-                "Ditunggu orderan berikutnya ya kak!"
-            ]
-            return "\n".join(lines)
+            print(f"[DEBUG] Payment intent detected for order #{pesanan_id}")
+            if pesanan and pesanan.get('payment_status') == 'proof_submitted':
+                return (
+                    f"[OK] Bukti pembayaran untuk pesanan #{pesanan_id} sudah kami terima.\n\n"
+                    "Sekarang pesanan sedang menunggu verifikasi admin ya kak."
+                )
+            return (
+                f"Siap kak, untuk pesanan #{pesanan_id} silakan kirim *foto bukti transfer* dulu ya.\n\n"
+                "Setelah foto masuk, admin akan verifikasi pembayaran sebelum pesanan diproses."
+            )
         
         # Priority 2: Check for payment-related keywords
         payment_keywords = ['bayar', 'transfer', 'tf', 'lunas', 'sudah bayar', 'udah bayar', 'sudah tf', 'udah tf']
         if any(keyword in msg_lower for keyword in payment_keywords):
-            pesanan_id = state_data.get('id_pesanan')
-            print(f"[DEBUG] Payment confirmed via keyword for order #{pesanan_id}")
-            
-            if pesanan_id:
-                db.update_status_pesanan(pesanan_id, 'diproses')
-            
-            self.reset_user_state(user_id)
-            
-            lines = [
-                "[OK] *PEMBAYARAN DIKONFIRMASI!*",
-                "",
-                f"Pesanan #{pesanan_id} sedang diproses",
-                "Estimasi: 15-30 menit",
-                "",
-                "Terima kasih sudah memesan di Kedai Ayam Merdeka!",
-                "Ditunggu orderan berikutnya ya kak!"
-            ]
-            return "\n".join(lines)
+            print(f"[DEBUG] Payment keyword detected for order #{pesanan_id}")
+            if pesanan and pesanan.get('payment_status') == 'proof_submitted':
+                return (
+                    f"[OK] Bukti pembayaran untuk pesanan #{pesanan_id} sudah kami terima.\n\n"
+                    "Mohon tunggu verifikasi admin ya kak."
+                )
+            return (
+                f"Baik kak, untuk pesanan #{pesanan_id} silakan kirim *foto bukti transfer* di chat ini.\n\n"
+                "Setelah itu status pembayaran akan masuk ke antrean verifikasi admin."
+            )
         
         # Check for payment info request
         elif intent == 'info_pembayaran' or 'cara' in msg_lower or 'gimana' in msg_lower or 'rekening' in msg_lower:
@@ -678,9 +700,35 @@ class DialogManager:
                 "",
                 self._get_payment_info(),
                 "",
-                "> Kirim *'SUDAH BAYAR'* setelah transfer ya kak!"
+                "> Setelah transfer, kirim *foto bukti pembayaran* ya kak."
             ]
             return "\n".join(lines)
+
+    def handle_payment_proof_submission(self, user_id: str, file_id: str, proof_kind: str = 'photo') -> str:
+        'Handle proof of payment submitted via Telegram photo/document.'
+        pesanan = db.get_latest_unpaid_order(user_id)
+        if not pesanan:
+            latest_order = db.get_last_pesanan(user_id)
+            if latest_order and latest_order.get('status') == 'menunggu_konfirmasi_admin':
+                return (
+                    f"Pesanan #{latest_order['id_pesanan']} masih menunggu konfirmasi admin, jadi belum perlu kirim bukti pembayaran dulu ya kak.\n\n"
+                    "Kalau admin sudah menyetujui pesanan, kami akan kirim instruksi pembayarannya."
+                )
+            return (
+                "Maaf kak, saya tidak menemukan pesanan yang sedang menunggu pembayaran.\n\n"
+                "Kalau mau pesan lagi, ketik *menu* ya."
+            )
+
+        pesanan_id = pesanan['id_pesanan']
+        if db.submit_payment_proof(pesanan_id, file_id, proof_kind):
+            self.reset_user_state(user_id)
+            return (
+                f"[OK] Bukti pembayaran untuk pesanan #{pesanan_id} sudah kami terima.\n\n"
+                "Status pembayaran: *menunggu verifikasi admin*.\n"
+                "Pesanan akan diproses setelah pembayaran diverifikasi ya kak."
+            )
+
+        return "Maaf kak, bukti pembayaran belum berhasil kami simpan. Coba kirim ulang fotonya ya."
     
     def _handle_modifying_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         'Handle order modification.'
@@ -859,7 +907,9 @@ class DialogManager:
             "",
             "Bank BCA: 1234567890",
             "OVO/GoPay: 081234567890",
-            "a.n. Kedai Ayam Merdeka"
+            "a.n. Kedai Ayam Merdeka",
+            "",
+            "Setelah transfer, kirim foto bukti pembayaran di chat ini ya kak."
         ]
         return "\n".join(lines)
     

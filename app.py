@@ -96,7 +96,7 @@ def webhook():
         if "message" in data:
             message = data["message"]
             chat_id = message["chat"]["id"]
-            text = message.get("text", "")
+            text = message.get("text", "") or message.get("caption", "")
             profile_name = message["from"].get("first_name", "Pelanggan")
             
             # Convert chat_id to string to match previous from_number logic
@@ -108,8 +108,15 @@ def webhook():
             # Register/Update customer
             db.insert_or_update_pelanggan(from_number, profile_name)
             
-            # Generate response from dialog manager (with nama_pelanggan for logging)
-            response_text = dialog_manager.generate_response(from_number, text, profile_name)
+            if message.get("photo"):
+                file_id = message["photo"][-1].get("file_id")
+                response_text = dialog_manager.handle_payment_proof_submission(from_number, file_id, "photo")
+            elif message.get("document"):
+                file_id = message["document"].get("file_id")
+                response_text = dialog_manager.handle_payment_proof_submission(from_number, file_id, "document")
+            else:
+                # Generate response from dialog manager (with nama_pelanggan for logging)
+                response_text = dialog_manager.generate_response(from_number, text, profile_name)
             print(f"\n🤖 Balasan: {response_text[:100]}...")
             
             # Send back to Telegram
@@ -166,6 +173,39 @@ def send_telegram_message(chat_id, text):
         return False
 
 
+def get_telegram_file_path(file_id):
+    if not Config.TELEGRAM_BOT_TOKEN or not file_id:
+        return None
+
+    try:
+        response = requests.get(
+            f"https://api.telegram.org/bot{Config.TELEGRAM_BOT_TOKEN}/getFile",
+            params={"file_id": file_id},
+            timeout=20
+        )
+        response_data = response.json()
+        if response.status_code == 200 and response_data.get("ok"):
+            return response_data.get("result", {}).get("file_path")
+    except Exception as e:
+        print(f"Error get telegram file path: {e}")
+    return None
+
+
+def download_telegram_file(file_id):
+    file_path = get_telegram_file_path(file_id)
+    if not file_path:
+        return None, None
+
+    try:
+        file_url = f"https://api.telegram.org/file/bot{Config.TELEGRAM_BOT_TOKEN}/{file_path}"
+        response = requests.get(file_url, timeout=30)
+        if response.status_code == 200:
+            return response.content, response.headers.get("Content-Type", "application/octet-stream")
+    except Exception as e:
+        print(f"Error download telegram file: {e}")
+    return None, None
+
+
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
@@ -203,9 +243,9 @@ def login():
             session['admin_nama'] = admin['nama']
             return redirect(url_for('admin'))
         else:
-            return render_template('login.html', error='Username atau password salah!')
+            return render_template('login.html', error='Username atau password salah.', asset_version=Config.APP_VERSION)
     
-    return render_template('login.html')
+    return render_template('login.html', asset_version=Config.APP_VERSION)
 
 @app.route('/logout')
 def logout():
@@ -272,16 +312,46 @@ def update_pesanan_status(pesanan_id):
     if not new_status:
         return jsonify({'error': 'status is required'}), 400
     
-    if new_status not in ['dipesan', 'diproses', 'selesai', 'batal']:
+    if new_status not in ['menunggu_konfirmasi_admin', 'menunggu_pembayaran', 'diproses', 'selesai', 'batal', 'ditolak_admin']:
         return jsonify({'error': 'Invalid status'}), 400
     
     # Get order info before updating
     pesanan = db.get_pesanan_by_id(pesanan_id)
+    if not pesanan:
+        return jsonify({'error': 'Order not found'}), 404
+
+    if new_status == 'menunggu_pembayaran' and pesanan.get('status') != 'menunggu_konfirmasi_admin':
+        return jsonify({'error': 'Order is not waiting for admin confirmation'}), 400
+    if new_status == 'diproses' and pesanan and pesanan.get('payment_status') not in [None, 'verified']:
+        return jsonify({'error': 'Payment must be verified before order can be processed'}), 400
     
     success = db.update_status_pesanan(pesanan_id, new_status)
     
     if success:
+        if new_status == 'menunggu_pembayaran':
+            db.update_payment_status(pesanan_id, 'pending')
         response_data = {'success': True, 'message': f'Status updated to {new_status}'}
+
+        if send_notification and pesanan.get('id_pelanggan'):
+            if new_status == 'menunggu_pembayaran':
+                payment_lines = [
+                    f"[OK] Pesanan #{pesanan_id} sudah disetujui admin.",
+                    "",
+                    "Silakan lanjutkan pembayaran untuk pesanan berikut:",
+                    pesanan.get('detail_pesanan', ''),
+                    f"Total: Rp {int(float(pesanan.get('total_harga') or 0)):,}",
+                    "",
+                    dialog_manager._get_payment_info()
+                ]
+                response_data['notification_sent'] = send_telegram_message(
+                    pesanan['id_pelanggan'],
+                    "\n".join(payment_lines)
+                )
+            elif new_status == 'ditolak_admin':
+                response_data['notification_sent'] = send_telegram_message(
+                    pesanan['id_pelanggan'],
+                    f"Maaf kak, pesanan #{pesanan_id} belum bisa kami proses karena stok sedang tidak tersedia.\n\nSilakan pilih menu lain atau pesan ulang ya."
+                )
         
         # If status changed to 'selesai' and notification enabled, trigger feedback request
         if new_status == 'selesai' and send_notification and pesanan:
@@ -296,6 +366,39 @@ def update_pesanan_status(pesanan_id):
         return jsonify(response_data)
     else:   
         return jsonify({'error': 'Failed to update status'}), 500
+
+
+@app.route('/api/pesanan/<int:pesanan_id>/payment/verify', methods=['PUT'])
+@login_required
+def verify_payment(pesanan_id):
+    pesanan = db.get_pesanan_by_id(pesanan_id)
+    success = db.verify_payment_and_process_order(pesanan_id)
+    if success:
+        notification_sent = False
+        if pesanan and pesanan.get('id_pelanggan'):
+            notification_sent = send_telegram_message(
+                pesanan['id_pelanggan'],
+                f"[OK] Pembayaran pesanan #{pesanan_id} sudah diverifikasi.\n\nPesanan kakak sekarang sedang diproses ya."
+            )
+        return jsonify({'success': True, 'message': 'Payment verified', 'notification_sent': notification_sent})
+    return jsonify({'error': 'Failed to verify payment'}), 500
+
+
+@app.route('/api/pesanan/<int:pesanan_id>/payment-proof', methods=['GET'])
+@login_required
+def get_payment_proof(pesanan_id):
+    pesanan = db.get_pesanan_by_id(pesanan_id)
+    if not pesanan or not pesanan.get('payment_proof_file_id'):
+        return jsonify({'error': 'Payment proof not found'}), 404
+
+    file_content, content_type = download_telegram_file(pesanan['payment_proof_file_id'])
+    if not file_content:
+        return jsonify({'error': 'Failed to fetch payment proof'}), 502
+
+    response = make_response(file_content)
+    response.headers['Content-Type'] = content_type
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 @app.route('/api/pelanggan', methods=['GET'])
 def api_pelanggan():
