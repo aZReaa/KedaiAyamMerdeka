@@ -63,6 +63,12 @@ cp .env.example .env
 ```
 Edit file `.env` sesuai konfigurasi database Anda.
 
+Untuk mode lokal yang terpisah dari Railway:
+```powershell
+Copy-Item .env.local.example .env.local
+```
+Lalu isi `.env.local` dengan database MySQL lokal Anda.
+
 5. Setup MySQL database:
 - Buat database `kedai_ayam_merdeka` di MySQL
 - Atau gunakan endpoint `/api/init_db` untuk auto-create
@@ -72,6 +78,16 @@ Edit file `.env` sesuai konfigurasi database Anda.
 1. Start Flask server:
 ```bash
 python app.py
+```
+
+Untuk menjalankan versi lokal yang pasti memakai database lokal:
+```powershell
+.\run_local.ps1
+```
+
+Untuk membuat atau reset akun admin lokal:
+```powershell
+.\create_admin_local.ps1 -Username admin -Password admin123 -Name "Administrator"
 ```
 
 2. Buka admin panel di browser:

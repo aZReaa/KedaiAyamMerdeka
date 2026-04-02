@@ -56,7 +56,7 @@ print(f"[BOOT] Flask app created and ready to serve!")
 
 @app.route('/')
 def index():
-    return 'Chatbot Kedai Ayam Merdeka is running!'
+    return render_template('index.html', asset_version=Config.APP_VERSION)
 
 @app.route('/test-config')
 def test_config():
@@ -425,6 +425,7 @@ def api_pelanggan():
 @app.route('/api/system/db-info', methods=['GET'])
 def api_db_info():
     return jsonify({
+        'app_env': Config.APP_ENV,
         'host': Config.DB_HOST,
         'port': Config.DB_PORT,
         'database': Config.DB_NAME
@@ -435,6 +436,7 @@ def api_db_info():
 def api_menu_debug():
     snapshot = db.get_menu_debug_snapshot()
     snapshot['config'] = {
+        'app_env': Config.APP_ENV,
         'host': Config.DB_HOST,
         'port': Config.DB_PORT,
         'database': Config.DB_NAME

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kedai Ayam Merdeka</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version) }}">
+</head>
+<body class="landing-page">
+    <main class="landing-shell">
+        <section class="landing-hero">
+            <p class="eyebrow">Kedai Ayam Merdeka</p>
+            <h1>Panel pemesanan dan admin untuk operasional harian.</h1>
+            <p class="section-copy">Gunakan halaman ini untuk masuk ke panel admin atau memastikan service chatbot sedang aktif.</p>
+
+            <div class="landing-actions">
+                <a href="/login" class="primary-btn">Masuk admin</a>
+                <a href="/admin" class="secondary-btn">Buka panel</a>
+            </div>
+        </section>
+
+        <section class="landing-grid">
+            <article class="landing-card">
+                <span class="card-label">Admin</span>
+                <h2>Satu panel, kerja lebih singkat</h2>
+                <p>Kelola menu, pesanan, dan bukti pembayaran dari satu layar yang sama.</p>
+            </article>
+
+            <article class="landing-card">
+                <span class="card-label">Chatbot</span>
+                <h2>Siap dipakai untuk order</h2>
+                <p>Bot menangani sapaan, pemesanan, konfirmasi waktu ambil, dan alur pembayaran.</p>
+            </article>
+
+            <article class="landing-card">
+                <span class="card-label">Lokal</span>
+                <h2>Cocok untuk pengujian lokal</h2>
+                <p>Mode lokal dan akun admin bisa disiapkan terpisah tanpa mencampur data Railway.</p>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

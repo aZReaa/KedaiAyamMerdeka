@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 import threading
 import re
+import hashlib
 from config import Config
 
 class Database:
@@ -1148,6 +1149,9 @@ class Database:
             if cursor: cursor.close()
 
     # ==================== ADMIN AUTHENTICATION ====================
+
+    def _hash_password(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()
     
     def create_default_admin(self):
         """Create default admin if not exists"""
@@ -1160,8 +1164,7 @@ class Database:
             
             if result['count'] == 0:
                 # Create default admin with password 'admin123'
-                import hashlib
-                password_hash = hashlib.sha256('admin123'.encode()).hexdigest()
+                password_hash = self._hash_password('admin123')
                 
                 cursor.execute("""
                     INSERT INTO admin (username, password_hash, nama) 
@@ -1182,8 +1185,7 @@ class Database:
         cursor = self.get_cursor(dictionary=True)
         if not cursor: return None
         try:
-            import hashlib
-            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            password_hash = self._hash_password(password)
             
             cursor.execute("""
                 SELECT id_admin, username, nama FROM admin 
@@ -1202,8 +1204,7 @@ class Database:
         cursor = self.get_cursor()
         if not cursor: return False
         try:
-            import hashlib
-            password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+            password_hash = self._hash_password(new_password)
             
             cursor.execute("""
                 UPDATE admin SET password_hash = %s WHERE id_admin = %s
@@ -1216,6 +1217,53 @@ class Database:
             return False
         finally:
             if cursor: cursor.close()
+
+    def create_or_update_admin(self, username, password, nama=None):
+        """Create new admin or update existing admin credentials by username."""
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor:
+            return {'success': False, 'action': None}
+        try:
+            self.create_database_and_tables()
+
+            safe_username = (username or '').strip()
+            safe_nama = (nama or safe_username or 'Administrator').strip()
+            if not safe_username or not password:
+                return {'success': False, 'action': None}
+
+            password_hash = self._hash_password(password)
+
+            cursor.execute("""
+                SELECT id_admin
+                FROM admin
+                WHERE username = %s
+                LIMIT 1
+            """, (safe_username,))
+            existing_admin = cursor.fetchone()
+
+            if existing_admin:
+                cursor.execute("""
+                    UPDATE admin
+                    SET password_hash = %s,
+                        nama = %s
+                    WHERE id_admin = %s
+                """, (password_hash, safe_nama, existing_admin['id_admin']))
+                action = 'updated'
+            else:
+                cursor.execute("""
+                    INSERT INTO admin (username, password_hash, nama)
+                    VALUES (%s, %s, %s)
+                """, (safe_username, password_hash, safe_nama))
+                action = 'created'
+
+            self.commit()
+            return {'success': True, 'action': action}
+        except Error as e:
+            print(f"Error create or update admin: {e}")
+            return {'success': False, 'action': None}
+        finally:
+            if cursor:
+                cursor.close()
 
     def close(self):
         connection = self.connection

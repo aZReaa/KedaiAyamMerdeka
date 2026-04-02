@@ -3,7 +3,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+app_env = os.getenv('APP_ENV', '').strip().lower()
+if app_env == 'local':
+    load_dotenv('.env.local', override=True)
+
 class Config:
+    APP_ENV = app_env or 'default'
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     APP_VERSION = (
         os.getenv('RAILWAY_GIT_COMMIT_SHA')
