@@ -26,6 +26,7 @@ class Config:
     # Jam Operasional
     JAM_BUKA = "10:00"
     JAM_TUTUP = "22:00"
+    APP_TIMEZONE = os.getenv('APP_TIMEZONE', 'Asia/Makassar')
     
     # Pesan Promo
     PROMO_MASAKAN = "Promo: Beli 2 Ayam Geprek Gratis 1 Es Teh Manis!"

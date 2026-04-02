@@ -4,6 +4,7 @@ from nlu import nlu
 import random
 import re
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 class DialogManager:
     def __init__(self):
@@ -48,7 +49,7 @@ class DialogManager:
             if state['state'] != 'idle':
                 if intent == 'salam':
                     self.reset_user_state(user_id)
-                    greeting = self._get_time_greeting()
+                    greeting = self._build_greeting_intro(message)
                     response = f"{greeting}\n\nAda yang bisa dibantu? \n\n Ketik *pesan* untuk mulai memesan\n Ketik *menu* untuk lihat daftar menu"
                 elif intent == 'terima_kasih':
                     self.reset_user_state(user_id)
@@ -168,7 +169,7 @@ class DialogManager:
             return self._start_ordering_flow(user_id, entities)
         
         if intent == 'salam':
-            greeting = self._get_time_greeting()
+            greeting = self._build_greeting_intro(message)
             return f"{greeting}\n\nAda yang bisa dibantu? \n\n Ketik *pesan* untuk mulai memesan\n Ketik *menu* untuk lihat daftar menu\n Jam operasional: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
         
         elif intent == 'terima_kasih':
@@ -1094,7 +1095,10 @@ class DialogManager:
     
     def _get_time_greeting(self) -> str:
         'Get greeting based on current time.'
-        hour = datetime.now().hour
+        try:
+            hour = datetime.now(ZoneInfo(Config.APP_TIMEZONE)).hour
+        except Exception:
+            hour = datetime.now().hour
         
         if 5 <= hour < 11:
             greeting = "Selamat pagi"
@@ -1106,5 +1110,27 @@ class DialogManager:
             greeting = "Selamat malam"
         
         return f"{greeting} kak! Selamat datang di Kedai Ayam Merdeka "
+
+    def _build_greeting_intro(self, message: str) -> str:
+        normalized = re.sub(r'[^a-z0-9\s]', ' ', (message or '').lower())
+        normalized = re.sub(r'\s+', ' ', normalized).strip()
+
+        if not normalized:
+            return self._get_time_greeting()
+
+        if 'assalamualaikum' in normalized or 'assalamu alaikum' in normalized:
+            return "Waalaikumsalam kak! Selamat datang di Kedai Ayam Merdeka "
+        if 'selamat pagi' in normalized or normalized in ['pagi', 'pagi kak', 'pagi min']:
+            return "Selamat pagi kak! Selamat datang di Kedai Ayam Merdeka "
+        if 'selamat siang' in normalized or normalized in ['siang', 'siang kak', 'siang min']:
+            return "Selamat siang kak! Selamat datang di Kedai Ayam Merdeka "
+        if 'selamat sore' in normalized or normalized in ['sore', 'sore kak', 'sore min']:
+            return "Selamat sore kak! Selamat datang di Kedai Ayam Merdeka "
+        if 'selamat malam' in normalized or normalized in ['malam', 'malam kak', 'malam min']:
+            return "Selamat malam kak! Selamat datang di Kedai Ayam Merdeka "
+        if normalized.startswith('halo') or normalized.startswith('hallo') or normalized.startswith('hai') or normalized.startswith('hi') or normalized.startswith('hello'):
+            return "Halo kak! Selamat datang di Kedai Ayam Merdeka "
+
+        return self._get_time_greeting()
 
 dialog_manager = DialogManager()
