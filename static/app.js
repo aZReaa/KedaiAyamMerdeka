@@ -1,5 +1,4 @@
 const loadedTabs = new Set();
-const ANALYTICS_ENABLED = Boolean(window.APP_CONFIG?.analyticsEnabled);
 
 function setText(ids, value) {
     ids.forEach((id) => {
@@ -114,12 +113,11 @@ function loadDatabaseInfo() {
             const target = `${info.host || "-"}:${info.port || "-"} / ${info.database || "-"}`;
             setText(["activeDatabaseTarget", "dashboardDatabaseTarget"], target);
             setText(["dashboardAppEnv"], info.app_env || "-");
-            setText(["dashboardAnalyticsState"], info.analytics_enabled ? "Aktif" : "Nonaktif");
         })
         .catch((error) => {
             console.error("Error loading database info:", error);
             setText(["activeDatabaseTarget", "dashboardDatabaseTarget"], "Tidak diketahui");
-            setText(["dashboardAppEnv", "dashboardAnalyticsState"], "-");
+            setText(["dashboardAppEnv"], "-");
         });
 }
 
@@ -398,201 +396,6 @@ function loadPesananByCustomer() {
     });
 }
 
-function updateChatSummary(data) {
-    const totalInteractions = data.total_interactions || 0;
-    const averageConfidence = data.average_confidence ? `${(data.average_confidence * 100).toFixed(1)}%` : "0%";
-
-    setText(["totalInteractions", "analyticsTotalInteractions"], totalInteractions);
-    setText(["avgConfidence", "analyticsAvgConfidence"], averageConfidence);
-}
-
-function renderIntentDistribution(data) {
-    const tbody = document.querySelector("#intentDistributionTable tbody");
-    if (!tbody) {
-        return;
-    }
-
-    tbody.innerHTML = "";
-    if (!data.intent_distribution || data.intent_distribution.length === 0) {
-        tbody.innerHTML = '<tr class="empty-state"><td colspan="3">Belum ada data intent.</td></tr>';
-        return;
-    }
-
-    const total = data.total_interactions || 1;
-    data.intent_distribution.forEach((item) => {
-        const percentage = ((item.count / total) * 100).toFixed(1);
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${item.intent_terdeteksi}</td>
-            <td>${item.count}</td>
-            <td>${percentage}%</td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function renderConfidenceDistribution(data) {
-    const tbody = document.querySelector("#confidenceDistributionTable tbody");
-    if (!tbody) {
-        return;
-    }
-
-    tbody.innerHTML = "";
-    if (!data.confidence_distribution || data.confidence_distribution.length === 0) {
-        tbody.innerHTML = '<tr class="empty-state"><td colspan="2">Belum ada data tingkat keyakinan.</td></tr>';
-        return;
-    }
-
-    data.confidence_distribution.forEach((item) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${item.confidence_level}</td>
-            <td>${item.count}</td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function fetchChatStats({ renderTables = true, showErrorToast = true } = {}) {
-    return axios.get("/api/analytics/chat")
-        .then((response) => {
-            const data = response.data || {};
-            updateChatSummary(data);
-
-            if (renderTables) {
-                renderIntentDistribution(data);
-                renderConfidenceDistribution(data);
-            }
-
-            return data;
-        })
-        .catch((error) => {
-            console.error("Error loading analytics:", error);
-            if (showErrorToast) {
-                showToast("Analitik chat gagal dimuat.", "error");
-            }
-            throw error;
-        });
-}
-
-function loadChatStats() {
-    return fetchChatStats({ renderTables: true });
-}
-
-function loadChatSummary() {
-    return fetchChatStats({ renderTables: false, showErrorToast: false });
-}
-
-function loadFeedbackStats() {
-    return axios.get("/api/feedback")
-        .then((response) => {
-            const data = response.data || {};
-            const average = data.average_rating ? `${data.average_rating} / 5` : "-";
-
-            setText(["totalFeedback", "analyticsTotalFeedback"], data.total_feedback || 0);
-            setText(["avgRating", "heroAvgRating"], average);
-            return data;
-        })
-        .catch((error) => {
-            console.error("Error loading feedback stats:", error);
-            showToast("Statistik feedback gagal dimuat.", "error");
-            throw error;
-        });
-}
-
-function loadFeedbackDetails() {
-    return axios.get("/api/feedback?details=true")
-        .then((response) => {
-            const data = response.data || {};
-            const tbody = document.querySelector("#ratingDistributionTable tbody");
-            if (!tbody) {
-                return data;
-            }
-
-            tbody.innerHTML = "";
-            if (!data.rating_distribution) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="3">Belum ada feedback pelanggan.</td></tr>';
-                return data;
-            }
-
-            const total = data.total_feedback || 1;
-            for (let i = 5; i >= 1; i -= 1) {
-                const count = data.rating_distribution[i] || 0;
-                const percentage = ((count / total) * 100).toFixed(1);
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${i} / 5</td>
-                    <td>${count}</td>
-                    <td>${percentage}%</td>
-                `;
-                tbody.appendChild(row);
-            }
-
-            return data;
-        })
-        .catch((error) => {
-            console.error("Error loading feedback details:", error);
-            showToast("Sebaran feedback gagal dimuat.", "error");
-            throw error;
-        });
-}
-
-function loadChatLogs(force = false) {
-    return axios.get("/api/analytics/chat-logs?limit=50")
-        .then((response) => {
-            const logs = response.data || [];
-            const tbody = document.querySelector("#chatLogsTable tbody");
-            if (!tbody) {
-                return logs;
-            }
-
-            tbody.innerHTML = "";
-
-            if (logs.length === 0) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="6">Belum ada chat log.</td></tr>';
-                return logs;
-            }
-
-            logs.forEach((log) => {
-                const row = document.createElement("tr");
-                const confidence = log.confidence_score ? `${(log.confidence_score * 100).toFixed(1)}%` : "-";
-
-                row.innerHTML = `
-                    <td>${formatDateTime(log.waktu_interaksi)}</td>
-                    <td>${log.nama_pelanggan || "-"}</td>
-                    <td title="${log.pesan_masuk || ""}">${log.pesan_masuk || "-"}</td>
-                    <td>${log.intent_terdeteksi || "-"}</td>
-                    <td>${confidence}</td>
-                    <td title="${log.pesan_keluar || ""}">${log.pesan_keluar || "-"}</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            if (force) {
-                updateSyncStamp("Chat log disegarkan");
-            }
-
-            return logs;
-        })
-        .catch((error) => {
-            console.error("Error loading chat logs:", error);
-            showToast("Chat log gagal dimuat.", "error");
-            throw error;
-        });
-}
-
-function loadAnalytics(force = false) {
-    return Promise.all([
-        fetchChatStats({ renderTables: true }),
-        loadFeedbackStats(),
-        loadFeedbackDetails(),
-        loadChatLogs()
-    ])
-        .then(() => {
-            updateSyncStamp(force ? "Analitik disegarkan" : "Analitik dimuat");
-        });
-}
-
 function loadDashboardData(force = false) {
     return Promise.all([
         loadMenuSummary(),
@@ -798,82 +601,6 @@ function initDatabase() {
             console.error("Error initializing database:", error);
             showToast("Database gagal diisi ulang.", "error");
         });
-}
-
-function exportFeedback() {
-    axios.get("/api/feedback?details=true")
-        .then((response) => {
-            const data = response.data || {};
-            let csv = "Rating,Jumlah,Persentase\n";
-            const total = data.total_feedback || 1;
-
-            for (let i = 5; i >= 1; i -= 1) {
-                const count = data.rating_distribution[i] || 0;
-                const percentage = ((count / total) * 100).toFixed(1);
-                csv += `${i},${count},${percentage}%\n`;
-            }
-
-            csv += `\nTotal Feedback,${data.total_feedback || 0}\n`;
-            csv += `Average Rating,${data.average_rating || 0}\n`;
-            csv += `Positive (4-5),${data.positive || 0}\n`;
-            csv += `Neutral (3),${data.neutral || 0}\n`;
-            csv += `Negative (1-2),${data.negative || 0}\n`;
-
-            downloadBlob(csv, "feedback_evaluasi.csv");
-            showToast("File feedback berhasil diunduh.", "success");
-        })
-        .catch((error) => {
-            console.error("Error exporting feedback:", error);
-            showToast("File feedback gagal diunduh.", "error");
-        });
-}
-
-function exportChatLogs() {
-    axios.get("/api/analytics/chat-logs?limit=10000")
-        .then((response) => {
-            const logs = response.data || [];
-            let csv = "Waktu,ID Pelanggan,Nama,Pesan Masuk,Intent,Confidence,Entities,Pesan Keluar\n";
-
-            logs.forEach((log) => {
-                csv += `"${log.waktu_interaksi || ""}","${log.id_pelanggan || ""}","${log.nama_pelanggan || ""}","${log.pesan_masuk || ""}","${log.intent_terdeteksi || ""}","${log.confidence_score || ""}","${log.entities_extracted || ""}","${log.pesan_keluar || ""}"\n`;
-            });
-
-            downloadBlob(csv, "chat_logs_evaluasi.csv");
-            showToast("Chat log berhasil diunduh.", "success");
-        })
-        .catch((error) => {
-            console.error("Error exporting chat logs:", error);
-            showToast("Chat log gagal diunduh.", "error");
-        });
-}
-
-function exportConfusionMatrix() {
-    axios.get("/api/analytics/confusion-matrix")
-        .then((response) => {
-            const data = response.data || [];
-            let csv = "ID Log,Pesan Masuk,Intent Terdeteksi,Confidence,Intent Actual\n";
-
-            data.forEach((item) => {
-                csv += `"${item.id_log || ""}","${item.pesan_masuk || ""}","${item.intent_terdeteksi || ""}","${item.confidence_score || ""}",""\n`;
-            });
-
-            downloadBlob(csv, "confusion_matrix_data.csv");
-            showToast("Confusion matrix berhasil diunduh.", "success");
-        })
-        .catch((error) => {
-            console.error("Error exporting confusion matrix:", error);
-            showToast("Confusion matrix gagal diunduh.", "error");
-        });
-}
-
-function downloadBlob(content, filename) {
-    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-    window.URL.revokeObjectURL(url);
 }
 
 function bindMenuForm() {

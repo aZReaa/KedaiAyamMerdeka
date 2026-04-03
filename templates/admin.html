@@ -118,10 +118,6 @@
                                 <span>Mode aplikasi</span>
                                 <strong id="dashboardAppEnv">-</strong>
                             </div>
-                            <div class="status-row">
-                                <span>Analitik</span>
-                                <strong id="dashboardAnalyticsState">Nonaktif</strong>
-                            </div>
                         </div>
                     </article>
                 </div>
@@ -377,11 +373,6 @@
     <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        window.APP_CONFIG = {
-            analyticsEnabled: {{ 'true' if analytics_enabled else 'false' }}
-        };
-    </script>
     <script src="{{ url_for('static', filename='app.js', v=asset_version) }}"></script>
 </body>
 </html>
