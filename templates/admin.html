@@ -12,14 +12,13 @@
             <div class="brand-block">
                 <p class="eyebrow">Kedai Ayam Merdeka</p>
                 <h1>Panel Admin</h1>
-                <p class="brand-copy">Kelola menu, pesanan, dan evaluasi chatbot dari satu panel.</p>
+                <p class="brand-copy">Kelola menu dan pesanan operasional dari satu panel.</p>
             </div>
 
             <nav class="side-nav tabs" aria-label="Navigasi admin">
                 <button class="tab-btn active" type="button" data-tab="dashboard">Dashboard</button>
                 <button class="tab-btn" type="button" data-tab="menu">Menu</button>
                 <button class="tab-btn" type="button" data-tab="pesanan">Pesanan</button>
-                <button class="tab-btn" type="button" data-tab="analytics">Analitik</button>
             </nav>
 
             <div class="sidebar-card">
@@ -81,9 +80,9 @@
                         <p>Pesanan yang sudah ditandai selesai.</p>
                     </article>
                     <article class="overview-card">
-                        <span class="card-label">Rating rata-rata</span>
-                        <strong id="heroAvgRating">-</strong>
-                        <p>Ringkasan nilai dari feedback pelanggan.</p>
+                        <span class="card-label">Menunggu bayar</span>
+                        <strong id="orderAwaitingPaymentOverview">0</strong>
+                        <p>Pesanan yang sudah disetujui dan menunggu bukti bayar.</p>
                     </article>
                 </section>
 
@@ -99,7 +98,6 @@
                         <div class="action-group">
                             <button class="ghost-btn" type="button" data-switch-tab="pesanan">Buka pesanan</button>
                             <button class="ghost-btn" type="button" data-switch-tab="menu">Buka menu</button>
-                            <button class="ghost-btn" type="button" data-switch-tab="analytics">Buka analitik</button>
                         </div>
                     </article>
 
@@ -117,16 +115,12 @@
                                 <strong id="dashboardDatabaseTarget">Memuat...</strong>
                             </div>
                             <div class="status-row">
-                                <span>Total chat</span>
-                                <strong id="totalInteractions">-</strong>
+                                <span>Mode aplikasi</span>
+                                <strong id="dashboardAppEnv">-</strong>
                             </div>
                             <div class="status-row">
-                                <span>Tingkat keyakinan</span>
-                                <strong id="avgConfidence">-</strong>
-                            </div>
-                            <div class="status-row">
-                                <span>Total feedback</span>
-                                <strong id="totalFeedback">-</strong>
+                                <span>Analitik</span>
+                                <strong id="dashboardAnalyticsState">Nonaktif</strong>
                             </div>
                         </div>
                     </article>
@@ -345,138 +339,6 @@
                 </article>
             </section>
 
-            <section id="analytics" class="tab-content">
-                <div class="section-heading">
-                    <div>
-                        <p class="eyebrow">Analitik</p>
-                        <h2>Ringkasan chatbot</h2>
-                        <p class="section-copy">Lihat performa chatbot dan feedback pelanggan tanpa istilah yang berlebihan.</p>
-                    </div>
-                    <button onclick="loadAnalytics(true)" class="secondary-btn" type="button">Segarkan analitik</button>
-                </div>
-
-                <div class="stats-grid" id="statsGrid">
-                    <div class="stat-card">
-                        <h3>Total chat</h3>
-                        <p id="analyticsTotalInteractions">-</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Tingkat keyakinan</h3>
-                        <p id="analyticsAvgConfidence">-</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Total feedback</h3>
-                        <p id="analyticsTotalFeedback">-</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Rating rata-rata</h3>
-                        <p id="avgRating">-</p>
-                    </div>
-                </div>
-
-                <div class="content-grid analytics-grid">
-                    <article class="panel-card table-card">
-                        <div class="panel-head">
-                            <div>
-                                <p class="panel-kicker">Intent</p>
-                                <h3>Sebaran intent</h3>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <table id="intentDistributionTable">
-                                <thead>
-                                    <tr>
-                                        <th>Intent</th>
-                                        <th>Jumlah</th>
-                                        <th>Persentase</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </article>
-
-                    <article class="panel-card table-card">
-                        <div class="panel-head">
-                            <div>
-                                <p class="panel-kicker">Keyakinan</p>
-                                <h3>Sebaran tingkat keyakinan</h3>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <table id="confidenceDistributionTable">
-                                <thead>
-                                    <tr>
-                                        <th>Level</th>
-                                        <th>Jumlah</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </article>
-                </div>
-
-                <article class="panel-card table-card">
-                    <div class="panel-head">
-                        <div>
-                            <p class="panel-kicker">Feedback</p>
-                            <h3>Sebaran rating pelanggan</h3>
-                        </div>
-                    </div>
-                    <div class="table-container">
-                        <table id="ratingDistributionTable">
-                            <thead>
-                                <tr>
-                                    <th>Rating</th>
-                                    <th>Jumlah</th>
-                                    <th>Persentase</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </article>
-
-                <article class="panel-card table-card">
-                    <div class="panel-head">
-                        <div>
-                            <p class="panel-kicker">Chat log</p>
-                            <h3>Log terbaru</h3>
-                        </div>
-                        <button onclick="loadChatLogs(true)" class="secondary-btn" type="button">Segarkan log</button>
-                    </div>
-                    <div class="table-container">
-                        <table id="chatLogsTable">
-                            <thead>
-                                <tr>
-                                    <th>Waktu</th>
-                                    <th>Pelanggan</th>
-                                    <th>Input</th>
-                                    <th>Intent</th>
-                                    <th>Keyakinan</th>
-                                    <th>Respons</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </article>
-
-                <article class="panel-card export-card">
-                    <div class="panel-head">
-                        <div>
-                            <p class="panel-kicker">Unduh data</p>
-                            <h3>File evaluasi</h3>
-                        </div>
-                    </div>
-                    <div class="export-actions">
-                        <button onclick="exportChatLogs()" class="primary-btn" type="button">Unduh chat log</button>
-                        <button onclick="exportConfusionMatrix()" class="secondary-btn" type="button">Unduh confusion matrix</button>
-                        <button onclick="exportFeedback()" class="secondary-btn" type="button">Unduh feedback</button>
-                    </div>
-                </article>
-            </section>
         </main>
     </div>
 
@@ -515,6 +377,11 @@
     <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        window.APP_CONFIG = {
+            analyticsEnabled: {{ 'true' if analytics_enabled else 'false' }}
+        };
+    </script>
     <script src="{{ url_for('static', filename='app.js', v=asset_version) }}"></script>
 </body>
 </html>

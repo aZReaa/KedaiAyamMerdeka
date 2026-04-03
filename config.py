@@ -10,6 +10,7 @@ if app_env == 'local':
 class Config:
     APP_ENV = app_env or 'default'
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+    ANALYTICS_ENABLED = os.getenv('ANALYTICS_ENABLED', 'false').strip().lower() == 'true'
     APP_VERSION = (
         os.getenv('RAILWAY_GIT_COMMIT_SHA')
         or os.getenv('RAILWAY_DEPLOYMENT_ID')

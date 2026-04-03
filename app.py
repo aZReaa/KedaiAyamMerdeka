@@ -229,7 +229,11 @@ def chat():
 @app.route('/admin')
 @login_required
 def admin():
-    response = make_response(render_template('admin.html', asset_version=Config.APP_VERSION))
+    response = make_response(render_template(
+        'admin.html',
+        asset_version=Config.APP_VERSION,
+        analytics_enabled=Config.ANALYTICS_ENABLED
+    ))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
@@ -358,8 +362,8 @@ def update_pesanan_status(pesanan_id):
                     f"Maaf kak, pesanan #{pesanan_id} belum bisa kami proses karena stok sedang tidak tersedia.\n\nSilakan pilih menu lain atau pesan ulang ya."
                 )
         
-        # If status changed to 'selesai' and notification enabled, trigger feedback request
-        if new_status == 'selesai' and send_notification and pesanan:
+        # Feedback request can be re-enabled later from configuration.
+        if Config.ANALYTICS_ENABLED and new_status == 'selesai' and send_notification and pesanan:
             id_pelanggan = pesanan.get('id_pelanggan')
             if id_pelanggan:
                 feedback_message = dialog_manager.request_feedback(id_pelanggan, pesanan_id)
@@ -426,6 +430,7 @@ def api_pelanggan():
 def api_db_info():
     return jsonify({
         'app_env': Config.APP_ENV,
+        'analytics_enabled': Config.ANALYTICS_ENABLED,
         'host': Config.DB_HOST,
         'port': Config.DB_PORT,
         'database': Config.DB_NAME
@@ -475,9 +480,14 @@ def init_db():
 
 # ==================== CHAT ANALYTICS API ====================
 
+def analytics_disabled_response():
+    return jsonify({'error': 'Analytics is disabled'}), 404
+
 @app.route('/api/analytics/chat', methods=['GET'])
 def get_chat_analytics():
     """Get chat analytics for evaluation (Bab 4)"""
+    if not Config.ANALYTICS_ENABLED:
+        return analytics_disabled_response()
     try:
         from datetime import datetime, timedelta
         
@@ -493,6 +503,8 @@ def get_chat_analytics():
 @app.route('/api/analytics/chat-logs', methods=['GET'])
 def get_chat_logs():
     """Get raw chat logs for manual evaluation"""
+    if not Config.ANALYTICS_ENABLED:
+        return analytics_disabled_response()
     try:
         limit = request.args.get('limit', 1000, type=int)
         logs = db.get_chat_logs_for_evaluation(limit)
@@ -509,6 +521,8 @@ def get_chat_logs():
 @app.route('/api/analytics/confusion-matrix', methods=['GET'])
 def get_confusion_matrix_data():
     """Get data for confusion matrix (predicted vs actual)"""
+    if not Config.ANALYTICS_ENABLED:
+        return analytics_disabled_response()
     try:
         data = db.get_intent_confusion_matrix_data()
         return jsonify(data)
@@ -518,6 +532,8 @@ def get_confusion_matrix_data():
 @app.route('/api/feedback', methods=['GET', 'POST'])
 def handle_feedback():
     """Handle feedback submission and retrieval"""
+    if not Config.ANALYTICS_ENABLED:
+        return analytics_disabled_response()
     if request.method == 'POST':
         try:
             data = request.json

@@ -1,4 +1,5 @@
 const loadedTabs = new Set();
+const ANALYTICS_ENABLED = Boolean(window.APP_CONFIG?.analyticsEnabled);
 
 function setText(ids, value) {
     ids.forEach((id) => {
@@ -67,8 +68,7 @@ function loadTabData(tabId, force = false) {
     const loaders = {
         dashboard: () => loadDashboardData(force),
         menu: () => loadMenu(force),
-        pesanan: () => loadAllPesanan(force),
-        analytics: () => loadAnalytics(force)
+        pesanan: () => loadAllPesanan(force)
     };
 
     const shouldAlwaysRefresh = tabId === "dashboard";
@@ -113,10 +113,13 @@ function loadDatabaseInfo() {
             const info = response.data || {};
             const target = `${info.host || "-"}:${info.port || "-"} / ${info.database || "-"}`;
             setText(["activeDatabaseTarget", "dashboardDatabaseTarget"], target);
+            setText(["dashboardAppEnv"], info.app_env || "-");
+            setText(["dashboardAnalyticsState"], info.analytics_enabled ? "Aktif" : "Nonaktif");
         })
         .catch((error) => {
             console.error("Error loading database info:", error);
             setText(["activeDatabaseTarget", "dashboardDatabaseTarget"], "Tidak diketahui");
+            setText(["dashboardAppEnv", "dashboardAnalyticsState"], "-");
         });
 }
 
@@ -225,6 +228,7 @@ function updateOrderSummary(orderItems) {
     setText(["orderCount"], total);
     setText(["orderPendingCount"], counts.dipesan + counts.menunggu_konfirmasi_admin);
     setText(["orderAwaitingPaymentCount"], counts.menunggu_pembayaran);
+    setText(["orderAwaitingPaymentOverview"], counts.menunggu_pembayaran);
     setText(["orderProcessingCount"], counts.diproses);
     setText(["orderCancelledCount"], counts.batal + counts.ditolak_admin);
     setText(["orderStatusText"], `${total} pesanan dimuat`);
@@ -592,9 +596,7 @@ function loadAnalytics(force = false) {
 function loadDashboardData(force = false) {
     return Promise.all([
         loadMenuSummary(),
-        loadOrderSummary(),
-        loadFeedbackStats(),
-        loadChatSummary()
+        loadOrderSummary()
     ])
         .then(() => {
             updateSyncStamp(force ? "Dashboard disegarkan" : "Dashboard dimuat");
@@ -632,9 +634,7 @@ function updateOrderStatus(orderId, newStatus) {
     };
     let confirmMessage = `Ubah status pesanan #${orderId} menjadi ${statusLabelMap[newStatus] || newStatus}?`;
 
-    if (newStatus === "selesai") {
-        confirmMessage += "\n\nPelanggan akan menerima permintaan feedback.";
-    } else if (newStatus === "menunggu_pembayaran") {
+    if (newStatus === "menunggu_pembayaran") {
         confirmMessage += "\n\nPelanggan akan menerima instruksi pembayaran.";
     } else if (newStatus === "ditolak_admin") {
         confirmMessage += "\n\nPelanggan akan diberi tahu bahwa pesanan tidak bisa dipenuhi.";
@@ -646,12 +646,7 @@ function updateOrderStatus(orderId, newStatus) {
 
     axios.put(`/api/pesanan/${orderId}/status`, { status: newStatus, send_notification: true })
         .then((response) => {
-            let message = `Status pesanan #${orderId} diperbarui.`;
-            if (response.data.feedback_requested) {
-                message += " Permintaan feedback juga dikirim.";
-            }
-
-            showToast(message, "success");
+            showToast(`Status pesanan #${orderId} diperbarui.`, "success");
             loadDashboardData(true);
             loadAllPesanan(true);
         })
