@@ -1085,9 +1085,8 @@ class DialogManager:
         lines = [
             "*METODE PEMBAYARAN*",
             "",
-            "Bank BCA: 1234567890",
-            "OVO/GoPay: 081234567890",
-            "a.n. Kedai Ayam Merdeka",
+            "Bank BTN: 7401500229979",
+            "a.n. Asri Ashari Syam",
             "",
             "Setelah transfer, kirim foto bukti pembayaran di chat ini ya kak."
         ]
