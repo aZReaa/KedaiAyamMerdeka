@@ -756,7 +756,7 @@ class DialogManager:
                 return f"Boleh kak, mau tambah pesanan apa?\n\n{self._format_menu_list()}"
                 
         # User confirms
-        if intent == 'konfirmasi' or msg_lower in ['ya', 'yes', 'iya', 'ok', 'oke', 'siap', 'lanjut', 'gas', 'y', 'betul']:
+        if intent == 'konfirmasi' or msg_lower in ['ya', 'yes', 'iya', 'ok', 'oke', 'siap', 'lanjut', 'gas', 'y', 'betul', 'iye']:
             total = state_data.get('total_harga', 0)
             detail_text = state_data.get('detail_text', '')
             details_list = state_data.get('details_list', [])
@@ -806,7 +806,7 @@ class DialogManager:
             return "\n".join(lines)
         
         # User cancels
-        elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or msg_lower in ['batal', 'tidak', 'no', 'cancel', 'gak jadi', 'n']:
+        elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or msg_lower in ['batal', 'tidak', 'no', 'cancel', 'gak jadi', 'n', 'tania', "de'", "de'na"]:
             self.reset_user_state(user_id)
             return "[X] Pesanan dibatalkan.\n\nMau pesan lagi? Ketik 'menu' "
             
@@ -1130,6 +1130,8 @@ class DialogManager:
             return "Selamat malam kak! Selamat datang di Kedai Ayam Merdeka "
         if normalized.startswith('halo') or normalized.startswith('hallo') or normalized.startswith('hai') or normalized.startswith('hi') or normalized.startswith('hello'):
             return "Halo kak! Selamat datang di Kedai Ayam Merdeka "
+        if 'tabe' in normalized or 'aga kareba' in normalized or 'salama' in normalized:
+            return "Iye' kak! Selamat datang di Kedai Ayam Merdeka "
 
         return self._get_time_greeting()
 

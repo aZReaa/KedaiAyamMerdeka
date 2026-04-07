@@ -5,7 +5,8 @@
       "patterns": [
         "halo", "hai", "selamat pagi", "selamat siang", "selamat sore", "selamat malam",
         "assalamualaikum", "hi", "hello", "pagi", "siang", "sore", "malam", "ping",
-        "permisi", "min", "halo min", "hai kak", "hallo", "helo", "hei"
+        "permisi", "min", "halo min", "hai kak", "hallo", "helo", "hei",
+        "tabe", "aga kareba", "salama"
       ],
       "responses": [
         "Halo kak! Selamat datang di Kedai Ayam Merdeka 🍗\nMau pesan apa hari ini?",
@@ -18,7 +19,8 @@
       "tag": "terima_kasih",
       "patterns": [
         "terima kasih", "makasih", "thanks", "thank you", "trims",
-        "makasih ya", "suwun", "hatur nuhun", "thx", "tq", "tengkyu"
+        "makasih ya", "suwun", "hatur nuhun", "thx", "tq", "tengkyu",
+        "kurru sumange", "tarima kasi"
       ],
       "responses": [
         "Sama-sama kak! Ditunggu orderan berikutnya di Kedai Ayam Merdeka ya! 😊",
@@ -34,7 +36,8 @@
         "saya ambil", "order", "order dong", "mau dong", "saya mau dong",
         "mau beli", "pesen", "mo beli", "ngorder", "minta", "bungkus",
         "saya pesan", "aku mau", "aku pesan", "gue mau", "gw mau",
-        "pengen", "kepingin", "mau makan", "lihat menu", "menu", "daftar menu"
+        "pengen", "kepingin", "mau makan", "lihat menu", "menu", "daftar menu",
+        "melo", "maelo", "melli", "mellieng", "manre"
       ],
       "responses": [
         "Siap kak! Mau pesan menu apa?",
@@ -46,7 +49,8 @@
       "tag": "cek_ketersediaan",
       "patterns": [
         "ada tidak", "masih ada", "tersedia tidak", "ready tidak", "ready",
-        "sisa", "stok", "masih ada gak", "ada gak", "tersedia", "habis belum"
+        "sisa", "stok", "masih ada gak", "ada gak", "tersedia", "habis belum",
+        "de'gaga", "engka"
       ],
       "responses": [
         "Sebentar saya cek dulu ya kak...",
@@ -176,7 +180,7 @@
       "tag": "konfirmasi",
       "patterns": [
         "ya", "yes", "oke", "ok", "iya", "siap", "betul", "benar", "lanjut", 
-        "sip", "yoi", "gas", "yup", "yap", "okey", "iyah", "yess"
+        "sip", "yoi", "gas", "yup", "yap", "okey", "iyah", "yess", "iye"
       ],
       "responses": [
         "Oke kak!",
@@ -188,7 +192,8 @@
       "tag": "pembatalan",
       "patterns": [
         "batal", "tidak", "tidak jadi", "no", "jangan", "nanti saja", "cancel", 
-        "tunda", "gak jadi", "ga jadi", "engga", "gak", "ngga"
+        "tunda", "gak jadi", "ga jadi", "engga", "gak", "ngga",
+        "tania", "de'", "de'na"
       ],
       "responses": [
         "Oke kak, tidak apa-apa.",
@@ -231,7 +236,8 @@
     {
       "tag": "chitchat_baik",
       "patterns": [
-        "apa kabar", "kabar baik", "baik", "sehat", "lagi apa"
+        "apa kabar", "kabar baik", "baik", "sehat", "lagi apa",
+        "madeceng", "magello", "gello"
       ],
       "responses": [
         "Alhamdulillah baik kak! Ada yang bisa dibantu hari ini?",

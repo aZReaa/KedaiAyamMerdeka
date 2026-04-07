@@ -89,17 +89,22 @@ class NLU:
     
     def _setup_time_patterns(self):
         """Setup regex patterns for time extraction"""
-        # Time keywords in Indonesian
+        # Time keywords in Indonesian and regional (Bugis/Tae')
         self.time_keywords = {
             "sekarang": "immediate",
             "segera": "immediate",
             "langsung": "immediate",
             "nanti": "later",
             "besok": "tomorrow",
+            "baja": "tomorrow",
             "pagi": "09:00",
+            "elepun": "09:00",
             "siang": "12:00",
             "sore": "15:00",
-            "malam": "19:00"
+            "malam": "19:00",
+            "wenni": "19:00",
+            "ma'benni": "19:00",
+            "esso": "12:00"
         }
         
         # Regex patterns for time extraction
