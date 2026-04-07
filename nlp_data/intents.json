@@ -37,7 +37,8 @@
         "mau beli", "pesen", "mo beli", "ngorder", "minta", "bungkus",
         "saya pesan", "aku mau", "aku pesan", "gue mau", "gw mau",
         "pengen", "kepingin", "mau makan", "lihat menu", "menu", "daftar menu",
-        "melo", "maelo", "melli", "mellieng", "manre"
+        "melo", "maelo", "melli", "mellieng", "manre", "tambahangngi", "tambah porsi",
+        "banyakin"
       ],
       "responses": [
         "Siap kak! Mau pesan menu apa?",
@@ -75,7 +76,8 @@
       "tag": "menu_pedas",
       "patterns": [
         "yang pedas", "suka pedas", "menu pedes", "ada yang pedis", "cabai", 
-        "sambal", "spicy", "level pedas"
+        "sambal", "spicy", "level pedas", "dikasi pedes", "kasih pedas",
+        "kasih rica", "mapeddis", "maddis", "peddis"
       ],
       "responses": [
         "Wah, kakak pecinta pedas ya? Wajib coba Ayam Geprek kami! 🌶️",
@@ -123,7 +125,7 @@
       "patterns": [
         "ubah", "ganti", "ubah pesanan", "ganti pesanan", "rubah",
         "edit pesanan", "ubah order", "ganti order", "salah pesan", "revisi",
-        "mau ganti", "tuker"
+        "mau ganti", "tuker", "pinra", "pinrai"
       ],
       "responses": [
         "Siap kak, bagian mana yang mau diubah?",

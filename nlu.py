@@ -122,19 +122,19 @@ class NLU:
         ]
 
         self.menu_aliases = [
-            ("ayam geprek", ["ayam geprek"]),
-            ("ayam bakar", ["ayam bakar"]),
-            ("ayam goreng", ["ayam goreng"]),
-            ("ayam crispy", ["ayam crispy"]),
-            ("ayam penyet", ["ayam penyet"]),
+            ("ayam geprek", ["ayam geprek", "ayam gprek", "aym geprek", "geprek", "geprek ayam"]),
+            ("ayam bakar", ["ayam bakar", "aym bakar"]),
+            ("ayam goreng", ["ayam goreng", "aym goreng"]),
+            ("ayam crispy", ["ayam crispy", "ayam krispi", "krispi", "krispy"]),
+            ("ayam penyet", ["ayam penyet", "penyet"]),
             ("nasi", ["nasi putih", "nasi"]),
-            ("es teh manis", ["es teh manis", "es teh"]),
-            ("es jeruk", ["es jeruk"]),
-            ("es campur", ["es campur"]),
-            ("es teler", ["es teler"]),
-            ("es kelapa", ["es kelapa"]),
-            ("tahu crispy", ["tahu crispy", "tahu goreng", "tahu"]),
-            ("tempe crispy", ["tempe crispy", "tempe goreng", "tempe"]),
+            ("es teh manis", ["es teh manis", "es teh", "es te", "s teh", "este", "esteh", "teh es"]),
+            ("es jeruk", ["es jeruk", "s jeruk", "es jruk"]),
+            ("es campur", ["es campur", "s campur"]),
+            ("es teler", ["es teler", "s teler"]),
+            ("es kelapa", ["es kelapa", "s kelapa", "es klapa"]),
+            ("tahu crispy", ["tahu crispy", "tahu krispi", "tahu goreng", "tahu"]),
+            ("tempe crispy", ["tempe crispy", "tempe krispi", "tempe goreng", "tempe"]),
             ("sate ayam", ["sate ayam", "sate"])
         ]
 
@@ -325,7 +325,8 @@ class NLU:
             "es teh manis", "es teh", "es jeruk", "es campur", "es teler", "es kelapa",
             "tahu crispy", "tahu goreng", "tahu",
             "tempe crispy", "tempe goreng", "tempe",
-            "sate ayam", "sate"
+            "sate ayam", "sate",
+            "ayam gprek", "geprek", "ayam krispi", "este", "esteh", "s teh", "es te"
         ]
                           
         # Number extraction - ordinal words
