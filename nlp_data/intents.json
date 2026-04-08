@@ -5,7 +5,8 @@
       "patterns": [
         "halo", "hai", "selamat pagi", "selamat siang", "selamat sore", "selamat malam",
         "assalamualaikum", "hi", "hello", "pagi", "siang", "sore", "malam", "ping",
-        "permisi", "min", "halo min", "hai kak", "hallo", "helo", "hei"
+        "permisi", "min", "halo min", "hai kak", "hallo", "helo", "hei",
+        "tabe", "aga kareba", "salama"
       ],
       "responses": [
         "Halo kak! Selamat datang di Kedai Ayam Merdeka 🍗\nMau pesan apa hari ini?",
@@ -18,7 +19,8 @@
       "tag": "terima_kasih",
       "patterns": [
         "terima kasih", "makasih", "thanks", "thank you", "trims",
-        "makasih ya", "suwun", "hatur nuhun", "thx", "tq", "tengkyu"
+        "makasih ya", "suwun", "hatur nuhun", "thx", "tq", "tengkyu",
+        "kurru sumange", "tarima kasi"
       ],
       "responses": [
         "Sama-sama kak! Ditunggu orderan berikutnya di Kedai Ayam Merdeka ya! 😊",
@@ -34,7 +36,10 @@
         "saya ambil", "order", "order dong", "mau dong", "saya mau dong",
         "mau beli", "pesen", "mo beli", "ngorder", "minta", "bungkus",
         "saya pesan", "aku mau", "aku pesan", "gue mau", "gw mau",
-        "pengen", "kepingin", "mau makan", "lihat menu", "menu", "daftar menu"
+        "pengen", "kepingin", "mau makan", "lihat menu", "menu", "daftar menu",
+        "melo", "maelo", "melli", "mellieng", "manre", "tambahangngi", "tambah porsi",
+        "banyakin", "pesanka", "mauka pesan", "mauka", "mauka order", "mau order",
+        "pesan ka", "moka pesan", "mauka lg pesan", "lihat menu nya", "bisa liat menu"
       ],
       "responses": [
         "Siap kak! Mau pesan menu apa?",
@@ -46,7 +51,9 @@
       "tag": "cek_ketersediaan",
       "patterns": [
         "ada tidak", "masih ada", "tersedia tidak", "ready tidak", "ready",
-        "sisa", "stok", "masih ada gak", "ada gak", "tersedia", "habis belum"
+        "sisa", "stok", "masih ada gak", "ada gak", "tersedia", "habis belum",
+        "de'gaga", "engka", "masi ada", "ready mi", "ready miki", "ready mika",
+        "ready kah", "open miki", "open mika", "masih ada kah", "masi ada kk"
       ],
       "responses": [
         "Sebentar saya cek dulu ya kak...",
@@ -71,7 +78,9 @@
       "tag": "menu_pedas",
       "patterns": [
         "yang pedas", "suka pedas", "menu pedes", "ada yang pedis", "cabai", 
-        "sambal", "spicy", "level pedas"
+        "sambal", "spicy", "level pedas", "dikasi pedes", "kasih pedas",
+        "kasih rica", "mapeddis", "maddis", "peddis", "sambel", "sambel ijo",
+        "sambel merah", "sambel bawang"
       ],
       "responses": [
         "Wah, kakak pecinta pedas ya? Wajib coba Ayam Geprek kami! 🌶️",
@@ -84,7 +93,9 @@
         "cara bayar", "bagaimana cara bayar", "bayar gimana", "bayarnya gimana",
         "pembayaran", "metode pembayaran", "transfer kemana", "rekening",
         "nomor rekening", "bayar kemana", "tf kemana", "gimana bayarnya",
-        "cara pembayaran", "bayar pakai apa", "bisa bayar", "pembayarannya bagaimana"
+        "cara pembayaran", "bayar pakai apa", "bisa bayar", "pembayarannya bagaimana",
+        "qris", "bayar qris", "bisa bayar qris", "bisa byr qris", "nomor rek",
+        "nomor rek ta", "rek ta", "rek tha", "barcode", "qr", "qris ta", "gopay", "ovo"
       ],
       "responses": [
         "Pembayaran bisa melalui:\n💳 Transfer Bank BCA: 1234567890\n📱 OVO/GoPay: 081234567890\na.n. Kedai Ayam Merdeka\n\nSetelah transfer, kirim bukti pembayaran ya kak!",
@@ -119,7 +130,7 @@
       "patterns": [
         "ubah", "ganti", "ubah pesanan", "ganti pesanan", "rubah",
         "edit pesanan", "ubah order", "ganti order", "salah pesan", "revisi",
-        "mau ganti", "tuker"
+        "mau ganti", "tuker", "pinra", "pinrai"
       ],
       "responses": [
         "Siap kak, bagian mana yang mau diubah?",
@@ -165,7 +176,9 @@
       "tag": "info_jam",
       "patterns": [
         "jam buka", "buka jam", "kapan buka", "operasional", "jam operasional",
-        "kapan tutup", "jam tutup", "buka hari apa", "masih buka", "udah buka belum"
+        "kapan tutup", "jam tutup", "buka hari apa", "masih buka", "udah buka belum",
+        "jam berapa nanti buka", "jam berapa nnti buka", "buka mki ga", "open miki",
+        "open mika", "jamber nnti masak", "jam berapa buka kk"
       ],
       "responses": [
         "Kedai Ayam Merdeka buka setiap hari:\n🕙 10.00 - 22.00 WIB\nDitunggu kedatangannya kak!",
@@ -176,7 +189,7 @@
       "tag": "konfirmasi",
       "patterns": [
         "ya", "yes", "oke", "ok", "iya", "siap", "betul", "benar", "lanjut", 
-        "sip", "yoi", "gas", "yup", "yap", "okey", "iyah", "yess"
+        "sip", "yoi", "gas", "yup", "yap", "okey", "iyah", "yess", "iye"
       ],
       "responses": [
         "Oke kak!",
@@ -188,7 +201,8 @@
       "tag": "pembatalan",
       "patterns": [
         "batal", "tidak", "tidak jadi", "no", "jangan", "nanti saja", "cancel", 
-        "tunda", "gak jadi", "ga jadi", "engga", "gak", "ngga"
+        "tunda", "gak jadi", "ga jadi", "engga", "gak", "ngga",
+        "tania", "de'", "de'na"
       ],
       "responses": [
         "Oke kak, tidak apa-apa.",
@@ -231,7 +245,8 @@
     {
       "tag": "chitchat_baik",
       "patterns": [
-        "apa kabar", "kabar baik", "baik", "sehat", "lagi apa"
+        "apa kabar", "kabar baik", "baik", "sehat", "lagi apa",
+        "madeceng", "magello", "gello"
       ],
       "responses": [
         "Alhamdulillah baik kak! Ada yang bisa dibantu hari ini?",

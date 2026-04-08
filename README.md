@@ -130,6 +130,13 @@ http://localhost:5000/admin
 - `JUMLAH` - Jumlah porsi
 - `JENIS_SAMBAL` - Jenis sambal (opsional)
 
+## Knowledge Chatbot
+
+- [intents.json](nlp_data/intents.json) berisi intent dan pola dasar NLU.
+- [faq_knowledge.json](nlp_data/faq_knowledge.json) berisi FAQ terstruktur hasil analisis chat pelanggan asli.
+- [FAQ_CHATBOT_DARI_EXPORT.md](chatlogsamerwa/FAQ_CHATBOT_DARI_EXPORT.md) berisi analisis naratif dan contoh pertanyaan pelanggan.
+- [PROMPT_ADMIN_CHATBOT.md](chatlogsamerwa/PROMPT_ADMIN_CHATBOT.md) berisi prompt operasional untuk admin atau knowledge maintainer.
+
 ## Database Schema
 
 ### Menu

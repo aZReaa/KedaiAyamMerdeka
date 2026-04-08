@@ -89,17 +89,22 @@ class NLU:
     
     def _setup_time_patterns(self):
         """Setup regex patterns for time extraction"""
-        # Time keywords in Indonesian
+        # Time keywords in Indonesian and regional (Bugis/Tae')
         self.time_keywords = {
             "sekarang": "immediate",
             "segera": "immediate",
             "langsung": "immediate",
             "nanti": "later",
             "besok": "tomorrow",
+            "baja": "tomorrow",
             "pagi": "09:00",
+            "elepun": "09:00",
             "siang": "12:00",
             "sore": "15:00",
-            "malam": "19:00"
+            "malam": "19:00",
+            "wenni": "19:00",
+            "ma'benni": "19:00",
+            "esso": "12:00"
         }
         
         # Regex patterns for time extraction
@@ -117,34 +122,40 @@ class NLU:
         ]
 
         self.menu_aliases = [
-            ("ayam geprek", ["ayam geprek"]),
-            ("ayam bakar", ["ayam bakar"]),
-            ("ayam goreng", ["ayam goreng"]),
-            ("ayam crispy", ["ayam crispy"]),
-            ("ayam penyet", ["ayam penyet"]),
+            ("ayam geprek", ["ayam geprek", "ayam gprek", "aym geprek", "geprek", "geprek ayam", "ayam gepreknya", "ayam geprekta", "gepreknya"]),
+            ("ayam bakar", ["ayam bakar", "aym bakar", "ayam bkr", "aym bkr"]),
+            ("ayam goreng", ["ayam goreng", "aym goreng"]),
+            ("ayam crispy", ["ayam crispy", "ayam krispi", "ayam krispy", "krispi", "krispy"]),
+            ("ayam penyet", ["ayam penyet", "penyet"]),
             ("nasi", ["nasi putih", "nasi"]),
-            ("es teh manis", ["es teh manis", "es teh"]),
-            ("es jeruk", ["es jeruk"]),
-            ("es campur", ["es campur"]),
-            ("es teler", ["es teler"]),
-            ("es kelapa", ["es kelapa"]),
-            ("tahu crispy", ["tahu crispy", "tahu goreng", "tahu"]),
-            ("tempe crispy", ["tempe crispy", "tempe goreng", "tempe"]),
+            ("es teh manis", ["es teh manis", "es teh", "es te", "s teh", "este", "esteh", "teh es"]),
+            ("es jeruk", ["es jeruk", "s jeruk", "es jruk"]),
+            ("es campur", ["es campur", "s campur"]),
+            ("es teler", ["es teler", "s teler"]),
+            ("es kelapa", ["es kelapa", "s kelapa", "es klapa"]),
+            ("tahu crispy", ["tahu crispy", "tahu krispi", "tahu goreng", "tahu"]),
+            ("tempe crispy", ["tempe crispy", "tempe krispi", "tempe goreng", "tempe"]),
             ("sate ayam", ["sate ayam", "sate"])
         ]
 
         self.sambal_aliases = {
-            "sambal bawang": ["sambal bawang", "bawang"],
-            "sambal ijo": ["sambal ijo", "sambal hijau", "ijo", "hijau"],
-            "sambal terasi": ["sambal terasi", "terasi"],
-            "sambal matah": ["sambal matah", "matah"],
+            "sambal bawang": ["sambal bawang", "sambel bawang", "bawang"],
+            "sambal ijo": ["sambal ijo", "sambel ijo", "sambal hijau", "sambel hijau", "ijo", "hijau"],
+            "sambal merah": ["sambal merah", "sambel merah", "merah"],
+            "sambal terasi": ["sambal terasi", "sambel terasi", "terasi"],
+            "sambal matah": ["sambal matah", "sambel matah", "matah"],
             "tanpa sambal": [
                 "tanpa sambal",
+                "tanpa sambel",
                 "tanpa",
                 "tidak pakai sambal",
+                "tidak pakai sambel",
                 "ga pakai sambal",
+                "ga pakai sambel",
                 "gak pakai sambal",
+                "gak pakai sambel",
                 "nggak pakai sambal",
+                "nggak pakai sambel",
                 "no sambal"
             ]
         }
@@ -320,7 +331,9 @@ class NLU:
             "es teh manis", "es teh", "es jeruk", "es campur", "es teler", "es kelapa",
             "tahu crispy", "tahu goreng", "tahu",
             "tempe crispy", "tempe goreng", "tempe",
-            "sate ayam", "sate"
+            "sate ayam", "sate",
+            "ayam gprek", "ayam bkr", "geprek", "ayam krispi", "ayam krispy",
+            "ayam gepreknya", "ayam geprekta", "gepreknya", "este", "esteh", "s teh", "es te"
         ]
                           
         # Number extraction - ordinal words

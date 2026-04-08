@@ -33,6 +33,14 @@ class Config:
     JAM_BUKA = "10:00"
     JAM_TUTUP = "22:00"
     APP_TIMEZONE = os.getenv('APP_TIMEZONE', 'Asia/Makassar')
+    STORE_LOCATION = os.getenv(
+        'STORE_LOCATION',
+        'BTN Merdeka Blok C.16, Salekoe, Kec. Wara, Kota Palopo'
+    )
+    STORE_LOCATION_NOTE = os.getenv(
+        'STORE_LOCATION_NOTE',
+        'Kalau mau diantar, kirim lokasi ta dulu ya kak supaya dicek ongkirnya.'
+    )
     
     # Pesan Promo
     PROMO_MASAKAN = "Promo: Beli 2 Ayam Geprek Gratis 1 Es Teh Manis!"

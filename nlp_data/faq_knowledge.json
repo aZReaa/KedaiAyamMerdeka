@@ -1,0 +1,363 @@
+{
+  "source": "Analisis export chat pelanggan WhatsApp di folder chatlogsamerwa",
+  "generated_on": "2026-04-08",
+  "summary": {
+    "files_analyzed": 18,
+    "customer_messages_analyzed": 742,
+    "top_topics": [
+      {
+        "topic": "sambal_varian_rasa",
+        "messages": 71,
+        "files": 11
+      },
+      {
+        "topic": "pembayaran",
+        "messages": 55,
+        "files": 8
+      },
+      {
+        "topic": "bagian_ayam",
+        "messages": 50,
+        "files": 11
+      },
+      {
+        "topic": "pengantaran_pengambilan",
+        "messages": 46,
+        "files": 9
+      },
+      {
+        "topic": "nasi_lauk_tambahan",
+        "messages": 38,
+        "files": 10
+      },
+      {
+        "topic": "cek_stok_kesiapan",
+        "messages": 37,
+        "files": 11
+      }
+    ]
+  },
+  "phrase_bank": {
+    "stok": [
+      "ready",
+      "ready mi",
+      "ready miki",
+      "ready kah",
+      "open",
+      "open mi kah",
+      "masi ada",
+      "masih adakah",
+      "habis"
+    ],
+    "order": [
+      "pesanka",
+      "mauka",
+      "mauka pesan",
+      "mka pesan",
+      "bungkus",
+      "order"
+    ],
+    "payment": [
+      "tf",
+      "transfer",
+      "rek",
+      "nomor rek",
+      "bank apa ini",
+      "qris",
+      "barcode"
+    ],
+    "pickup_delivery": [
+      "diantar",
+      "kurir",
+      "ambil",
+      "jemput",
+      "otw",
+      "singgahka ambil"
+    ],
+    "chicken_parts": [
+      "dada",
+      "paha",
+      "paha atas",
+      "paha bawah",
+      "sayap"
+    ],
+    "sambal": [
+      "sambel",
+      "sambal",
+      "ijo",
+      "hijau",
+      "bawang",
+      "merah",
+      "extra sambel"
+    ]
+  },
+  "faq": [
+    {
+      "id": "cek_stok_menu",
+      "question": "Apakah menu ready atau masih ada?",
+      "customer_examples": [
+        "ready ayam bkr kah",
+        "masih ada kak?",
+        "open mi kah kak?",
+        "masih adakah kak?"
+      ],
+      "answer_template": [
+        "Iya kak, [menu] ready. Mau pesan berapa?",
+        "Maaf kak, [menu] habis. Kalau mau, saya bantu cek menu lain yang ready."
+      ],
+      "required_operational_data": [
+        "stok menu real-time"
+      ]
+    },
+    {
+      "id": "menu_ready",
+      "question": "Menu apa saja yang ready?",
+      "customer_examples": [
+        "apapa sj menu yg ready",
+        "bisa liat menu nya kk?",
+        "menu yg ready"
+      ],
+      "answer_template": [
+        "Menu yang ready saat ini: [daftar menu ready]. Mau pilih yang mana kak?"
+      ],
+      "required_operational_data": [
+        "daftar menu aktif",
+        "status ready per menu"
+      ]
+    },
+    {
+      "id": "bagian_ayam",
+      "question": "Bisa pilih bagian ayam?",
+      "customer_examples": [
+        "paha ada?",
+        "3 dadanya dan 1 sayapnya",
+        "paha atas 1",
+        "bagian dadanya pke nasi",
+        "sayap mo kk"
+      ],
+      "answer_template": [
+        "Bisa kak. Untuk [menu], bagian yang tersedia sekarang: [dada/paha atas/paha bawah/sayap]. Mau yang mana?"
+      ],
+      "required_operational_data": [
+        "opsi bagian ayam",
+        "stok bagian ayam"
+      ]
+    },
+    {
+      "id": "opsi_sambal",
+      "question": "Sambal apa yang tersedia?",
+      "customer_examples": [
+        "pake sambel ijo",
+        "sambel merah",
+        "sambel bawang",
+        "hijau",
+        "bawang"
+      ],
+      "answer_template": [
+        "Pilihan sambal yang tersedia: sambal bawang, sambal ijo, sambal merah. Mau yang mana kak?"
+      ],
+      "required_operational_data": [
+        "daftar sambal aktif"
+      ]
+    },
+    {
+      "id": "beda_sambal_per_porsi",
+      "question": "Bisa beda sambal per porsi?",
+      "customer_examples": [
+        "satu pake sambel bawang, satu pake sambel ijo",
+        "sambal ijo 2, sambal merah 1",
+        "satu sambenya sambel bawang, satunya sambel ijo"
+      ],
+      "answer_template": [
+        "Bisa kak. Saya catat per porsinya ya: [rincian sambal per item]."
+      ],
+      "required_operational_data": []
+    },
+    {
+      "id": "extra_sambal",
+      "question": "Bisa tambah sambal?",
+      "customer_examples": [
+        "extra sambel",
+        "tambah sambal ijo 1",
+        "tambah sambal merah 1",
+        "yg smbel bawangnya extra le kak"
+      ],
+      "answer_template": [
+        "Bisa kak. Extra sambal [biaya jika ada]. Mau tambah berapa cup?"
+      ],
+      "required_operational_data": [
+        "biaya extra sambal"
+      ]
+    },
+    {
+      "id": "pakai_nasi",
+      "question": "Pakai nasi atau tidak?",
+      "customer_examples": [
+        "pake nasi",
+        "ndak pake nasi",
+        "tanpa nasi",
+        "bda pake nasi"
+      ],
+      "answer_template": [
+        "Baik kak. Saya catat [pakai nasi/tanpa nasi]."
+      ],
+      "required_operational_data": [
+        "aturan paket nasi",
+        "harga nasi"
+      ]
+    },
+    {
+      "id": "lauk_tambahan",
+      "question": "Ada lauk tambahan seperti telur, tahu, atau tempe?",
+      "customer_examples": [
+        "ready telur crispy??",
+        "telur 2",
+        "tahu tempe kak tapi pake nasi bsa kah??",
+        "nasi telur"
+      ],
+      "answer_template": [
+        "Ada kak, [menu/lauk] tersedia. Mau pesan berapa?"
+      ],
+      "required_operational_data": [
+        "daftar lauk tambahan",
+        "harga lauk tambahan"
+      ]
+    },
+    {
+      "id": "estimasi_siap",
+      "question": "Berapa lama pesanan siap?",
+      "customer_examples": [
+        "berapa lama kak",
+        "belum masak kak?",
+        "slesai mi kah kakak?",
+        "jam brapa kira kira ready kak"
+      ],
+      "answer_template": [
+        "Sekitar [estimasi] lagi siap kak. Nanti saya kabari kalau sudah jadi."
+      ],
+      "required_operational_data": [
+        "estimasi waktu goreng/siap"
+      ]
+    },
+    {
+      "id": "antar_atau_ambil",
+      "question": "Bisa diantar atau harus diambil?",
+      "customer_examples": [
+        "bisa di antar kan ka",
+        "di kurirkan sj",
+        "nnti di ambil",
+        "kesitu ka ambil"
+      ],
+      "answer_template": [
+        "Bisa kak [diantar/diambil]. Untuk lokasi [area], ongkirnya [nominal/kebijakan].",
+        "Kalau mau ambil sendiri juga bisa. Nanti saya kabari kalau sudah siap."
+      ],
+      "required_operational_data": [
+        "cakupan area antar",
+        "kebijakan pickup",
+        "ongkir"
+      ]
+    },
+    {
+      "id": "ongkir",
+      "question": "Berapa ongkir?",
+      "customer_examples": [
+        "brp total dgn ongkirnya ksana",
+        "totalnya brp, dek? Dsinipi sy kasi ongkirnya",
+        "ongkir 10"
+      ],
+      "answer_template": [
+        "Untuk lokasi [lokasi], estimasi ongkir [nominal]. Jadi totalnya [nominal]."
+      ],
+      "required_operational_data": [
+        "aturan ongkir per area"
+      ]
+    },
+    {
+      "id": "jam_buka",
+      "question": "Jam buka jam berapa?",
+      "customer_examples": [
+        "jam berapa nnti buka kk?",
+        "buka ki kak?",
+        "masih buka ga kak",
+        "habis jumatan baru buka kakak"
+      ],
+      "answer_template": [
+        "Jam buka hari ini [jam]. Kalau mau, saya bisa bantu cek menu yang sudah ready juga."
+      ],
+      "required_operational_data": [
+        "jam buka harian",
+        "aturan khusus seperti setelah jumatan"
+      ]
+    },
+    {
+      "id": "pembayaran",
+      "question": "Bisa bayar transfer atau QRIS?",
+      "customer_examples": [
+        "nnti sy tf",
+        "bisa byr qris kk?",
+        "tabe nomor rek ta",
+        "bank apa ini kak",
+        "coba ta Poto kan ka qris ta"
+      ],
+      "answer_template": [
+        "Bisa kak, pembayaran tersedia via [transfer/QRIS/tunai]. Kalau mau transfer atau QRIS, saya kirim detailnya ya."
+      ],
+      "required_operational_data": [
+        "metode pembayaran resmi",
+        "rekening resmi",
+        "QRIS resmi"
+      ],
+      "notes": [
+        "Data pembayaran di chat export tidak konsisten, wajib validasi owner sebelum dipakai chatbot."
+      ]
+    },
+    {
+      "id": "total_bayar",
+      "question": "Berapa total pembayaran?",
+      "customer_examples": [
+        "brp smua kak",
+        "totalnya brp",
+        "brp total dgn ongkirnya"
+      ],
+      "answer_template": [
+        "Total pesanan kak [rincian item] adalah Rp [total]."
+      ],
+      "required_operational_data": [
+        "harga menu",
+        "harga tambahan",
+        "ongkir"
+      ]
+    },
+    {
+      "id": "custom_order",
+      "question": "Bisa request custom?",
+      "customer_examples": [
+        "sambelnya langsung campur sja di ayamnya",
+        "kasi satu sj box",
+        "saus saja",
+        "jangan hangus sekali bakarnya kak",
+        "pisah sja kak"
+      ],
+      "answer_template": [
+        "Bisa kak, saya catat request khususnya: [custom request]."
+      ],
+      "required_operational_data": [
+        "custom yang diizinkan"
+      ]
+    }
+  ],
+  "owner_validation_checklist": [
+    "daftar menu aktif yang benar",
+    "sambal yang benar-benar tersedia",
+    "biaya extra sambal",
+    "aturan nasi termasuk atau tidak",
+    "aturan bagian ayam dan stoknya",
+    "jam buka aktual termasuk kondisi khusus",
+    "cakupan antar dan ongkir",
+    "metode pembayaran resmi",
+    "nomor rekening resmi",
+    "QRIS resmi",
+    "nama pemilik rekening yang benar"
+  ]
+}

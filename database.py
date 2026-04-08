@@ -353,6 +353,23 @@ class Database:
             return []
         finally:
             cursor.close()
+
+    def get_available_menu(self):
+        cursor = self.get_cursor(dictionary=True)
+        if not cursor:
+            return []
+        try:
+            cursor.execute("SELECT * FROM menu WHERE ketersediaan = TRUE ORDER BY id_menu ASC")
+            results = cursor.fetchall()
+            for row in results:
+                if row.get('harga') is not None:
+                    row['harga'] = float(row['harga'])
+            return results
+        except Error as e:
+            print(f"Error get available menu: {e}")
+            return []
+        finally:
+            cursor.close()
     
     def _normalize_lookup_text(self, text):
         if not text:

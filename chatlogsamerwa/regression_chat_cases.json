@@ -1,0 +1,158 @@
+{
+  "source": "Disusun dari export chat pelanggan nyata untuk regression check chatbot",
+  "generated_on": "2026-04-08",
+  "cases": [
+    {
+      "id": "stok_ayam_bakar_singkat",
+      "message": "ready ayam bkr kah",
+      "expected_intent": "cek_ketersediaan",
+      "expected_signals": [
+        "cek stok menu",
+        "pahami alias ayam bkr"
+      ]
+    },
+    {
+      "id": "stok_menu_lokal",
+      "message": "open mi kah kak?",
+      "expected_intent": "cek_ketersediaan",
+      "expected_signals": [
+        "pahami open sebagai cek stok"
+      ]
+    },
+    {
+      "id": "bagian_ayam_paha",
+      "message": "paha ada?",
+      "expected_intent": "cek_ketersediaan",
+      "expected_signals": [
+        "deteksi pertanyaan bagian ayam",
+        "minta atau cek menu yang relevan"
+      ]
+    },
+    {
+      "id": "order_dada_sambal_ijo",
+      "message": "ayam geprek dada 1 pake nasi sambel ijo",
+      "expected_intent": "pesan_menu",
+      "expected_signals": [
+        "deteksi menu ayam geprek",
+        "deteksi bagian dada",
+        "deteksi nasi",
+        "deteksi sambal ijo"
+      ]
+    },
+    {
+      "id": "multi_sambal",
+      "message": "telur 2 satu pake sambel bawang satu pake sambel ijo",
+      "expected_intent": "pesan_menu",
+      "expected_signals": [
+        "dukung beda sambal per item"
+      ]
+    },
+    {
+      "id": "sambal_merah",
+      "message": "ayam gepreknya 2 sambel merah",
+      "expected_intent": "pesan_menu",
+      "expected_signals": [
+        "pahami sambel merah",
+        "pahami alias ayam gepreknya"
+      ]
+    },
+    {
+      "id": "extra_sambal",
+      "message": "extra sambel bawang bisa kak?",
+      "expected_intent": "menu_pedas",
+      "expected_signals": [
+        "arah ke request custom atau extra sambal"
+      ]
+    },
+    {
+      "id": "tanpa_nasi",
+      "message": "paha atas 1 tidah pake nasi sambal ijo",
+      "expected_intent": "pesan_menu",
+      "expected_signals": [
+        "pahami tanpa nasi"
+      ]
+    },
+    {
+      "id": "delivery_request",
+      "message": "bisa di antar kan ka",
+      "expected_intent": "delivery",
+      "expected_signals": [
+        "jawab antar atau ambil",
+        "minta lokasi"
+      ]
+    },
+    {
+      "id": "pickup_request",
+      "message": "nnti ku kaitu ambil ka",
+      "expected_intent": "pesan_menu",
+      "expected_signals": [
+        "pahami pickup"
+      ]
+    },
+    {
+      "id": "jam_buka_lokal",
+      "message": "jam berapa nnti buka kk?",
+      "expected_intent": "info_jam",
+      "expected_signals": [
+        "jawab jam operasional"
+      ]
+    },
+    {
+      "id": "estimasi_ready",
+      "message": "jam brapa kira kira ready kak",
+      "expected_intent": "info_jam",
+      "expected_signals": [
+        "jawab estimasi atau arahkan cek menu siap"
+      ]
+    },
+    {
+      "id": "payment_qris",
+      "message": "bisa byr qris kk?",
+      "expected_intent": "info_pembayaran",
+      "expected_signals": [
+        "jawab metode pembayaran aman",
+        "jangan halusinasi rekening"
+      ]
+    },
+    {
+      "id": "payment_rekening",
+      "message": "tabe nomor rek ta",
+      "expected_intent": "info_pembayaran",
+      "expected_signals": [
+        "jawab metode pembayaran aman"
+      ]
+    },
+    {
+      "id": "custom_campur",
+      "message": "sambelnya langsung campur sja di ayamnya",
+      "expected_intent": "unknown",
+      "expected_signals": [
+        "arah ke custom order"
+      ]
+    },
+    {
+      "id": "custom_saus",
+      "message": "saus saja bede dek",
+      "expected_intent": "unknown",
+      "expected_signals": [
+        "arah ke custom order atau varian saus"
+      ]
+    },
+    {
+      "id": "lokasi_kedai",
+      "message": "lokasi ta dimana kak",
+      "expected_intent": "lokasi",
+      "expected_signals": [
+        "jawab alamat kedai"
+      ]
+    },
+    {
+      "id": "menu_ready_all",
+      "message": "apapa sj menu yg ready",
+      "expected_intent": "cek_ketersediaan",
+      "expected_signals": [
+        "jawab menu active/ready"
+      ]
+    }
+  ]
+}

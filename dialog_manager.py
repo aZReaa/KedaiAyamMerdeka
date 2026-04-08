@@ -12,7 +12,11 @@ class DialogManager:
         self.MENU_NEED_SAMBAL = ['ayam geprek', 'ayam bakar', 'ayam goreng', 'ayam penyet', 'ayam crispy']
         
         # Pilihan sambal
-        self.SAMBAL_OPTIONS = ['sambal bawang', 'sambal ijo', 'sambal terasi', 'sambal matah', 'tanpa sambal']
+        self.SAMBAL_OPTIONS = ['sambal bawang', 'sambal ijo', 'sambal merah', 'sambal terasi', 'sambal matah', 'tanpa sambal']
+        self.CHICKEN_PART_OPTIONS = ['dada', 'paha atas', 'paha bawah', 'paha', 'sayap']
+        self.DELIVERY_KEYWORDS = ['antar', 'diantar', 'kurir', 'delivery', 'jemput', 'ambil', 'pickup', 'ongkir']
+        self.PAYMENT_KEYWORDS = ['bayar', 'tf', 'transfer', 'qris', 'rek', 'rekening', 'bank', 'barcode', 'tunai', 'cash']
+        self.CUSTOM_ORDER_KEYWORDS = ['campur', 'pisah', 'saus', 'tanpa nasi', 'extra', 'gosong', 'hangus', 'box']
 
     def _format_order_status_label(self, status: str) -> str:
         labels = {
@@ -123,6 +127,114 @@ class DialogManager:
             confidence = 0.3
         
         return min(confidence, 1.0)
+
+    def _normalize_message(self, message: str) -> str:
+        normalized = re.sub(r'[^a-z0-9\s]', ' ', (message or '').lower())
+        return re.sub(r'\s+', ' ', normalized).strip()
+
+    def _contains_any_keyword(self, message: str, keywords: list[str]) -> bool:
+        normalized = self._normalize_message(message)
+        return any(keyword in normalized for keyword in keywords)
+
+    def _extract_requested_parts(self, message: str) -> list[str]:
+        normalized = self._normalize_message(message)
+        parts = []
+        for part in self.CHICKEN_PART_OPTIONS:
+            if part in normalized and part not in parts:
+                parts.append(part)
+        return parts
+
+    def _looks_like_custom_order(self, message: str) -> bool:
+        return self._contains_any_keyword(message, self.CUSTOM_ORDER_KEYWORDS)
+
+    def _is_chicken_menu(self, menu_name: str | None) -> bool:
+        if not menu_name:
+            return False
+        menu_lower = menu_name.lower()
+        return 'ayam' in menu_lower
+
+    def _build_parts_prompt(self) -> str:
+        return (
+            "Bisa kak. Bagian ayam yang biasa kami catat: "
+            "*dada*, *paha atas*, *paha bawah*, atau *sayap*.\n\n"
+            "Mau cek atau pesan untuk menu apa kak? Contohnya *ayam geprek paha atas*."
+        )
+
+    def _build_menu_availability_response(self, menu: dict, message: str = "") -> str:
+        menu_name = menu['nama_menu']
+        price = int(float(menu['harga']))
+        lines = [f"[OK] *{menu_name}* tersedia kak!", f"Harga: Rp {price:,}"]
+
+        if self._is_chicken_menu(menu_name):
+            requested_parts = self._extract_requested_parts(message)
+            if requested_parts:
+                lines.extend([
+                    "",
+                    f"Saya catat bagian *{', '.join(requested_parts)}* ya kak.",
+                    "Kalau mau lanjut pesan, bisa sekalian tulis jumlah, nasi, dan sambalnya."
+                ])
+            else:
+                lines.extend([
+                    "",
+                    "Kalau ayam, bisa sekalian tulis *bagian*, *jumlah*, *nasi*, dan *sambalnya* ya kak.",
+                    "Contoh: *ayam geprek paha atas 2 pake nasi sambal ijo*"
+                ])
+        else:
+            lines.extend([
+                "",
+                f"Mau pesan? Ketik *pesan {menu_name}*"
+            ])
+
+        return "\n".join(lines)
+
+    def _get_operational_hours_info(self) -> str:
+        lines = [
+            "*JAM OPERASIONAL KEDAI AYAM MERDEKA*",
+            "",
+            f"Jam normal: {Config.JAM_BUKA} - {Config.JAM_TUTUP}",
+            "",
+            "Kalau hari ini ada perubahan jam buka atau baru selesai jumatan, chat saya lagi ya kak biar saya bantu cek menu yang sudah ready."
+        ]
+        return "\n".join(lines)
+
+    def _get_delivery_info(self) -> str:
+        lines = [
+            "*LAYANAN ANTAR / AMBIL*",
+            "",
+            "Bisa diantar atau diambil sendiri kak.",
+            "Untuk ongkir, kirim lokasi ta dulu ya supaya dicek sesuai area.",
+            "Kalau mau lebih cepat, bisa juga ambil sendiri setelah saya kabari pesanan siap."
+        ]
+        return "\n".join(lines)
+
+    def _get_location_info(self) -> str:
+        lines = [
+            "*LOKASI KEDAI AYAM MERDEKA*",
+            "",
+            Config.STORE_LOCATION,
+            "",
+            Config.STORE_LOCATION_NOTE
+        ]
+        return "\n".join(lines)
+
+    def _get_available_menus(self) -> list[dict]:
+        menus = db.get_available_menu()
+        return menus or db.get_all_menu()
+
+    def _build_price_overview(self) -> str:
+        menus = self._get_available_menus()
+        if not menus:
+            return "Harga menu belum tersedia kak."
+
+        prices = [float(menu['harga']) for menu in menus if menu.get('harga') is not None]
+        min_price = int(min(prices))
+        max_price = int(max(prices))
+        lines = [
+            f"Harga menu yang ready mulai dari Rp {min_price:,} sampai Rp {max_price:,} kak.",
+            "",
+            self._format_menu_list()
+        ]
+        return "\n".join(lines)
     
     def _handle_idle_state(self, user_id: str, intent: str, entities: dict, message: str) -> str:
         'Handle user input when in idle state.'
@@ -187,11 +299,13 @@ class DialogManager:
                     return self._ask_menu_variant(entities['NAMA_MENU'], resolution.get('candidates', []))
                 menu = resolution.get('match')
                 if menu:
-                    return f"[OK] *{menu['nama_menu']}* tersedia kak!\nHarga: Rp {menu['harga']:,}\n\nMau pesan? Ketik 'pesan {menu['nama_menu']}'"
+                    return self._build_menu_availability_response(menu, message)
                 else:
                     return "Maaf kak, menu tersebut tidak tersedia "
+            elif self._extract_requested_parts(message):
+                return self._build_parts_prompt()
             else:
-                return "Menu apa yang mau dicek kak?"
+                return "Mau cek menu apa kak? Kalau ayam, bisa sekalian tulis menunya dan bagiannya, misalnya *ayam geprek paha atas*."
         
         elif intent == 'cek_status':
             pesanan = db.get_last_pesanan(user_id)
@@ -214,7 +328,7 @@ class DialogManager:
             return self._get_response(intent) if self._get_response(intent) != "Maaf, saya tidak mengerti." else " Promo: Beli 2 Ayam Geprek GRATIS Es Teh Manis!"
         
         elif intent == 'info_jam':
-            return f" *Jam Operasional Kedai Ayam Merdeka*\n\nSetiap Hari: {Config.JAM_BUKA} - {Config.JAM_TUTUP}"
+            return self._get_operational_hours_info()
         
         elif intent == 'info_pembayaran':
             pesanan = db.get_last_pesanan(user_id)
@@ -223,7 +337,7 @@ class DialogManager:
             return self._get_payment_info()
         
         elif intent == 'rekomendasi_menu':
-            menus = db.get_all_menu()
+            menus = self._get_available_menus()
             if menus:
                 menu = random.choice(menus)
                 return f" *Rekomendasi Hari Ini:*\n\n*{menu['nama_menu']}*\nHarga: Rp {menu['harga']:,}\n\nMau pesan kak? Ketik 'pesan {menu['nama_menu']}'"
@@ -269,16 +383,35 @@ class DialogManager:
             return "Kakak belum punya pesanan yang menunggu pembayaran."
         
         elif intent == 'tanya_harga':
-            return f"Berikut daftar harga:\n\n{self._format_menu_list()}"
+            return self._build_price_overview()
         
         elif intent == 'delivery':
-            return " *Layanan Delivery*\n\nRadius: 5km\nOngkir: Rp 5.000 - Rp 15.000\n\nMau pesan delivery? Ketik 'pesan'"
+            return self._get_delivery_info()
         
-        elif intent in ['lokasi', 'komplain', 'menu_pedas', 'chitchat_baik']:
+        elif intent == 'lokasi':
+            return self._get_location_info()
+
+        elif intent in ['komplain', 'menu_pedas', 'chitchat_baik']:
             response = self._get_response(intent)
             if response != "Maaf, saya tidak mengerti.":
                 return response
-        
+
+        if self._extract_requested_parts(message):
+            return self._build_parts_prompt()
+
+        if self._contains_any_keyword(message, self.DELIVERY_KEYWORDS):
+            return self._get_delivery_info()
+
+        if self._contains_any_keyword(message, self.PAYMENT_KEYWORDS):
+            return self._get_payment_info()
+
+        if self._looks_like_custom_order(message):
+            return (
+                "Bisa kak, request khusus seperti *tanpa nasi*, *extra sambal*, "
+                "*sambal dipisah/campur*, atau *jangan terlalu gosong* bisa dicatat.\n\n"
+                "Tulis saja sekalian menu dan request-nya ya kak."
+            )
+
         # Fallback - jangan dump menu, arahkan user
         return "Maaf kak, saya belum mengerti \n\nCoba ketik salah satu:\n *menu* - lihat daftar menu\n *pesan* - mulai memesan\n *lokasi* - alamat kedai\n *jam* - jam operasional"
     
@@ -540,22 +673,28 @@ class DialogManager:
         if not msg_lower or msg_lower == 'sambal':
             return None
 
-        number_match = re.search(r'\b([1-5])\b', msg_lower)
+        number_match = re.search(r'\b([1-6])\b', msg_lower)
         if number_match:
             return self.SAMBAL_OPTIONS[int(number_match.group(1)) - 1]
 
         alias_map = {
-            'sambal bawang': ['sambal bawang', 'bawang'],
-            'sambal ijo': ['sambal ijo', 'sambal hijau', 'ijo', 'hijau'],
-            'sambal terasi': ['sambal terasi', 'terasi'],
-            'sambal matah': ['sambal matah', 'matah'],
+            'sambal bawang': ['sambal bawang', 'sambel bawang', 'bawang'],
+            'sambal ijo': ['sambal ijo', 'sambel ijo', 'sambal hijau', 'sambel hijau', 'ijo', 'hijau'],
+            'sambal merah': ['sambal merah', 'sambel merah', 'merah'],
+            'sambal terasi': ['sambal terasi', 'sambel terasi', 'terasi'],
+            'sambal matah': ['sambal matah', 'sambel matah', 'matah'],
             'tanpa sambal': [
                 'tanpa sambal',
+                'tanpa sambel',
                 'tanpa',
                 'tidak pakai sambal',
+                'tidak pakai sambel',
                 'ga pakai sambal',
+                'ga pakai sambel',
                 'gak pakai sambal',
+                'gak pakai sambel',
                 'nggak pakai sambal',
+                'nggak pakai sambel',
                 'no sambal'
             ]
         }
@@ -592,7 +731,7 @@ class DialogManager:
                     "",
                     self._ask_sambal_preference(menu_name, jumlah),
                     "",
-                    " *Tip:* Balas dengan angka (1-5) atau nama sambal (contoh: \"bawang\" atau \"ijo\")"
+                    " *Tip:* Balas dengan angka (1-6) atau nama sambal (contoh: \"bawang\" atau \"ijo\")"
                 ]
                 return "\n".join(lines)
             else:
@@ -633,7 +772,7 @@ class DialogManager:
             " Mau pakai sambal apa kak?",
             "",
             options.rstrip(),
-            "Balas dengan angka (1-5) atau nama sambalnya"
+            "Balas dengan angka (1-6) atau nama sambalnya"
         ]
         return "\n".join(lines)
     
@@ -756,7 +895,7 @@ class DialogManager:
                 return f"Boleh kak, mau tambah pesanan apa?\n\n{self._format_menu_list()}"
                 
         # User confirms
-        if intent == 'konfirmasi' or msg_lower in ['ya', 'yes', 'iya', 'ok', 'oke', 'siap', 'lanjut', 'gas', 'y', 'betul']:
+        if intent == 'konfirmasi' or msg_lower in ['ya', 'yes', 'iya', 'ok', 'oke', 'siap', 'lanjut', 'gas', 'y', 'betul', 'iye']:
             total = state_data.get('total_harga', 0)
             detail_text = state_data.get('detail_text', '')
             details_list = state_data.get('details_list', [])
@@ -806,7 +945,7 @@ class DialogManager:
             return "\n".join(lines)
         
         # User cancels
-        elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or msg_lower in ['batal', 'tidak', 'no', 'cancel', 'gak jadi', 'n']:
+        elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or msg_lower in ['batal', 'tidak', 'no', 'cancel', 'gak jadi', 'n', 'tania', "de'", "de'na"]:
             self.reset_user_state(user_id)
             return "[X] Pesanan dibatalkan.\n\nMau pesan lagi? Ketik 'menu' "
             
@@ -1060,7 +1199,7 @@ class DialogManager:
     
     def _format_menu_list(self) -> str:
         'Format menu list with categories.'
-        menus = db.get_all_menu()
+        menus = self._get_available_menus()
         if not menus:
             return "Menu belum tersedia."
         
@@ -1085,10 +1224,10 @@ class DialogManager:
         lines = [
             "*METODE PEMBAYARAN*",
             "",
-            "Bank BTN: 7401500229979",
-            "a.n. Asri Ashari Syam",
+            "Pembayaran bisa lewat *transfer*, *QRIS*, atau *tunai* sesuai metode yang sedang aktif.",
             "",
-            "Setelah transfer, kirim foto bukti pembayaran di chat ini ya kak."
+            "Untuk keamanan, detail rekening atau QRIS aktif sebaiknya dikirim setelah pesanan disetujui admin.",
+            "Kalau mau bayar, tulis saja *mau bayar* nanti saya bantu arahkan ya kak."
         ]
         return "\n".join(lines)
     
@@ -1129,6 +1268,8 @@ class DialogManager:
             return "Selamat malam kak! Selamat datang di Kedai Ayam Merdeka "
         if normalized.startswith('halo') or normalized.startswith('hallo') or normalized.startswith('hai') or normalized.startswith('hi') or normalized.startswith('hello'):
             return "Halo kak! Selamat datang di Kedai Ayam Merdeka "
+        if 'tabe' in normalized or 'aga kareba' in normalized or 'salama' in normalized:
+            return "Iye' kak! Selamat datang di Kedai Ayam Merdeka "
 
         return self._get_time_greeting()
 
