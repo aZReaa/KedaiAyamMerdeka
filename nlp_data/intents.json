@@ -93,10 +93,11 @@
         "cara bayar", "bagaimana cara bayar", "bayar gimana", "bayarnya gimana",
         "pembayaran", "metode pembayaran", "transfer kemana", "rekening",
         "nomor rekening", "bayar kemana", "tf kemana", "gimana bayarnya",
-        "cara pembayaran", "bayar pakai apa", "bisa bayar", "pembayarannya bagaimana",
-        "qris", "bayar qris", "bisa bayar qris", "bisa byr qris", "nomor rek",
-        "nomor rek ta", "rek ta", "rek tha", "barcode", "qr", "qris ta", "gopay", "ovo"
-      ],
+          "cara pembayaran", "bayar pakai apa", "bisa bayar", "pembayarannya bagaimana",
+          "qris", "bayar qris", "bisa bayar qris", "bisa byr qris", "nomor rek",
+          "nomor rek ta", "rek ta", "rek tha", "barcode", "qr", "qris ta", "gopay", "ovo",
+          "tunai", "cash", "bayar tunai", "bayar cash", "cod", "bayar di tempat"
+        ],
       "responses": [
         "Pembayaran bisa melalui:\n💳 Transfer Bank BCA: 1234567890\n📱 OVO/GoPay: 081234567890\na.n. Kedai Ayam Merdeka\n\nSetelah transfer, kirim bukti pembayaran ya kak!",
         "Untuk pembayaran silakan transfer ke:\nBank BCA: 1234567890\na.n. Kedai Ayam Merdeka\n\nKirim bukti transfer setelah bayar ya kak!"

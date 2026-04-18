@@ -63,6 +63,14 @@ cp .env.example .env
 ```
 Edit file `.env` sesuai konfigurasi database Anda.
 
+Jika ingin bot Telegram otomatis mengirim gambar QRIS setelah info pembayaran, isi salah satu:
+- `TELEGRAM_QRIS_IMAGE_URL` untuk gambar QRIS yang di-host
+- `TELEGRAM_QRIS_IMAGE_PATH` untuk file lokal, misalnya `static/qris-payment.jpg`
+
+Jika ingin bot Telegram otomatis mengirim foto katalog saat user minta menu, isi salah satu:
+- `TELEGRAM_MENU_IMAGE_URL` untuk gambar menu yang di-host
+- `TELEGRAM_MENU_IMAGE_PATH` untuk file lokal, misalnya `static/menu-catalog.jpg`
+
 Untuk mode lokal yang terpisah dari Railway:
 ```powershell
 Copy-Item .env.local.example .env.local
@@ -170,7 +178,9 @@ http://localhost:5000/admin
 2. Ketik `/newbot` untuk membuat bot baru
 3. Salin **HTTP API Token**
 4. Paste token ke `.env` sebagai `TELEGRAM_BOT_TOKEN`
-5. Setup Webhook (Jalankan sekali):
+5. Jika ingin QRIS ikut terkirim otomatis setelah paragraf pembayaran, simpan gambar QRIS dan isi `TELEGRAM_QRIS_IMAGE_PATH` atau `TELEGRAM_QRIS_IMAGE_URL`
+6. Jika ingin foto katalog menu ikut terkirim saat user mengetik `menu`, isi `TELEGRAM_MENU_IMAGE_PATH` atau `TELEGRAM_MENU_IMAGE_URL`
+7. Setup Webhook (Jalankan sekali):
    ```bash
    curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=<NGROK_URL>/webhook"
    ```

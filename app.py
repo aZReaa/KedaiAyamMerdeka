@@ -63,7 +63,11 @@ def test_config():
     """Test endpoint untuk cek konfigurasi Telegram"""
     return jsonify({
         'telegram_token_set': bool(Config.TELEGRAM_BOT_TOKEN),
-        'telegram_api_url': Config.TELEGRAM_API_URL
+        'telegram_api_url': Config.TELEGRAM_API_URL,
+        'telegram_qris_configured': bool(Config.TELEGRAM_QRIS_IMAGE_URL or Config.TELEGRAM_QRIS_IMAGE_PATH),
+        'telegram_qris_auto_send': Config.TELEGRAM_SEND_QRIS_ON_PAYMENT,
+        'telegram_menu_image_configured': bool(Config.TELEGRAM_MENU_IMAGE_URL or Config.TELEGRAM_MENU_IMAGE_PATH),
+        'telegram_menu_auto_send': Config.TELEGRAM_SEND_MENU_IMAGE
     })
 
 @app.route('/test-webhook', methods=['POST'])
@@ -118,10 +122,11 @@ def webhook():
             else:
                 # Generate response from dialog manager (with nama_pelanggan for logging)
                 response_text = dialog_manager.generate_response(from_number, text, profile_name)
-            print(f"\n🤖 Balasan: {response_text[:100]}...")
+            preview_text = response_text if isinstance(response_text, str) else json.dumps(response_text, ensure_ascii=False)
+            print(f"\n🤖 Balasan: {preview_text[:100]}...")
             
             # Send back to Telegram
-            success = send_telegram_message(from_number, response_text)
+            success = send_telegram_response(from_number, response_text)
             
             return jsonify({'status': 'success', 'sent': success}), 200
             
@@ -172,6 +177,134 @@ def send_telegram_message(chat_id, text):
         import traceback
         traceback.print_exc()
         return False
+
+
+def _resolve_telegram_media(image_url, image_path, media_label):
+    if image_url:
+        return {'type': 'url', 'value': image_url}
+
+    if image_path:
+        if not os.path.isabs(image_path):
+            image_path = os.path.join(Config.BASE_DIR, image_path)
+        image_path = os.path.abspath(image_path)
+        if os.path.exists(image_path):
+            return {'type': 'path', 'value': image_path}
+        print(f"WARNING: {media_label} image path not found: {image_path}")
+
+    return None
+
+
+def _resolve_qris_media():
+    return _resolve_telegram_media(
+        Config.TELEGRAM_QRIS_IMAGE_URL,
+        Config.TELEGRAM_QRIS_IMAGE_PATH,
+        'QRIS'
+    )
+
+
+def _resolve_menu_media():
+    return _resolve_telegram_media(
+        Config.TELEGRAM_MENU_IMAGE_URL,
+        Config.TELEGRAM_MENU_IMAGE_PATH,
+        'Menu'
+    )
+
+
+def send_telegram_photo(chat_id, photo_source, caption=""):
+    """Mengirim foto ke Telegram via URL atau file lokal."""
+    if not Config.TELEGRAM_BOT_TOKEN:
+        print("ERROR: TELEGRAM_BOT_TOKEN belum dikonfigurasi!")
+        return False
+
+    if not photo_source:
+        print("ERROR: Sumber foto Telegram kosong.")
+        return False
+
+    try:
+        source_type = photo_source.get('type')
+        source_value = photo_source.get('value')
+        data = {
+            "chat_id": chat_id,
+            "caption": caption or ""
+        }
+
+        if source_type == 'url':
+            data["photo"] = source_value
+            response = requests.post(Config.TELEGRAM_PHOTO_API_URL, data=data, timeout=30)
+        elif source_type == 'path':
+            with open(source_value, 'rb') as photo_file:
+                response = requests.post(
+                    Config.TELEGRAM_PHOTO_API_URL,
+                    data=data,
+                    files={"photo": photo_file},
+                    timeout=30
+                )
+        else:
+            print(f"ERROR: Tipe sumber foto tidak didukung: {source_type}")
+            return False
+
+        response_data = response.json()
+        print(f"Telegram photo status: {response.status_code}")
+        print(f"Telegram photo response: {json.dumps(response_data, indent=2)}")
+        return response.status_code == 200 and response_data.get("ok")
+    except Exception as e:
+        print(f"❌ Exception while sending photo: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def should_send_qris_image(text):
+    if not Config.TELEGRAM_SEND_QRIS_ON_PAYMENT:
+        return False
+
+    if not text or not isinstance(text, str):
+        return False
+
+    if not _resolve_qris_media():
+        return False
+
+    payment_info_text = dialog_manager._get_payment_info().strip()
+    return payment_info_text and payment_info_text in text
+
+
+def should_send_menu_image(text):
+    if not Config.TELEGRAM_SEND_MENU_IMAGE:
+        return False
+
+    if not text or not isinstance(text, str):
+        return False
+
+    if not _resolve_menu_media():
+        return False
+
+    menu_list_text = dialog_manager._format_menu_list().strip()
+    return menu_list_text and menu_list_text in text
+
+
+def send_telegram_response(chat_id, text):
+    """Kirim teks ke Telegram lalu opsional kirim gambar pendukung seperti katalog menu atau QRIS."""
+    text_sent = send_telegram_message(chat_id, text)
+    if not text_sent:
+        return False
+
+    media_jobs = []
+
+    if should_send_menu_image(text):
+        menu_source = _resolve_menu_media()
+        if menu_source:
+            media_jobs.append((menu_source, Config.TELEGRAM_MENU_CAPTION))
+
+    if should_send_qris_image(text):
+        qris_source = _resolve_qris_media()
+        if qris_source:
+            media_jobs.append((qris_source, Config.TELEGRAM_QRIS_CAPTION))
+
+    media_sent = True
+    for photo_source, caption in media_jobs:
+        media_sent = send_telegram_photo(chat_id, photo_source, caption) and media_sent
+
+    return text_sent and media_sent
 
 
 def get_telegram_file_path(file_id):
@@ -339,6 +472,19 @@ def update_pesanan_status(pesanan_id):
     if success:
         if new_status == 'menunggu_pembayaran':
             db.update_payment_status(pesanan_id, 'pending')
+            if pesanan.get('id_pelanggan'):
+                db.update_user_state(
+                    pesanan['id_pelanggan'],
+                    'awaiting_payment',
+                    {
+                        'id_pesanan': pesanan_id,
+                        'detail': pesanan.get('detail_pesanan', ''),
+                        'total': int(float(pesanan.get('total_harga') or 0))
+                    },
+                    []
+                )
+        elif new_status in ['ditolak_admin', 'batal', 'diproses', 'selesai'] and pesanan.get('id_pelanggan'):
+            db.reset_user_state(pesanan['id_pelanggan'])
         response_data = {'success': True, 'message': f'Status updated to {new_status}'}
 
         if send_notification and pesanan.get('id_pelanggan'):
@@ -352,12 +498,12 @@ def update_pesanan_status(pesanan_id):
                     "",
                     dialog_manager._get_payment_info()
                 ]
-                response_data['notification_sent'] = send_telegram_message(
+                response_data['notification_sent'] = send_telegram_response(
                     pesanan['id_pelanggan'],
                     "\n".join(payment_lines)
                 )
             elif new_status == 'ditolak_admin':
-                response_data['notification_sent'] = send_telegram_message(
+                response_data['notification_sent'] = send_telegram_response(
                     pesanan['id_pelanggan'],
                     f"Maaf kak, pesanan #{pesanan_id} belum bisa kami proses karena stok sedang tidak tersedia.\n\nSilakan pilih menu lain atau pesan ulang ya."
                 )
@@ -368,7 +514,7 @@ def update_pesanan_status(pesanan_id):
             if id_pelanggan:
                 feedback_message = dialog_manager.request_feedback(id_pelanggan, pesanan_id)
                 # Send notification to customer
-                notification_sent = send_telegram_message(id_pelanggan, feedback_message)
+                notification_sent = send_telegram_response(id_pelanggan, feedback_message)
                 response_data['notification_sent'] = notification_sent
                 response_data['feedback_requested'] = True
         
@@ -385,7 +531,9 @@ def verify_payment(pesanan_id):
     if success:
         notification_sent = False
         if pesanan and pesanan.get('id_pelanggan'):
-            notification_sent = send_telegram_message(
+            db.reset_user_state(pesanan['id_pelanggan'])
+        if pesanan and pesanan.get('id_pelanggan'):
+            notification_sent = send_telegram_response(
                 pesanan['id_pelanggan'],
                 f"[OK] Pembayaran pesanan #{pesanan_id} sudah diverifikasi.\n\nPesanan kakak sekarang sedang diproses ya."
             )

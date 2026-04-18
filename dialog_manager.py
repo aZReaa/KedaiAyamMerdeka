@@ -51,11 +51,11 @@ class DialogManager:
             
             # Global intents - berlaku di semua state kecuali idle (ditangani sendiri)
             if state['state'] != 'idle':
-                if intent == 'salam':
+                if intent == 'salam' and not self._has_flow_entities(entities):
                     self.reset_user_state(user_id)
                     greeting = self._build_greeting_intro(message)
                     response = f"{greeting}\n\nAda yang bisa dibantu? \n\n Ketik *pesan* untuk mulai memesan\n Ketik *menu* untuk lihat daftar menu"
-                elif intent == 'terima_kasih':
+                elif intent == 'terima_kasih' and not self._has_flow_entities(entities):
                     self.reset_user_state(user_id)
                     response = self._get_response(intent)
             
@@ -132,6 +132,53 @@ class DialogManager:
         normalized = re.sub(r'[^a-z0-9\s]', ' ', (message or '').lower())
         return re.sub(r'\s+', ' ', normalized).strip()
 
+    def _has_flow_entities(self, entities: dict) -> bool:
+        if not entities:
+            return False
+        return bool(
+            entities.get('NAMA_MENU')
+            or entities.get('JUMLAH')
+            or entities.get('JENIS_SAMBAL')
+            or entities.get('WAKTU_PENGAMBILAN')
+            or entities.get('ITEMS')
+        )
+
+    def _normalize_category_name(self, category: str | None) -> str:
+        normalized = re.sub(r'\s+', ' ', str(category or '')).strip()
+        if not normalized:
+            return 'Lainnya'
+        return normalized.title()
+
+    def _format_currency(self, amount) -> str:
+        try:
+            value = int(round(float(amount)))
+        except (TypeError, ValueError):
+            value = 0
+        return f"Rp {value:,}"
+
+    def _get_payment_method_reply(self, message: str) -> str:
+        normalized = self._normalize_message(message)
+
+        if 'tunai' in normalized or 'cash' in normalized or 'bayar ditempat' in normalized:
+            return (
+                "Siap kak, bisa *tunai* saat ambil pesanan.\n\n"
+                "Kalau berubah mau pakai transfer atau QRIS, tinggal bilang saja ya kak."
+            )
+
+        if 'qris' in normalized or normalized == 'qr' or 'barcode' in normalized:
+            return (
+                "Siap kak, bisa pakai *QRIS*.\n\n"
+                "Kalau QRIS sedang aktif, gambarnya kami kirim di tahap pembayaran ya kak."
+            )
+
+        if any(keyword in normalized for keyword in ['transfer', 'tf', 'rekening', 'rek', 'bank']):
+            return (
+                "Siap kak, bisa *transfer* juga.\n\n"
+                "Detail rekening aktif kami kirim saat pembayaran diproses ya kak."
+            )
+
+        return self._get_payment_info()
+
     def _contains_any_keyword(self, message: str, keywords: list[str]) -> bool:
         normalized = self._normalize_message(message)
         return any(keyword in normalized for keyword in keywords)
@@ -162,8 +209,7 @@ class DialogManager:
 
     def _build_menu_availability_response(self, menu: dict, message: str = "") -> str:
         menu_name = menu['nama_menu']
-        price = int(float(menu['harga']))
-        lines = [f"[OK] *{menu_name}* tersedia kak!", f"Harga: Rp {price:,}"]
+        lines = [f"[OK] *{menu_name}* tersedia kak!", f"Harga: {self._format_currency(menu.get('harga'))}"]
 
         if self._is_chicken_menu(menu_name):
             requested_parts = self._extract_requested_parts(message)
@@ -230,7 +276,7 @@ class DialogManager:
         min_price = int(min(prices))
         max_price = int(max(prices))
         lines = [
-            f"Harga menu yang ready mulai dari Rp {min_price:,} sampai Rp {max_price:,} kak.",
+            f"Harga menu yang ready mulai dari {self._format_currency(min_price)} sampai {self._format_currency(max_price)} kak.",
             "",
             self._format_menu_list()
         ]
@@ -320,7 +366,7 @@ class DialogManager:
                 }
                 emoji = status_emoji.get(pesanan['status'], '')
                 status_label = self._format_order_status_label(pesanan['status'])
-                return f"{emoji} *Status Pesanan #{pesanan['id_pesanan']}*\n\nDetail: {pesanan['detail_pesanan']}\nTotal: Rp {pesanan['total_harga']:,}\nStatus: *{status_label}*"
+                return f"{emoji} *Status Pesanan #{pesanan['id_pesanan']}*\n\nDetail: {pesanan['detail_pesanan']}\nTotal: {self._format_currency(pesanan['total_harga'])}\nStatus: *{status_label}*"
             else:
                 return "Kakak belum memiliki pesanan aktif. Mau pesan sekarang? Ketik 'pesan'"
         
@@ -340,7 +386,7 @@ class DialogManager:
             menus = self._get_available_menus()
             if menus:
                 menu = random.choice(menus)
-                return f" *Rekomendasi Hari Ini:*\n\n*{menu['nama_menu']}*\nHarga: Rp {menu['harga']:,}\n\nMau pesan kak? Ketik 'pesan {menu['nama_menu']}'"
+                return f" *Rekomendasi Hari Ini:*\n\n*{menu['nama_menu']}*\nHarga: {self._format_currency(menu.get('harga'))}\n\nMau pesan kak? Ketik 'pesan {menu['nama_menu']}'"
             return "Menu belum tersedia saat ini."
         
         elif intent == 'ubah_pesanan':
@@ -582,7 +628,7 @@ class DialogManager:
     def _ask_menu_variant(self, menu_name: str, candidates: list) -> str:
         options = []
         for index, candidate in enumerate(candidates, 1):
-            options.append(f"{index}. {candidate['nama_menu']} - Rp {int(float(candidate['harga'])):,}")
+            options.append(f"{index}. {candidate['nama_menu']} ({self._format_currency(candidate.get('harga'))})")
 
         lines = [
             f"Menu *{menu_name}* ada beberapa varian kak.",
@@ -872,7 +918,7 @@ class DialogManager:
             " *KONFIRMASI PESANAN*",
             "",
             detail_text,
-            f"Rp Total: Rp {total_harga:,}",
+            f"Total: {self._format_currency(total_harga)}",
             f" Waktu Ambil: {waktu_text}",
             "",
             "----------------",
@@ -934,7 +980,7 @@ class DialogManager:
                 f" Waktu Ambil: {waktu_display}",
                 "",
                 detail_text,
-                f"Rp Total: Rp {total:,}",
+                f"Total: {self._format_currency(total)}",
                 "",
                 "----------------",
                 "Pesanan kakak sudah kami teruskan ke admin untuk dicek ketersediaannya.",
@@ -989,8 +1035,11 @@ class DialogManager:
             )
         
         # Check for payment info request
-        elif intent == 'info_pembayaran' or 'cara' in msg_lower or 'gimana' in msg_lower or 'rekening' in msg_lower:
-            return self._get_payment_info()
+        elif (
+            intent == 'info_pembayaran'
+            or any(keyword in msg_lower for keyword in ['cara', 'gimana', 'rekening', 'transfer', 'tf', 'qris', 'tunai', 'cash', 'bayar ditempat'])
+        ):
+            return self._get_payment_method_reply(message)
         
         # Check for cancellation
         elif intent == 'pembatalan' or intent == 'batalkan_pesanan' or 'batal' in msg_lower:
@@ -1011,7 +1060,7 @@ class DialogManager:
                 "",
                 f"Pesanan #{pesanan_id}",
                 detail,
-                f"Rp Total: Rp {total:,}",
+                f"Total: {self._format_currency(total)}",
                 "",
                 self._get_payment_info(),
                 "",
@@ -1076,7 +1125,7 @@ class DialogManager:
             return "Mau diubah jadi apa kak? Sebutkan menu dan jumlahnya."
         
         self.reset_user_state(user_id)
-        return f"[OK] Pesanan diubah!\n\nDetail: {detail}\nTotal: Rp {total:,}\n\nSilakan lanjutkan pembayaran."
+        return f"[OK] Pesanan diubah!\n\nDetail: {detail}\nTotal: {self._format_currency(total)}\n\nSilakan lanjutkan pembayaran."
     
     def _handle_asking_feedback_state(self, user_id: str, state: dict, intent: str, entities: dict, message: str) -> str:
         'Handle feedback collection after order completion.'
@@ -1205,7 +1254,7 @@ class DialogManager:
         
         categories = {}
         for menu in menus:
-            cat = menu.get('kategori', 'Lainnya') or 'Lainnya'
+            cat = self._normalize_category_name(menu.get('kategori'))
             if cat not in categories:
                 categories[cat] = []
             categories[cat].append(menu)
@@ -1215,7 +1264,7 @@ class DialogManager:
         for cat, items in categories.items():
             menu_text += f"\n*{cat}:*\n"
             for item in items:
-                menu_text += f"- {item['nama_menu']} - Rp {item['harga']:,}\n"
+                menu_text += f"- {item['nama_menu']}\n  Harga: {self._format_currency(item.get('harga'))}\n"
         
         return menu_text
     

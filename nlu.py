@@ -37,6 +37,11 @@ class NLU:
         Uses longest pattern match strategy with priority weighting.
         """
         text_lower = text.lower().strip()
+        normalized_text = re.sub(r'[^a-z0-9\s]', ' ', text_lower)
+        normalized_text = re.sub(r'\s+', ' ', normalized_text).strip()
+
+        if not normalized_text or len(normalized_text) <= 1:
+            return "unknown"
         
         # Priority order: ordering > specific queries > generic responses
         priority_tags = ['pesan_menu', 'cek_ketersediaan', 'cek_status', 'ubah_pesanan', 
@@ -198,32 +203,7 @@ class NLU:
         Returns: Dict with 'type', 'value', 'formatted', 'original'
         """
         text_lower = text.lower()
-        
-        # Check for immediate keywords
-        for keyword, time_type in self.time_keywords.items():
-            if keyword in text_lower:
-                if time_type == "immediate":
-                    return {
-                        "type": "immediate",
-                        "value": "immediate",
-                        "formatted": "Sekarang",
-                        "original": keyword
-                    }
-                elif time_type in ["tomorrow", "later"]:
-                    return {
-                        "type": time_type,
-                        "value": time_type,
-                        "formatted": "Nanti",
-                        "original": keyword
-                    }
-                else:  # Specific time like 09:00
-                    return {
-                        "type": "specific",
-                        "value": time_type,
-                        "formatted": time_type,
-                        "original": keyword
-                    }
-        
+
         # Try regex patterns
         for pattern in self.time_patterns:
             match = re.search(pattern, text_lower)
@@ -301,7 +281,40 @@ class NLU:
                         "formatted": formatted_time,
                         "original": match.group(0)
                     }
-        
+
+        # Keyword fallback only after specific regex parsing fails.
+        normalized_text = self._normalize_text(text)
+        for keyword, time_type in self.time_keywords.items():
+            normalized_keyword = self._normalize_text(keyword)
+            if not normalized_keyword:
+                continue
+
+            pattern = r'(?<!\w)' + re.escape(normalized_keyword).replace(r'\ ', r'\s+') + r'(?!\w)'
+            if not re.search(pattern, normalized_text):
+                continue
+
+            if time_type == "immediate":
+                return {
+                    "type": "immediate",
+                    "value": "immediate",
+                    "formatted": "Sekarang",
+                    "original": keyword
+                }
+            elif time_type in ["tomorrow", "later"]:
+                return {
+                    "type": time_type,
+                    "value": time_type,
+                    "formatted": "Nanti",
+                    "original": keyword
+                }
+            else:
+                return {
+                    "type": "specific",
+                    "value": time_type,
+                    "formatted": time_type,
+                    "original": keyword
+                }
+
         return None
     
     def extract_entities(self, text: str) -> Dict:

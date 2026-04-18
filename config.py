@@ -8,6 +8,7 @@ if app_env == 'local':
     load_dotenv('.env.local', override=True)
 
 class Config:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     APP_ENV = app_env or 'default'
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     ANALYTICS_ENABLED = os.getenv('ANALYTICS_ENABLED', 'false').strip().lower() == 'true'
@@ -27,7 +28,23 @@ class Config:
     
     # Telegram Configuration
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
-    TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    TELEGRAM_API_BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
+    TELEGRAM_API_URL = f"{TELEGRAM_API_BASE_URL}/sendMessage"
+    TELEGRAM_PHOTO_API_URL = f"{TELEGRAM_API_BASE_URL}/sendPhoto"
+    TELEGRAM_SEND_QRIS_ON_PAYMENT = os.getenv('TELEGRAM_SEND_QRIS_ON_PAYMENT', 'true').strip().lower() == 'true'
+    TELEGRAM_QRIS_IMAGE_URL = os.getenv('TELEGRAM_QRIS_IMAGE_URL', '').strip()
+    TELEGRAM_QRIS_IMAGE_PATH = os.getenv('TELEGRAM_QRIS_IMAGE_PATH', '').strip()
+    TELEGRAM_QRIS_CAPTION = os.getenv(
+        'TELEGRAM_QRIS_CAPTION',
+        'QRIS aktif ada di gambar berikut ya kak. Setelah transfer, kirim bukti bayar di chat ini.'
+    ).strip()
+    TELEGRAM_SEND_MENU_IMAGE = os.getenv('TELEGRAM_SEND_MENU_IMAGE', 'true').strip().lower() == 'true'
+    TELEGRAM_MENU_IMAGE_URL = os.getenv('TELEGRAM_MENU_IMAGE_URL', '').strip()
+    TELEGRAM_MENU_IMAGE_PATH = os.getenv('TELEGRAM_MENU_IMAGE_PATH', '').strip()
+    TELEGRAM_MENU_CAPTION = os.getenv(
+        'TELEGRAM_MENU_CAPTION',
+        'Katalog menu terbaru ada di gambar berikut ya kak.'
+    ).strip()
     
     # Jam Operasional
     JAM_BUKA = "10:00"
