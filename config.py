@@ -33,14 +33,14 @@ class Config:
     TELEGRAM_PHOTO_API_URL = f"{TELEGRAM_API_BASE_URL}/sendPhoto"
     TELEGRAM_SEND_QRIS_ON_PAYMENT = os.getenv('TELEGRAM_SEND_QRIS_ON_PAYMENT', 'true').strip().lower() == 'true'
     TELEGRAM_QRIS_IMAGE_URL = os.getenv('TELEGRAM_QRIS_IMAGE_URL', '').strip()
-    TELEGRAM_QRIS_IMAGE_PATH = os.getenv('TELEGRAM_QRIS_IMAGE_PATH', '').strip()
+    TELEGRAM_QRIS_IMAGE_PATH = os.getenv('TELEGRAM_QRIS_IMAGE_PATH', 'static/qris-payment.jpg').strip()
     TELEGRAM_QRIS_CAPTION = os.getenv(
         'TELEGRAM_QRIS_CAPTION',
         'QRIS aktif ada di gambar berikut ya kak. Setelah transfer, kirim bukti bayar di chat ini.'
     ).strip()
     TELEGRAM_SEND_MENU_IMAGE = os.getenv('TELEGRAM_SEND_MENU_IMAGE', 'true').strip().lower() == 'true'
     TELEGRAM_MENU_IMAGE_URL = os.getenv('TELEGRAM_MENU_IMAGE_URL', '').strip()
-    TELEGRAM_MENU_IMAGE_PATH = os.getenv('TELEGRAM_MENU_IMAGE_PATH', '').strip()
+    TELEGRAM_MENU_IMAGE_PATH = os.getenv('TELEGRAM_MENU_IMAGE_PATH', 'static/menu-catalog.jpg').strip()
     TELEGRAM_MENU_CAPTION = os.getenv(
         'TELEGRAM_MENU_CAPTION',
         'Katalog menu terbaru ada di gambar berikut ya kak.'
