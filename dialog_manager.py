@@ -159,22 +159,26 @@ class DialogManager:
     def _get_payment_method_reply(self, message: str) -> str:
         normalized = self._normalize_message(message)
 
+        if 'mau bayar' in normalized or 'bayar dulu' in normalized or 'cara bayar' in normalized:
+            return self._get_payment_info()
+
         if 'tunai' in normalized or 'cash' in normalized or 'bayar ditempat' in normalized:
             return (
                 "Siap kak, bisa *tunai* saat ambil pesanan.\n\n"
-                "Kalau berubah mau pakai transfer atau QRIS, tinggal bilang saja ya kak."
+                "Kalau mau lihat opsi *transfer* atau *QRIS* juga, saya kirimkan ya kak:\n\n"
+                f"{self._get_payment_info()}"
             )
 
         if 'qris' in normalized or normalized == 'qr' or 'barcode' in normalized:
             return (
                 "Siap kak, bisa pakai *QRIS*.\n\n"
-                "Kalau QRIS sedang aktif, gambarnya kami kirim di tahap pembayaran ya kak."
+                f"{self._get_payment_info()}"
             )
 
         if any(keyword in normalized for keyword in ['transfer', 'tf', 'rekening', 'rek', 'bank']):
             return (
                 "Siap kak, bisa *transfer* juga.\n\n"
-                "Detail rekening aktif kami kirim saat pembayaran diproses ya kak."
+                f"{self._get_payment_info()}"
             )
 
         return self._get_payment_info()
@@ -1008,6 +1012,14 @@ class DialogManager:
         print(f"[DEBUG] Awaiting Payment - Intent: {intent}, Message: '{message}'")
         
         # Priority 1: Check intent first (most reliable)
+        info_request_keywords = [
+            'mau bayar', 'cara bayar', 'bayar gimana', 'gimana bayar',
+            'pembayaran', 'qris', 'transfer', 'tf', 'rekening', 'rek',
+            'tunai', 'cash', 'bayar ditempat', 'barcode', 'qr'
+        ]
+        if any(keyword in msg_lower for keyword in info_request_keywords):
+            return self._get_payment_method_reply(message)
+
         if intent == 'konfirmasi_pembayaran':
             print(f"[DEBUG] Payment intent detected for order #{pesanan_id}")
             if pesanan and pesanan.get('payment_status') == 'proof_submitted':
@@ -1021,7 +1033,7 @@ class DialogManager:
             )
         
         # Priority 2: Check for payment-related keywords
-        payment_keywords = ['bayar', 'transfer', 'tf', 'lunas', 'sudah bayar', 'udah bayar', 'sudah tf', 'udah tf']
+        payment_keywords = ['lunas', 'sudah bayar', 'udah bayar', 'sudah tf', 'udah tf', 'sudah transfer', 'udah transfer']
         if any(keyword in msg_lower for keyword in payment_keywords):
             print(f"[DEBUG] Payment keyword detected for order #{pesanan_id}")
             if pesanan and pesanan.get('payment_status') == 'proof_submitted':
@@ -1273,10 +1285,14 @@ class DialogManager:
         lines = [
             "*METODE PEMBAYARAN*",
             "",
-            "Pembayaran bisa lewat *transfer*, *QRIS*, atau *tunai* sesuai metode yang sedang aktif.",
+            f"*Transfer:* {Config.PAYMENT_TRANSFER_BANK}",
+            f"No. Rek: *{Config.PAYMENT_TRANSFER_ACCOUNT_NUMBER}*",
+            f"a.n. *{Config.PAYMENT_TRANSFER_ACCOUNT_NAME}*",
             "",
-            "Untuk keamanan, detail rekening atau QRIS aktif sebaiknya dikirim setelah pesanan disetujui admin.",
-            "Kalau mau bayar, tulis saja *mau bayar* nanti saya bantu arahkan ya kak."
+            "*QRIS:* tersedia, saya kirimkan gambarnya juga ya kak.",
+            "*Tunai:* bisa dibayar saat ambil pesanan.",
+            "",
+            "Setelah transfer atau scan QRIS, kirim *foto bukti pembayaran* di chat ini ya kak."
         ]
         return "\n".join(lines)
     

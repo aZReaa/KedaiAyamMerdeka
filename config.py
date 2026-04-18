@@ -58,6 +58,9 @@ class Config:
         'STORE_LOCATION_NOTE',
         'Kalau mau diantar, kirim lokasi ta dulu ya kak supaya dicek ongkirnya.'
     )
+    PAYMENT_TRANSFER_BANK = os.getenv('PAYMENT_TRANSFER_BANK', 'Bank BTN').strip()
+    PAYMENT_TRANSFER_ACCOUNT_NUMBER = os.getenv('PAYMENT_TRANSFER_ACCOUNT_NUMBER', '7401500229979').strip()
+    PAYMENT_TRANSFER_ACCOUNT_NAME = os.getenv('PAYMENT_TRANSFER_ACCOUNT_NAME', 'Asri Ashari Syam').strip()
     
     # Pesan Promo
     PROMO_MASAKAN = "Promo: Beli 2 Ayam Geprek Gratis 1 Es Teh Manis!"
